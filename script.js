@@ -1,103 +1,153 @@
-function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  
-  // Log what we received for debugging
-  Logger.log("Received data: " + JSON.stringify(e));
-  
-  // Get form data - fix the parameter access
-  var formData;
-  if (e.postData) {
-    // If data comes as POST data
-    try {
-      formData = JSON.parse(e.postData.contents);
-    } catch (e) {
-      // If it's not valid JSON, try to parse as URL parameters
-      formData = e.parameter || {};
+// Show/hide "Other" text fields when corresponding checkboxes/radio buttons are clicked
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle "Other" options toggling
+    const otherOptions = [
+        {checkbox: 'usage-other', container: 'usage-other-container'},
+        {checkbox: 'condition-other', container: 'condition-other-container'},
+        {checkbox: 'flavor-other', container: 'flavor-other-container'}
+    ];
+    
+    otherOptions.forEach(option => {
+        const checkbox = document.getElementById(option.checkbox);
+        const container = document.getElementById(option.container);
+        
+        if (checkbox && container) {
+            checkbox.addEventListener('change', function() {
+                container.style.display = this.checked ? 'block' : 'none';
+                if (!this.checked) {
+                    const textField = container.querySelector('input[type="text"]');
+                    if (textField) textField.value = '';
+                }
+            });
+        }
+    });
+    
+    // Handle sweetener type visibility based on sweetener amount
+    const sweetenerAmount = document.getElementById('sweetener-amount');
+    const sweetenerTypeContainer = document.getElementById('sweetener-type-container');
+    
+    if (sweetenerAmount && sweetenerTypeContainer) {
+        sweetenerAmount.addEventListener('change', function() {
+            sweetenerTypeContainer.style.display = 
+                (this.value === 'none') ? 'none' : 'block';
+            
+            if (this.value === 'none') {
+                document.getElementById('sweetener-type').value = '';
+            }
+        });
     }
-  } else {
-    // Fallback to parameter if postData doesn't exist
-    formData = e.parameter || {};
-  }
-  
-  // Check if headers exist, if not add them
-  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  if (headers.length === 0 || headers[0] === "") {
-    sheet.appendRow([
-      "Timestamp",
-      "First Name",
-      "Last Name",
-      "Email",
-      "Age",
-      "Weight (lbs)",
-      "Biological Sex",
-      "Usage Type",
-      "Usage Other",
-      "Goals",
-      "Sodium Intake",
-      "Potassium Intake",
-      "Magnesium Intake",
-      "Calcium Intake",
-      "Supplements",
-      "Activity Level",
-      "Sweat Level",
-      "Health Conditions",
-      "Condition Other",
-      "Flavor",
-      "Flavor Other",
-      "Flavor Intensity",
-      "Sweetener Amount",
-      "Sweetener Type",
-      "Additional Info"
-    ]);
-  }
-  
-  // Add timestamp and form data to sheet
-  sheet.appendRow([
-    new Date(),
-    formData["first-name"] || "",
-    formData["last-name"] || "",
-    formData["email"] || "",
-    formData["age"] || "",
-    formData["weight"] || "",
-    formData["biological-sex"] || "",
-    formData["usage"] || "",
-    formData["usage-other-text"] || "",
-    formData["goals"] || "",
-    formData["sodium-intake"] || "",
-    formData["potassium-intake"] || "",
-    formData["magnesium-intake"] || "",
-    formData["calcium-intake"] || "",
-    formData["supplements"] || "",
-    formData["activity-level"] || "",
-    formData["sweat-level"] || "",
-    formData["conditions"] || "",
-    formData["condition-other-text"] || "",
-    formData["flavor"] || "",
-    formData["flavor-other-text"] || "",
-    formData["flavor-intensity"] || "",
-    formData["sweetener-amount"] || "",
-    formData["sweetener-type"] || "",
-    formData["additional-info"] || ""
-  ]);
-  
-  // Return success
-  return ContentService.createTextOutput("Success").setMimeType(ContentService.MimeType.TEXT);
-}
-
-// Add a test function that you can run manually
-function testDoPost() {
-  // Create a test object similar to what the form would send
-  var testData = {
-    parameter: {
-      "first-name": "Test",
-      "last-name": "User",
-      "email": "test@example.com"
-      // You can add more test fields here
+    
+    // Handle condition checkboxes - if "None" is selected, uncheck others
+    const conditionNone = document.getElementById('condition-none');
+    const conditionCheckboxes = document.querySelectorAll('input[name="conditions"]');
+    
+    if (conditionNone && conditionCheckboxes.length > 0) {
+        conditionNone.addEventListener('change', function() {
+            if (this.checked) {
+                conditionCheckboxes.forEach(checkbox => {
+                    if (checkbox !== this) {
+                        checkbox.checked = false;
+                        
+                        // If "Other" is unchecked, hide its text field
+                        if (checkbox.id === 'condition-other') {
+                            document.getElementById('condition-other-container').style.display = 'none';
+                            document.getElementById('condition-other-text').value = '';
+                        }
+                    }
+                });
+            }
+        });
+        
+        // If any other condition is checked, uncheck "None"
+        conditionCheckboxes.forEach(checkbox => {
+            if (checkbox !== conditionNone) {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        conditionNone.checked = false;
+                    }
+                });
+            }
+        });
     }
-  };
-  
-  // Call doPost with the test data
-  doPost(testData);
-  
-  Logger.log("Test completed");
-}
+    
+    // Form submission handler
+    const form = document.getElementById('survey-form');
+    
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Show loading state
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = "Processing...";
+            submitButton.disabled = true;
+            
+            // Collect all form data
+            const formData = new FormData(this);
+            let formDataObj = {};
+            
+            // Process checkbox groups (usage, conditions)
+            formDataObj.usage = formData.getAll('usage').join(', ');
+            formDataObj.conditions = formData.getAll('conditions').join(', ');
+            
+            // Process all other form fields
+            for (const [key, value] of formData.entries()) {
+                if (key !== 'usage' && key !== 'conditions') {
+                    formDataObj[key] = value;
+                }
+            }
+            
+            // Log the data being sent (for debugging)
+            console.log("Form data being sent:", formDataObj);
+            
+            // Convert to URL parameters for Google Apps Script
+            const formDataParams = new URLSearchParams();
+            Object.keys(formDataObj).forEach(key => {
+                formDataParams.append(key, formDataObj[key]);
+            });
+            
+            // Your Google Apps Script Web App URL - replace with your new deployment URL if needed
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxe0cx07nDoRjXiXWN4rzbiLBCVq4DxzVkvyBLQBRWdbjijW1CK-vCm0QEyNBrUNLc8/exec';
+            
+            // Try sending as URL-encoded form data
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // Important for cross-origin requests
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formDataParams
+            })
+            .then(() => {
+                // Show success message
+                const responseMessage = document.getElementById('response-message');
+                responseMessage.textContent = "Thank you for completing the survey! We'll create your personalized electrolyte mix and send the details to your email.";
+                responseMessage.className = 'success-message';
+                
+                // Reset form
+                form.reset();
+                
+                // Reset any shown "Other" fields
+                document.getElementById('usage-other-container').style.display = 'none';
+                document.getElementById('condition-other-container').style.display = 'none';
+                document.getElementById('flavor-other-container').style.display = 'none';
+                document.getElementById('sweetener-type-container').style.display = 'none';
+                
+                // Scroll to response message
+                responseMessage.scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const responseMessage = document.getElementById('response-message');
+                responseMessage.textContent = "There was a problem submitting your survey. Please try again or contact us for assistance.";
+                responseMessage.className = 'error-message';
+            })
+            .finally(() => {
+                // Restore button state
+                submitButton.textContent = originalButtonText;
+                submitButton.disabled = false;
+            });
+        });
+    }
+});
