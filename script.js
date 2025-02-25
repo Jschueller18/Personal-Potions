@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // Your Google Apps Script Web App URL - replace with your new deployment URL if needed
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxe0cx07nDoRjXiXWN4rzbiLBCVq4DxzVkvyBLQBRWdbjijW1CK-vCm0QEyNBrUNLc8/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxc59PAIKEBZHMq6mI8pAnF9e8cpaNKk_1CfchKsTBR8zs6vzN8990E9zA7g1vhokI3/exec';
             
             // Try sending as URL-encoded form data
             fetch(scriptURL, {
