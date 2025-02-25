@@ -3,30 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPTIMAIZE</title>
+    <title>OPTIMAIZE - Electrolyte Diagnostic Survey</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <img src="optimaize-logo.png" alt="OPTIMAIZE Logo" id="logo">
-        <h1>Welcome to OPTIMAIZE</h1>
+        <h1>OPTIMAIZE Electrolyte Diagnostic Survey</h1>
+        <p class="subtitle">Tell us about yourself so we can craft a unique electrolyte mix tailored to your needs, preferences, and goals</p>
     </header>
     
     <section id="survey">
-        <h2>Take Our Survey</h2>
         <form id="survey-form">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
+            <!-- Usage & Goals Section -->
+            <div class="form-section">
+                <h2>Usage & Goals</h2>
+                
+                <div class="form-group">
+                    <label>How will you be using this mix?</label>
+                    <p class="help-text">(Sweat replacement requires higher levels of salt and potassium. Separate mixes are ideal for different use cases, but you can select multiple, and we'll create a hybrid blend.)</p>
+                    
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="daily-drink" name="usage" value="daily">
+                            <label for="daily-drink">Daily electrolyte drink (Supports electrolytes evenly across estimated deficits)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sweat-replacement" name="usage" value="sweat">
+                            <label for="sweat-replacement">Sweat replacement for athletic activities (Replaces electrolytes in the ratio they are lost to sweat)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="bedtime-mix" name="usage" value="bedtime">
+                            <label for="bedtime-mix">Bedtime mix (Ingredients and ratios to support optimal sleep)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="usage-other" name="usage" value="other">
+                            <label for="usage-other">Other</label>
+                        </div>
+                    </div>
+                    
+                    <div id="usage-other-container" style="display: none;">
+                        <label for="usage-other-text">Please specify:</label>
+                        <input type="text" id="usage-other-text" name="usage-other-text">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="goals">Is there anything specific you're training for? Anything specific you're looking to get out of your mix?</label>
+                    <textarea id="goals" name="goals" rows="3"></textarea>
+                </div>
+            </div>
             
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+            <!-- Dietary Habits & Nutritional Needs Section -->
+            <div class="form-section">
+                <h2>Dietary Habits & Nutritional Needs</h2>
+                
+                <div class="form-group">
+                    <label for="sodium-intake">How many servings of sodium-rich foods (e.g., processed foods, salted snacks/meals, pickled foods) do you consume on average?</label>
+                    <select id="sodium-intake" name="sodium-intake" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="0">0 servings per week</option>
+                        <option value="1-3">1–3 servings per week</option>
+                        <option value="4-6">4–6 servings per week</option>
+                        <option value="7">1 serving per day (7 servings per week)</option>
+                        <option value="14">2 servings per day (14 servings per week)</option>
+                        <option value="21+">3+ servings per day (21+ servings per week)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="potassium-intake">How many servings of potassium-rich foods (e.g., bananas, leafy greens, potatoes, beans) do you consume on average?</label>
+                    <select id="potassium-intake" name="potassium-intake" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="0">0 servings per week</option>
+                        <option value="1-3">1–3 servings per week</option>
+                        <option value="4-6">4–6 servings per week</option>
+                        <option value="7">1 serving per day (7 servings per week)</option>
+                        <option value="14">2 servings per day (14 servings per week)</option>
+                        <option value="21+">3+ servings per day (21+ servings per week)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="magnesium-intake">How many servings of magnesium-rich foods (e.g., nuts, seeds, leafy greens, whole grains) do you consume on average?</label>
+                    <select id="magnesium-intake" name="magnesium-intake" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="0">0 servings per week</option>
+                        <option value="1-3">1–3 servings per week</option>
+                        <option value="4-6">4–6 servings per week</option>
+                        <option value="7">1 serving per day (7 servings per week)</option>
+                        <option value="14">2 servings per day (14 servings per week)</option>
+                        <option value="21+">3+ servings per day (21+ servings per week)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="calcium-intake">How many servings of calcium-rich foods (e.g., dairy products like milk, yogurt, and cheese, or fortified non-dairy alternatives, almonds, and leafy greens) do you consume on average?</label>
+                    <select id="calcium-intake" name="calcium-intake" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="0">0 servings per week</option>
+                        <option value="1-3">1–3 servings per week</option>
+                        <option value="4-6">4–6 servings per week</option>
+                        <option value="7">1 serving per day (7 servings per week)</option>
+                        <option value="14">2 servings per day (14 servings per week)</option>
+                        <option value="21+">3+ servings per day (21+ servings per week)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="supplements">Do you regularly take supplements containing any of these electrolytes: sodium, potassium, magnesium, or calcium? If so, please indicate your daily intake for each</label>
+                    <textarea id="supplements" name="supplements" rows="3"></textarea>
+                </div>
+            </div>
             
-            <label for="feedback">Feedback:</label>
-            <textarea id="feedback" name="feedback" required></textarea>
+            <!-- Health Profile Section -->
+            <div class="form-section">
+                <h2>Health Profile</h2>
+                
+                <div class="form-group">
+                    <label for="activity-level">How would you describe your overall activity level?</label>
+                    <select id="activity-level" name="activity-level" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="sedentary">Sedentary (little to no activity)</option>
+                        <option value="lightly-active">Lightly active (occasional light activity, e.g., walking)</option>
+                        <option value="moderately-active">Moderately active (regular exercise or physical job)</option>
+                        <option value="very-active">Very active (intense exercise or physically demanding job)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sweat-level">How would you describe your typical sweat levels during physical activity or in warm conditions?</label>
+                    <select id="sweat-level" name="sweat-level" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="minimal">Minimal: I rarely sweat, even during intense activity.</option>
+                        <option value="light">Light: I sweat slightly but not excessively.</option>
+                        <option value="moderate">Moderate: I sweat a noticeable amount during activity or heat.</option>
+                        <option value="heavy">Heavy: I sweat a lot, and it often soaks through clothes.</option>
+                        <option value="excessive">Excessive: I sweat profusely, even with minimal effort.</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Do you or an immediate family member have a history of any of the following conditions? (Select all that apply)</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition-hypertension" name="conditions" value="hypertension">
+                            <label for="condition-hypertension">High blood pressure (hypertension)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition-heart" name="conditions" value="heart-disease">
+                            <label for="condition-heart">Heart disease (e.g., coronary artery disease, arrhythmia)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition-kidney" name="conditions" value="kidney-disease">
+                            <label for="condition-kidney">Chronic kidney disease (CKD) or impaired kidney function</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition-none" name="conditions" value="none">
+                            <label for="condition-none">None of the above</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="condition-other" name="conditions" value="other">
+                            <label for="condition-other">Other</label>
+                        </div>
+                    </div>
+                    
+                    <div id="condition-other-container" style="display: none;">
+                        <label for="condition-other-text">Please specify:</label>
+                        <input type="text" id="condition-other-text" name="condition-other-text">
+                    </div>
+                </div>
+            </div>
             
-            <button type="submit">Submit</button>
+            <!-- Flavor Preferences Section -->
+            <div class="form-section">
+                <h2>Flavor Preferences</h2>
+                
+                <div class="form-group">
+                    <label>What flavor would you like?</label>
+                    <p class="help-text">(all options use natural flavoring. If you'd like to mix flavors, choose 'Other' and specify your preference.)</p>
+                    
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="flavor-orange" name="flavor" value="orange" required>
+                            <label for="flavor-orange">Orange</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="flavor-lemon-lime" name="flavor" value="lemon-lime">
+                            <label for="flavor-lemon-lime">Organic Lemon Lime</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="flavor-cocoa" name="flavor" value="cocoa">
+                            <label for="flavor-cocoa">Cocoa</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="flavor-mango" name="flavor" value="mango">
+                            <label for="flavor-mango">Mango</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="flavor-other" name="flavor" value="other">
+                            <label for="flavor-other">Other</label>
+                        </div>
+                    </div>
+                    
+                    <div id="flavor-other-container" style="display: none;">
+                        <label for="flavor-other-text">Please specify:</label>
+                        <input type="text" id="flavor-other-text" name="flavor-other-text">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="flavor-intensity">How much flavoring would you like?</label>
+                    <p class="help-text">(Less flavoring means saltier taste)</p>
+                    <select id="flavor-intensity" name="flavor-intensity" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="high">Highly flavored</option>
+                        <option value="medium">Medium flavoring</option>
+                        <option value="light">Light flavoring</option>
+                        <option value="none">No flavoring</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sweetener-amount">How much sweetener would you like added?</label>
+                    <select id="sweetener-amount" name="sweetener-amount" required>
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="none">None</option>
+                        <option value="light">Light</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">Highly Sweetened (similar to leading brands)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="sweetener-type-container">
+                    <label for="sweetener-type">If you would like added sweetener (beyond standard natural flavoring), which type would you like used?</label>
+                    <select id="sweetener-type" name="sweetener-type">
+                        <option value="" disabled selected>Select an option</option>
+                        <option value="stevia-erythritol">Stevia + Erythritol blend (0 Calorie natural sweetener)</option>
+                        <option value="cane-sugar">Cane sugar</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <h2>Personal Information</h2>
+                
+                <div class="form-group">
+                    <label for="additional-info">Is there anything else you'd like us to know about your health, goals, or preferences?</label>
+                    <p class="help-text">(e.g., specific health conditions, allergies, or favorite flavors!)</p>
+                    <textarea id="additional-info" name="additional-info" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="first-name">First Name</label>
+                    <input type="text" id="first-name" name="first-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="last-name">Last Name</label>
+                    <input type="text" id="last-name" name="last-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>What is your biological sex?</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="sex-male" name="biological-sex" value="male" required>
+                            <label for="sex-male">Male</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="sex-female" name="biological-sex" value="female">
+                            <label for="sex-female">Female</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="sex-prefer-not" name="biological-sex" value="prefer-not">
+                            <label for="sex-prefer-not">Prefer not to say</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" name="age" min="0" max="120" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="weight">How much do you weigh? (lbs)</label>
+                    <input type="number" id="weight" name="weight" min="0" max="500" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <p class="help-text">(Where would you like us to send your personalized results? Will include complete nutrition facts and pricing.)</p>
+                    <input type="email" id="email" name="email" required>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit">Submit Survey</button>
+            </div>
+            
+            <p id="response-message"></p>
         </form>
-        <p id="response-message"></p>
     </section>
 
     <script src="script.js"></script>
