@@ -25,7 +25,7 @@
                     
                     <div class="checkbox-group">
                         <div class="checkbox-item">
-                            <input type="checkbox" id="daily-drink" name="usage" value="daily">
+                            <input type="checkbox" id="daily-drink" name="usage" value="daily" required>
                             <label for="daily-drink">Daily electrolyte drink (Supports electrolytes evenly across estimated deficits)</label>
                         </div>
                         <div class="checkbox-item">
@@ -49,7 +49,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="goals">Is there anything specific you're training for? Anything specific you're looking to get out of your mix?</label>
+                    <label for="goals">Is there anything specific you're training for? Anything specific you're looking to get out of your mix? If you have an exact nutrient content per serving or ratio you're looking for, please include it here.</label>
                     <textarea id="goals" name="goals" rows="3"></textarea>
                 </div>
             </div>
@@ -67,7 +67,9 @@
                         <option value="4-6">4–6 servings per week</option>
                         <option value="7">1 serving per day (7 servings per week)</option>
                         <option value="14">2 servings per day (14 servings per week)</option>
-                        <option value="21+">3+ servings per day (21+ servings per week)</option>
+                        <option value="21">3 servings per day (21 servings per week)</option>
+                        <option value="28">4 servings per day (28 servings per week)</option>
+                        <option value="35+">5+ servings per day (35+ servings per week)</option>
                     </select>
                 </div>
                 
@@ -80,7 +82,9 @@
                         <option value="4-6">4–6 servings per week</option>
                         <option value="7">1 serving per day (7 servings per week)</option>
                         <option value="14">2 servings per day (14 servings per week)</option>
-                        <option value="21+">3+ servings per day (21+ servings per week)</option>
+                        <option value="21">3 servings per day (21 servings per week)</option>
+                        <option value="28">4 servings per day (28 servings per week)</option>
+                        <option value="35+">5+ servings per day (35+ servings per week)</option>
                     </select>
                 </div>
                 
@@ -93,7 +97,9 @@
                         <option value="4-6">4–6 servings per week</option>
                         <option value="7">1 serving per day (7 servings per week)</option>
                         <option value="14">2 servings per day (14 servings per week)</option>
-                        <option value="21+">3+ servings per day (21+ servings per week)</option>
+                        <option value="21">3 servings per day (21 servings per week)</option>
+                        <option value="28">4 servings per day (28 servings per week)</option>
+                        <option value="35+">5+ servings per day (35+ servings per week)</option>
                     </select>
                 </div>
                 
@@ -106,7 +112,9 @@
                         <option value="4-6">4–6 servings per week</option>
                         <option value="7">1 serving per day (7 servings per week)</option>
                         <option value="14">2 servings per day (14 servings per week)</option>
-                        <option value="21+">3+ servings per day (21+ servings per week)</option>
+                        <option value="21">3 servings per day (21 servings per week)</option>
+                        <option value="28">4 servings per day (28 servings per week)</option>
+                        <option value="35+">5+ servings per day (35+ servings per week)</option>
                     </select>
                 </div>
                 
@@ -190,7 +198,7 @@
                         </div>
                         <div class="radio-item">
                             <input type="radio" id="flavor-lemon-lime" name="flavor" value="lemon-lime">
-                            <label for="flavor-lemon-lime">Organic Lemon Lime</label>
+                            <label for="flavor-lemon-lime">Lemon Lime</label>
                         </div>
                         <div class="radio-item">
                             <input type="radio" id="flavor-cocoa" name="flavor" value="cocoa">
@@ -269,16 +277,12 @@
                     <label>What is your biological sex?</label>
                     <div class="radio-group">
                         <div class="radio-item">
-                            <input type="radio" id="sex-male" name="biological-sex" value="male" required>
+                            <input type="radio" id="sex-male" name="biological-sex" value="male">
                             <label for="sex-male">Male</label>
                         </div>
                         <div class="radio-item">
                             <input type="radio" id="sex-female" name="biological-sex" value="female">
                             <label for="sex-female">Female</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="sex-prefer-not" name="biological-sex" value="prefer-not">
-                            <label for="sex-prefer-not">Prefer not to say</label>
                         </div>
                     </div>
                 </div>
@@ -289,7 +293,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="weight">How much do you weigh? (lbs)</label>
+                    <label for="weight">Weight? (lbs)</label>
                     <input type="number" id="weight" name="weight" min="0" max="500" required>
                 </div>
                 
