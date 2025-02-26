@@ -199,3 +199,95 @@ button:disabled {
         width: 100%;
     }
 }
+/* Progress Bar Styles */
+.progress-container {
+  margin: 0 auto 2rem;
+  max-width: 700px;
+}
+
+.progress-bar {
+  background-color: #e9ecef;
+  border-radius: 10px;
+  height: 10px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress {
+  background-color: var(--secondary-color);
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.progress-label {
+  color: #6c757d;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0 5px;
+  position: relative;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.progress-label.active {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.progress-label::after {
+  background-color: #e9ecef;
+  border-radius: 50%;
+  content: "";
+  height: 10px;
+  left: 50%;
+  position: absolute;
+  top: -17px;
+  transform: translateX(-50%);
+  width: 10px;
+}
+
+.progress-label.active::after {
+  background-color: var(--secondary-color);
+}
+
+/* Hide sections for the multi-step form */
+.form-section:not(.active-section) {
+  display: none;
+}
+
+/* Navigation buttons for multi-step form */
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.nav-button {
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.5rem 1.5rem;
+}
+
+.nav-button:hover {
+  background-color: #0f2d1a; /* Darker shade of primary color */
+}
+
+.submit-container {
+  text-align: center;
+  margin-top: 2rem;
+}
