@@ -292,7 +292,7 @@ formDataObj = calculateDailyServings(formDataObj);
             });
             
             // Your Google Apps Script Web App URL - replace with your new deployment URL if needed
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbw3A7vNKP0DJTCC79FvnsDnYvmhiOsWtQ0z3fBKJeLP1QIQZMduEhU5pNbu71FcseqK/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyLb6zWh1Xd5rRR8Kq27n886-RaUyz8YzqZGabBhoHaGxIfJqmQ0q3zvBWGjbQYnM-5/exec';
             
             // Try sending as URL-encoded form data
             fetch(scriptURL, {
