@@ -280,7 +280,8 @@ document.head.insertAdjacentHTML('beforeend', `
                     formDataObj[key] = value;
                 }
             }
-            
+            // Convert nutrient intake values to daily servings
+formDataObj = calculateDailyServings(formDataObj);
             // Log the data being sent (for debugging)
             console.log("Form data being sent:", formDataObj);
             
@@ -334,3 +335,53 @@ document.head.insertAdjacentHTML('beforeend', `
         });
     }
 });
+// Function to convert servings per week to daily values
+function calculateDailyServings(formDataObj) {
+  // Array of nutrient intake fields
+  const nutrientFields = ['sodium-intake', 'potassium-intake', 'magnesium-intake', 'calcium-intake'];
+  
+  // Clone the original data object to avoid modifying it directly
+  const convertedData = {...formDataObj};
+  
+  nutrientFields.forEach(field => {
+    const value = formDataObj[field];
+    
+    if (value) {
+      let dailyValue;
+      
+      // Convert string values to numeric daily values
+      if (value === '0') {
+        dailyValue = 0;
+      } else if (value === '1-3') {
+        // Average of 1-3 servings per week = 2 / 7 days
+        dailyValue = (2 / 7).toFixed(2);
+      } else if (value === '4-6') {
+        // Average of 4-6 servings per week = 5 / 7 days
+        dailyValue = (5 / 7).toFixed(2);
+      } else if (value === '7') {
+        // 7 servings per week = 1 per day
+        dailyValue = 1;
+      } else if (value === '14') {
+        // 14 servings per week = 2 per day
+        dailyValue = 2;
+      } else if (value === '21') {
+        // 21 servings per week = 3 per day
+        dailyValue = 3;
+      } else if (value === '28') {
+        // 28 servings per week = 4 per day
+        dailyValue = 4;
+      } else if (value === '35+') {
+        // 35+ servings per week = 5+ per day
+        dailyValue = 5;
+      } else {
+        // For any other values, use as is
+        dailyValue = value;
+      }
+      
+      // Add a new field with the daily value
+      convertedData[field + '-daily'] = dailyValue;
+    }
+  });
+  
+  return convertedData;
+}
