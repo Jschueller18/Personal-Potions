@@ -257,28 +257,93 @@ document.head.insertAdjacentHTML('beforeend', `
     const form = document.getElementById('survey-form');
     
     if (form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+        form.addEventListener('submit', function(event) {// Form submission handler - modified to include nutrient calculations
+if (form) {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        // Show loading state
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent;
+        submitButton.textContent = "Processing...";
+        submitButton.disabled = true;
+        
+        // Collect all form data
+        const formData = new FormData(this);
+        let formDataObj = {};
+        
+        // Process checkbox groups (usage, conditions)
+        formDataObj.usage = formData.getAll('usage').join(', ');
+        formDataObj.conditions = formData.getAll('conditions').join(', ');
+        
+        // Process all other form fields
+        for (const [key, value] of formData.entries()) {
+            if (key !== 'usage' && key !== 'conditions') {
+                formDataObj[key] = value;
+            }
+        }
+
+        // Convert nutrient intake values to daily servings
+        formDataObj = calculateDailyServings(formDataObj);
+        
+        // Calculate nutrient intake based on form data
+        const nutrientCalculations = calculateNutrientIntake(formDataObj);
+        
+        // Add nutrient calculations to the form data being sent
+        formDataObj.nutrientCalculations = JSON.stringify(nutrientCalculations);
+        
+        // Log the data being sent (for debugging)
+        console.log("Form data being sent:", formDataObj);
+        
+        // Convert to URL parameters for Google Apps Script
+        const formDataParams = new URLSearchParams();
+        Object.keys(formDataObj).forEach(key => {
+            formDataParams.append(key, formDataObj[key]);
+        });
+        
+        // Your Google Apps Script Web App URL - replace with your new deployment URL if needed
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyLb6zWh1Xd5rRR8Kq27n886-RaUyz8YzqZGabBhoHaGxIfJqmQ0q3zvBWGjbQYnM-5/exec';
+        
+        // Try sending as URL-encoded form data
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors', // Important for cross-origin requests
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formDataParams
+        })
+        .then(() => {
+            // Show success message
+            const responseMessage = document.getElementById('response-message');
+            responseMessage.textContent = "Thank you for completing the survey! We'll create your personalized electrolyte mix and send the details to your email.";
+            responseMessage.className = 'success-message';
             
-            // Show loading state
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.textContent;
-            submitButton.textContent = "Processing...";
-            submitButton.disabled = true;
+            // Reset form
+            form.reset();
             
-            // Collect all form data
-            const formData = new FormData(this);
-            let formDataObj = {};
+            // Reset any shown "Other" fields
+            document.getElementById('usage-other-container').style.display = 'none';
+            document.getElementById('condition-other-container').style.display = 'none';
+            document.getElementById('flavor-other-container').style.display = 'none';
+            document.getElementById('sweetener-type-container').style.display = 'none';
             
-            // Process checkbox groups (usage, conditions)
-            formDataObj.usage = formData.getAll('usage').join(', ');
-            formDataObj.conditions = formData.getAll('conditions').join(', ');
-            
-            // Process all other form fields
-            for (const [key, value] of formData.entries()) {
-                if (key !== 'usage' && key !== 'conditions') {
-                    formDataObj[key] = value;
-                }
+            // Scroll to response message
+            responseMessage.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const responseMessage = document.getElementById('response-message');
+            responseMessage.textContent = "There was a problem submitting your survey. Please try again or contact us for assistance.";
+            responseMessage.className = 'error-message';
+        })
+        .finally(() => {
+            // Restore button state
+            submitButton.textContent = originalButtonText;
+            submitButton.disabled = false;
+        });
+    });
+} }
             }
             // Convert nutrient intake values to daily servings
 formDataObj = calculateDailyServings(formDataObj);
@@ -377,6 +442,90 @@ function calculateDailyServings(formDataObj) {
         // For any other values, use as is
         dailyValue = value;
       }
+        // Function to calculate nutrient intakes based on daily servings and supplements
+function calculateNutrientIntake(formData) {
+  // Extract daily serving values (already calculated in your existing code)
+  const sodiumServings = parseFloat(formData['sodium-intake-daily']) || 0;
+  const potassiumServings = parseFloat(formData['potassium-intake-daily']) || 0;
+  const magnesiumServings = parseFloat(formData['magnesium-intake-daily']) || 0;
+  const calciumServings = parseFloat(formData['calcium-intake-daily']) || 0;
+  
+  // Coefficient values for each nutrient (mg per serving)
+  const SODIUM_COEFFICIENT = 619;
+  const POTASSIUM_COEFFICIENT = 323;
+  const MAGNESIUM_COEFFICIENT = 71;
+  const CALCIUM_COEFFICIENT = 168;
+  
+  // Calculate base nutrient intake from food (without supplements)
+  const sodiumFromFood = sodiumServings * SODIUM_COEFFICIENT;
+  const potassiumFromFood = potassiumServings * POTASSIUM_COEFFICIENT;
+  const magnesiumFromFood = magnesiumServings * MAGNESIUM_COEFFICIENT;
+  const calciumFromFood = calciumServings * CALCIUM_COEFFICIENT;
+  
+  // Parse supplement intake information
+  let supplementSodium = 0;
+  let supplementPotassium = 0;
+  let supplementMagnesium = 0;
+  let supplementCalcium = 0;
+  
+  // Parse supplement text if provided
+  if (formData.supplements && formData.supplements.trim() !== '') {
+    // Extract numeric values followed by "mg" or "g" and the nutrient name
+    const supplementText = formData.supplements.toLowerCase();
+    
+    // Function to extract milligram amounts for a given nutrient
+    const extractAmount = (text, nutrientName) => {
+      // Match patterns like "500mg sodium" or "1g sodium" or "sodium 500mg"
+      const mgRegex = new RegExp(`(\\d+)\\s*mg\\s*${nutrientName}|${nutrientName}\\s*(\\d+)\\s*mg`, 'i');
+      const gRegex = new RegExp(`(\\d+(?:\\.\\d+)?)\\s*g\\s*${nutrientName}|${nutrientName}\\s*(\\d+(?:\\.\\d+)?)\\s*g`, 'i');
+      
+      let amount = 0;
+      
+      // Check for milligram amounts
+      const mgMatch = text.match(mgRegex);
+      if (mgMatch) {
+        // The value could be in either capture group depending on word order
+        amount = parseInt(mgMatch[1] || mgMatch[2], 10);
+      }
+      
+      // Check for gram amounts and convert to mg
+      const gMatch = text.match(gRegex);
+      if (gMatch) {
+        // The value could be in either capture group depending on word order
+        amount = parseFloat(gMatch[1] || gMatch[2]) * 1000;
+      }
+      
+      return amount;
+    };
+    
+    // Extract supplement amounts for each nutrient
+    supplementSodium = extractAmount(supplementText, 'sodium');
+    supplementPotassium = extractAmount(supplementText, 'potassium');
+    supplementMagnesium = extractAmount(supplementText, 'magnesium');
+    supplementCalcium = extractAmount(supplementText, 'calcium');
+  }
+  
+  // Calculate total nutrient intake including supplements
+  const totalSodium = sodiumFromFood + supplementSodium;
+  const totalPotassium = potassiumFromFood + supplementPotassium;
+  const totalMagnesium = magnesiumFromFood + supplementMagnesium;
+  const totalCalcium = calciumFromFood + supplementCalcium;
+  
+  // Calculate chloride deficit based on sodium from food only
+  const chlorideDeficit = sodiumFromFood * 0.062;
+  
+  // Return the calculated values in the requested JSON format
+  return {
+    summary: "Estimated daily intake of nutrients based on reported servings and supplements.",
+    estimated_daily_intake: {
+      sodium_mg: Math.round(totalSodium),
+      potassium_mg: Math.round(totalPotassium),
+      magnesium_mg: Math.round(totalMagnesium),
+      calcium_mg: Math.round(totalCalcium)
+    },
+    chloride_deficit_mg: Math.round(chlorideDeficit)
+  };
+}
       
       // Add a new field with the daily value
       convertedData[field + '-daily'] = dailyValue;
