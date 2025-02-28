@@ -293,8 +293,42 @@ document.addEventListener('DOMContentLoaded', function() {
             formDataObj.calcium_mg = nutrientValues.calcium_mg;
             formDataObj.chloride_deficit_mg = nutrientValues.chloride_deficit_mg;
             
+            // NEW CODE: Create DRI JSON object based on user data
+            const driJson = {
+              summary: `${formDataObj.age}-year-old ${formDataObj['biological-sex']} with ${formDataObj['sweat-level']} sweat levels and ${formDataObj.conditions.includes('hypertension') ? 'family history of hypertension' : 'no family history of hypertension'}.`,
+              daily_recommendations: {
+                sodium_mg: calculateSodiumDRI(formDataObj),
+                potassium_mg: calculatePotassiumDRI(formDataObj),
+                magnesium_mg: calculateMagnesiumDRI(formDataObj),
+                calcium_mg: calculateCalciumDRI(formDataObj)
+              }
+            };
+
+            // Create consumption JSON object
+            const consumptionJson = {
+              summary: "Estimated daily intake of nutrients based on reported servings and supplements.",
+              estimated_daily_intake: {
+                sodium_mg: nutrientValues.sodium_mg,
+                potassium_mg: nutrientValues.potassium_mg,
+                magnesium_mg: nutrientValues.magnesium_mg,
+                calcium_mg: nutrientValues.calcium_mg
+              },
+              chloride_deficit_mg: nutrientValues.chloride_deficit_mg
+            };
+
+            // Calculate remaining nutrients needed
+            const remainingNutrients = calculateRemainingNutrients(driJson, consumptionJson);
+
+            // Add the remaining nutrients data to form data
+            formDataObj.remaining_nutrients = remainingNutrients;
+            formDataObj.dri_values = JSON.stringify(driJson);
+            formDataObj.consumption_values = JSON.stringify(consumptionJson);
+            
             // Log the data being sent (for debugging)
             console.log("Form data being sent:", formDataObj);
+            console.log("DRI values:", driJson);
+            console.log("Consumption values:", consumptionJson);
+            console.log("Remaining nutrients:", remainingNutrients);
             
             // Convert to URL parameters for Google Apps Script
             const formDataParams = new URLSearchParams();
@@ -483,4 +517,123 @@ function calculateNutrientIntake(formData) {
     magnesium_from_food_mg: Math.round(magnesiumFromFood),
     calcium_from_food_mg: Math.round(calciumFromFood)
   };
+}
+
+// NEW FUNCTIONS FOR NUTRIENT CALCULATION
+
+// Calculate Sodium DRI based on user data
+function calculateSodiumDRI(userData) {
+  // Base recommendation
+  let sodium = 2300; // mg, general recommendation
+  
+  // Adjust based on sweat level
+  if (userData['sweat-level'] === 'heavy' || userData['sweat-level'] === 'excessive') {
+    sodium = 3000;
+  } else if (userData['sweat-level'] === 'minimal') {
+    sodium = 1800;
+  }
+  
+  // Adjust based on health conditions
+  if (userData.conditions.includes('hypertension') || userData.conditions.includes('heart-disease')) {
+    sodium = Math.min(sodium, 1500); // Lower if hypertension or heart disease
+  }
+  
+  return sodium;
+}
+
+// Calculate Potassium DRI based on user data
+function calculatePotassiumDRI(userData) {
+  // Base recommendations by sex
+  let potassium = userData['biological-sex'] === 'male' ? 3400 : 2600; // mg
+  
+  // Adjust based on activity level and sweat
+  if (userData['activity-level'] === 'very-active' || 
+      userData['sweat-level'] === 'heavy' || 
+      userData['sweat-level'] === 'excessive') {
+    potassium += 800; // Add more for active people who sweat a lot
+  }
+  
+  return potassium;
+}
+
+// Calculate Magnesium DRI based on user data
+function calculateMagnesiumDRI(userData) {
+  // Base recommendations by sex and age
+  let magnesium;
+  const age = parseInt(userData.age);
+  
+  if (userData['biological-sex'] === 'male') {
+    if (age < 30) magnesium = 400;
+    else if (age < 50) magnesium = 420;
+    else magnesium = 420;
+  } else { // female
+    if (age < 30) magnesium = 310;
+    else if (age < 50) magnesium = 320;
+    else magnesium = 320;
+  }
+  
+  // Adjust for activity level
+  if (userData['activity-level'] === 'very-active') {
+    magnesium *= 1.2; // 20% increase for very active individuals
+  }
+  
+  return Math.round(magnesium);
+}
+
+// Calculate Calcium DRI based on user data
+function calculateCalciumDRI(userData) {
+  // Base recommendations by age
+  let calcium;
+  const age = parseInt(userData.age);
+  
+  if (age < 19) calcium = 1300;
+  else if (age < 50) calcium = 1000;
+  else if (age < 70) calcium = 1000;
+  else calcium = 1200;
+  
+  return calcium;
+}
+
+// Function to calculate remaining nutrient needs
+function calculateRemainingNutrients(driJson, consumptionJson) {
+  try {
+    // Parse inputs if they're strings
+    const dri = typeof driJson === 'string' ? JSON.parse(driJson) : driJson;
+    const consumption = typeof consumptionJson === 'string' ? JSON.parse(consumptionJson) : consumptionJson;
+    
+    // Validate inputs
+    if (!dri.daily_recommendations || !consumption.estimated_daily_intake) {
+      throw new Error("Invalid input format: missing required fields");
+    }
+    
+    const recommendations = dri.daily_recommendations;
+    const intake = consumption.estimated_daily_intake;
+    
+    const results = [];
+    
+    // Calculate remaining needs for each nutrient
+    for (const [nutrient, recommendedAmount] of Object.entries(recommendations)) {
+      const currentIntake = intake[nutrient] || 0;
+      const remaining = recommendedAmount - currentIntake;
+      
+      // Extract unit from nutrient name
+      const unit = nutrient.includes('_mg') ? 'mg' : 
+                   nutrient.includes('_IU') ? 'IU' : '';
+      
+      // Format nutrient name for display
+      const nutrientName = nutrient.split('_')[0].charAt(0).toUpperCase() + 
+                          nutrient.split('_')[0].slice(1);
+      
+      if (remaining <= 0) {
+        results.push(`${nutrientName}: No additional intake needed.`);
+      } else {
+        results.push(`${nutrientName}: ${remaining.toFixed(2)} ${unit} remaining`);
+      }
+    }
+    
+    return results.join('\n');
+  } catch (error) {
+    console.error("Error processing nutrient data:", error);
+    return "Error calculating remaining nutrients. Please check input format.";
+  }
 }
