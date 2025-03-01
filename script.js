@@ -380,24 +380,32 @@ formDataObj.consumption_values = JSON.stringify(consumptionJson);
                 },
                 body: formDataParams
             })
-            .then(() => {
-                // Show success message
-                const responseMessage = document.getElementById('response-message');
-                responseMessage.textContent = "Thank you for completing the survey! We'll create your personalized electrolyte mix and send the details to your email.";
-                responseMessage.className = 'success-message';
-                
-                // Reset form
-                form.reset();
-                
-                // Reset any shown "Other" fields
-                document.getElementById('usage-other-container').style.display = 'none';
-                document.getElementById('condition-other-container').style.display = 'none';
-                document.getElementById('flavor-other-container').style.display = 'none';
-                document.getElementById('sweetener-type-container').style.display = 'none';
-                
-                // Scroll to response message
-                responseMessage.scrollIntoView({ behavior: 'smooth' });
-            })
+            ..then(() => {
+    // Show success message
+    const responseMessage = document.getElementById('response-message');
+    responseMessage.textContent = "Thank you for completing the survey! We'll create your personalized electrolyte mix and send the details to your email.";
+    responseMessage.className = 'success-message';
+    
+    // Add a restart button
+    const restartButton = document.createElement('button');
+    restartButton.textContent = "Take Survey Again";
+    restartButton.className = "restart-button";
+    restartButton.addEventListener('click', function() {
+        form.reset();
+        resetSurveyForm();
+        responseMessage.textContent = "";
+        responseMessage.className = "";
+        restartButton.remove();
+    });
+    responseMessage.parentNode.insertBefore(restartButton, responseMessage.nextSibling);
+    
+    // Reset form
+    form.reset();
+    resetSurveyForm();
+    
+    // Scroll to response message
+    responseMessage.scrollIntoView({ behavior: 'smooth' });
+})
             .catch(error => {
                 console.error('Error:', error);
                 const responseMessage = document.getElementById('response-message');
@@ -668,4 +676,40 @@ function calculateRemainingNutrients(driJson, consumptionJson) {
     console.error("Error processing nutrient data:", error);
     return "Error calculating remaining nutrients. Please check input format.";
   }
+}
+// Add this function at the end of your script.js file
+function resetSurveyForm() {
+  // Reset form to first section
+  const sections = document.querySelectorAll('.form-section');
+  sections.forEach(section => section.classList.remove('active-section'));
+  if (sections.length > 0) {
+    sections[0].classList.add('active-section');
+  }
+  
+  // Reset progress bar
+  const progressBar = document.getElementById('form-progress');
+  if (progressBar) {
+    progressBar.style.width = '20%'; // First step
+  }
+  
+  // Reset progress labels
+  const progressLabels = document.querySelectorAll('.progress-label');
+  progressLabels.forEach(label => label.classList.remove('active'));
+  if (progressLabels.length > 0) {
+    progressLabels[0].classList.add('active');
+  }
+  
+  // Reset any shown "Other" fields
+  document.getElementById('usage-other-container').style.display = 'none';
+  document.getElementById('condition-other-container').style.display = 'none';
+  document.getElementById('flavor-other-container').style.display = 'none';
+  document.getElementById('sweetener-type-container').style.display = 'none';
+  
+  // Clear any validation error messages
+  const errorMessages = document.querySelectorAll('.error-message');
+  errorMessages.forEach(msg => msg.remove());
+  
+  // Remove invalid class from any fields
+  const invalidFields = document.querySelectorAll('.invalid');
+  invalidFields.forEach(field => field.classList.remove('invalid'));
 }
