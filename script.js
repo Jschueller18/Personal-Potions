@@ -281,17 +281,49 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Convert nutrient intake values to daily servings
-            formDataObj = calculateDailyServings(formDataObj);
-            
-            // Calculate nutrient intake based on form data
-            const nutrientValues = calculateNutrientIntake(formDataObj);
-            
-            // Add nutrient values directly to the form data
-            formDataObj.sodium_mg = nutrientValues.sodium_mg;
-            formDataObj.potassium_mg = nutrientValues.potassium_mg;
-            formDataObj.magnesium_mg = nutrientValues.magnesium_mg;
-            formDataObj.calcium_mg = nutrientValues.calcium_mg;
-            formDataObj.chloride_deficit_mg = nutrientValues.chloride_deficit_mg;
+            // Convert nutrient intake values to daily servings
+formDataObj = calculateDailyServings(formDataObj);
+
+// Calculate nutrient intake based on form data
+const nutrientValues = calculateNutrientIntake(formDataObj);
+
+// Add nutrient values directly to the form data
+formDataObj.estimated_sodium_mg = nutrientValues.sodium_mg;
+formDataObj.estimated_potassium_mg = nutrientValues.potassium_mg;
+formDataObj.estimated_magnesium_mg = nutrientValues.magnesium_mg;
+formDataObj.estimated_calcium_mg = nutrientValues.calcium_mg;
+formDataObj.chloride_deficit_mg = nutrientValues.chloride_deficit_mg;
+
+// Create DRI JSON object based on user data
+const driJson = {
+  summary: `${formDataObj.age}-year-old ${formDataObj['biological-sex']} with ${formDataObj['sweat-level']} sweat levels and ${formDataObj.conditions.includes('hypertension') ? 'family history of hypertension' : 'no family history of hypertension'}.`,
+  daily_recommendations: {
+    sodium_mg: calculateSodiumDRI(formDataObj),
+    potassium_mg: calculatePotassiumDRI(formDataObj),
+    magnesium_mg: calculateMagnesiumDRI(formDataObj),
+    calcium_mg: calculateCalciumDRI(formDataObj)
+  }
+};
+
+// Create consumption JSON object
+const consumptionJson = {
+  summary: "Estimated daily intake of nutrients based on reported servings and supplements.",
+  estimated_daily_intake: {
+    sodium_mg: nutrientValues.sodium_mg,
+    potassium_mg: nutrientValues.potassium_mg,
+    magnesium_mg: nutrientValues.magnesium_mg,
+    calcium_mg: nutrientValues.calcium_mg
+  },
+  chloride_deficit_mg: nutrientValues.chloride_deficit_mg
+};
+
+// Calculate remaining nutrients needed
+const remainingNutrients = calculateRemainingNutrients(driJson, consumptionJson);
+
+// Add the remaining nutrients data to form data
+formDataObj.remaining_nutrients = remainingNutrients;
+formDataObj.dri_values = JSON.stringify(driJson);
+formDataObj.consumption_values = JSON.stringify(consumptionJson);
             
             // NEW CODE: Create DRI JSON object based on user data
             const driJson = {
