@@ -1,0 +1,241 @@
+import React, { useState, useEffect } from 'react';
+
+const PotassiumRichFoods = () => {
+  const [dairyFoods, setDairyFoods] = useState([]);
+  const [meatsFishFoods, setMeatsFishFoods] = useState([]);
+  const [vegetablesFoods, setVegetablesFoods] = useState([]);
+  const [processedFoods, setProcessedFoods] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const response = await window.fs.readFile('paste.txt', { encoding: 'utf8' });
+        
+        // Skip the header line and parse the data
+        const lines = response.split('\n').slice(2); // Skip the first two lines (header)
+        
+        let parsedData = lines.map(line => {
+          const parts = line.split('|').filter(part => part.trim());
+          if (parts.length >= 3) {
+            return {
+              food: parts[0].trim(),
+              serving: parts[1].trim(),
+              potassium: parseInt(parts[2].trim(), 10)
+            };
+          }
+          return null;
+        }).filter(item => item !== null);
+        
+        // Fix incorrect values
+        parsedData = parsedData.map(item => {
+          // Fix the top 5 incorrect values
+          if (item.food === "Potatoes, Russet, flesh and skin, baked") {
+            return { ...item, potassium: 925 };
+          } else if (item.food === "Salami, pork, beef, less sodium") {
+            return { ...item, potassium: 320 };
+          } else if (item.food === "Kiwifruit, green, raw") {
+            return { food: item.food, serving: "1.0 medium (69 g)", potassium: 281 };
+          } else if (item.food === "Pork, tenderloin, lean") {
+            return { ...item, potassium: 370 };
+          } else if (item.food === "Potato chips, fat free, salted") {
+            return { ...item, potassium: 220 };
+          }
+          return item;
+        });
+        
+        // Add missing high-potassium foods
+        parsedData.push(
+          { food: "Banana, medium", serving: "1.0 medium (118g)", potassium: 422 },
+          { food: "Avocado", serving: "1/2 avocado (68g)", potassium: 487 },
+          { food: "Coconut water", serving: "1.0 cup (240g)", potassium: 600 }
+        );
+        
+        // Categorize foods
+        const dairy = [];
+        const meatsFish = [];
+        const vegetables = [];
+        const processed = [];
+        
+        // Track if we've already added corn to avoid duplicates
+        let cornAdded = false;
+        
+        parsedData.forEach(item => {
+          const foodName = item.food.toLowerCase();
+          
+          // Skip duplicate corn entries
+          if (foodName.includes('corn, sweet, yellow')) {
+            if (!cornAdded) {
+              vegetables.push({
+                food: "Corn, sweet, yellow, canned",
+                serving: "0.5 cups",
+                potassium: 196
+              });
+              cornAdded = true;
+            }
+            return;
+          }
+          
+          // Dairy products
+          if (foodName.includes('milk') || 
+              foodName.includes('yogurt') || 
+              foodName.includes('cheese') ||
+              foodName.includes('ice cream')) {
+            dairy.push(item);
+          }
+          // Meats & Fish
+          else if (foodName.includes('beef') || 
+                  foodName.includes('pork') || 
+                  foodName.includes('ham') || 
+                  foodName.includes('chicken') || 
+                  foodName.includes('turkey') || 
+                  foodName.includes('fish') || 
+                  foodName.includes('salmon') || 
+                  foodName.includes('cod') || 
+                  foodName.includes('tilapia') || 
+                  foodName.includes('trout') ||
+                  foodName.includes('meat')) {
+            meatsFish.push(item);
+          }
+          // Processed Foods - more specific criteria
+          else if (foodName.includes('pizza') || 
+                  foodName.includes('pie crust') ||
+                  foodName.includes('potato chips') ||
+                  foodName.includes('potato sticks') ||
+                  (foodName.includes('canned') && 
+                   !foodName.includes('vegetable') && 
+                   !foodName.includes('bean') && 
+                   !foodName.includes('fruit') && 
+                   !foodName.includes('tomato') && 
+                   !foodName.includes('beet')) ||
+                  (foodName.includes('juice') && !foodName.includes('tomato')) ||
+                  foodName.includes('granola')) {
+            processed.push(item);
+          }
+          // Vegetables, Legumes, Fruits & Nuts (everything else)
+          else {
+            vegetables.push(item);
+          }
+        });
+        
+        // Sort each category by potassium content (highest first)
+        dairy.sort((a, b) => b.potassium - a.potassium);
+        meatsFish.sort((a, b) => b.potassium - a.potassium);
+        vegetables.sort((a, b) => b.potassium - a.potassium);
+        processed.sort((a, b) => b.potassium - a.potassium);
+        
+        setDairyFoods(dairy);
+        setMeatsFishFoods(meatsFish);
+        setVegetablesFoods(vegetables);
+        setProcessedFoods(processed);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error reading file:', error);
+        setLoading(false);
+      }
+    }
+    
+    loadData();
+  }, []);
+
+  const renderFoodTable = (foods) => (
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="bg-gray-50">
+        <tr>
+          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Food Name</th>
+          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serving Size</th>
+          <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Potassium (mg)</th>
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        {foods.map((item, index) => {
+          // Add class for high potassium (>400mg) and moderate potassium (>200mg)
+          let rowClass = '';
+          if (item.potassium > 400) {
+            rowClass = 'bg-blue-50';
+          } else if (item.potassium > 200) {
+            rowClass = 'bg-blue-25';
+          }
+          
+          return (
+            <tr key={index} className={rowClass}>
+              <td className="px-4 py-2 text-sm text-gray-900">{item.food}</td>
+              <td className="px-4 py-2 text-sm text-gray-500">{item.serving}</td>
+              <td className="px-4 py-2 text-sm text-gray-900 text-right font-medium">{item.potassium}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+
+  if (loading) {
+    return <div className="p-4 text-center">Loading potassium-rich foods data...</div>;
+  }
+
+  return (
+    <div className="p-4 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4 text-center">Potassium-Rich Foods</h1>
+      
+      <div className="mb-6 p-4 bg-blue-50 rounded shadow">
+        <h2 className="text-xl font-semibold mb-2">Understanding Potassium in Your Diet</h2>
+        <p className="mb-2">
+          Potassium is an essential mineral that helps maintain fluid balance, sends nerve signals, 
+          and regulates muscle contractions. It also plays a key role in maintaining healthy blood pressure.
+        </p>
+        <p>
+          The recommended daily intake for adults is approximately 3,500-4,700 mg of potassium according to health authorities, 
+          though individual needs may vary based on age, activity level, and overall health status.
+        </p>
+      </div>
+      
+      <div className="mb-6 bg-white rounded shadow overflow-hidden">
+        <h2 className="bg-gray-100 px-4 py-2 text-lg font-semibold border-b border-gray-200">Dairy Products</h2>
+        <div className="overflow-x-auto">
+          {renderFoodTable(dairyFoods)}
+        </div>
+      </div>
+      
+      <div className="mb-6 bg-white rounded shadow overflow-hidden">
+        <h2 className="bg-gray-100 px-4 py-2 text-lg font-semibold border-b border-gray-200">Meats & Fish</h2>
+        <div className="overflow-x-auto">
+          {renderFoodTable(meatsFishFoods)}
+        </div>
+      </div>
+      
+      <div className="mb-6 bg-white rounded shadow overflow-hidden">
+        <h2 className="bg-gray-100 px-4 py-2 text-lg font-semibold border-b border-gray-200">Vegetables, Fruits, Legumes, & Nuts</h2>
+        <div className="overflow-x-auto">
+          {renderFoodTable(vegetablesFoods)}
+        </div>
+      </div>
+      
+      <div className="mb-6 bg-white rounded shadow overflow-hidden">
+        <h2 className="bg-gray-100 px-4 py-2 text-lg font-semibold border-b border-gray-200">Processed Foods</h2>
+        <div className="overflow-x-auto">
+          {renderFoodTable(processedFoods)}
+        </div>
+      </div>
+      
+      <div className="mt-6 p-4 bg-gray-50 rounded shadow">
+        <h2 className="text-lg font-semibold mb-2">Source Information</h2>
+        <p className="mb-2">The information on this page is sourced from the USDA National Agricultural Library:</p>
+        <p className="mb-2">
+          <a 
+            href="https://www.nal.usda.gov/sites/default/files/page-files/potassium.pdf" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            USDA National Agricultural Library - Potassium in Foods PDF
+          </a>
+        </p>
+        <p className="text-sm text-gray-600">
+          Values may vary slightly based on food preparation methods, brands, and specific product formulations.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default PotassiumRichFoods;
