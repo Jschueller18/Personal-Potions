@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize
     updateFormProgress();
     
+    // Ensure first section is visible on page load
+    goToSection(0);
+    
     // Event listeners for "Other" options
     if (usageOtherCheckbox) {
         usageOtherCheckbox.addEventListener('change', function() {
