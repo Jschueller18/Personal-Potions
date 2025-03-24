@@ -1,14 +1,13 @@
 /* style.css */
 :root {
-    --primary-color: #1A472A;
-    --secondary-color: #00C8F8;
-    --accent-color: #f8a100;
-    --bg-color: #f4f4f4;
+    --primary-color: #1E4A2D;
+    --secondary-color: #19C6F2;
+    --bg-color: #F8F9F5;
     --text-color: #333;
     --border-color: #ddd;
     --form-bg: #fff;
     --section-bg: #f9f9f9;
-    --hover-color: #007ea7;
+    --hover-color: #0e95bc;
 }
 
 * {
