@@ -389,6 +389,114 @@ footer {
     padding-right: 15px;
 }
 
+/* NEW STYLES FOR ENHANCED FORM ELEMENTS */
+
+/* Tooltip styles */
+.tooltip-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #8CB369;
+  color: white;
+  text-align: center;
+  font-size: 14px;
+  line-height: 18px;
+  margin-left: 5px;
+  cursor: pointer;
+  position: relative;
+}
+
+.tooltip-icon:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  z-index: 10;
+  width: max-content;
+  max-width: 250px;
+  white-space: normal;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Important question indicator */
+.important-question {
+  font-weight: 600;
+}
+
+.important-indicator {
+  color: #CC3333;
+  margin-left: 2px;
+}
+
+/* Supplement inputs */
+.supplement-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.supplement-row {
+  display: flex;
+  align-items: center;
+}
+
+.supplement-row label {
+  min-width: 100px;
+  margin-bottom: 0;
+}
+
+.supplement-row input {
+  flex: 1;
+  max-width: 150px;
+}
+
+/* Use case details section styling */
+.use-case-details {
+  background-color: #f9f9f9;
+  border-left: 3px solid #8CB369;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 4px;
+}
+
+.use-case-details h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #1E4A2D;
+}
+
+/* Error state for validation */
+.error-message {
+  color: #CC3333;
+  font-size: 0.85em;
+  margin-top: 5px;
+  display: none;
+}
+
+input.error, select.error, textarea.error {
+  border-color: #CC3333;
+}
+
+.error .error-message {
+  display: block;
+}
+
+/* Checkbox group error state */
+.checkbox-group.error {
+  border: 1px solid #CC3333;
+  border-radius: 4px;
+  padding: 5px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .form-row {
@@ -417,5 +525,16 @@ footer {
     
     .social-icons {
         justify-content: center;
+    }
+    
+    .supplement-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .supplement-row input {
+        width: 100%;
+        max-width: 100%;
+        margin-top: 5px;
     }
 }
