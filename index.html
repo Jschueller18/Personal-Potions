@@ -55,7 +55,10 @@
                     <h2>Usage & Goals</h2>
                     
                     <div class="form-group">
-                        <label>How will you be using this mix?</label>
+                        <label class="important-question">
+                            How will you be using this mix?
+                            <span class="important-indicator">*</span>
+                        </label>
                         <p class="help-text">(Separate mixes are ideal for different use cases, but you can select multiple, and we'll create a hybrid blend.)</p>
                         
                         <div class="checkbox-group">
@@ -83,6 +86,59 @@
                         </div>
                     </div>
                     
+                    <!-- New: Sweat Replacement Details (conditionally shown) -->
+                    <div class="form-group use-case-details" id="sweat-replacement-details" style="display: none;">
+                        <h4>Sweat Replacement Details</h4>
+                        <div class="form-row">
+                            <div class="form-group half-width">
+                                <label for="workout-duration">Typical workout duration:</label>
+                                <select id="workout-duration" name="workout-duration">
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="30-60">30-60 minutes</option>
+                                    <option value="60-90">60-90 minutes</option>
+                                    <option value="90-120">90-120 minutes</option>
+                                    <option value="120+">120+ minutes</option>
+                                </select>
+                            </div>
+                            <div class="form-group half-width">
+                                <label for="workout-intensity">Typical workout intensity:</label>
+                                <select id="workout-intensity" name="workout-intensity">
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="light">Light</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="high">High</option>
+                                    <option value="extreme">Extreme</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- New: Bedtime Mix Details (conditionally shown) -->
+                    <div class="form-group use-case-details" id="bedtime-details" style="display: none;">
+                        <h4>Bedtime Mix Details</h4>
+                        <div class="form-group">
+                            <label>What aspects of sleep are you looking to improve? (Select all that apply)</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="sleep-falling" name="sleep-goals" value="falling-asleep">
+                                    <label for="sleep-falling">Falling asleep</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="sleep-staying" name="sleep-goals" value="staying-asleep">
+                                    <label for="sleep-staying">Staying asleep</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="sleep-quality" name="sleep-goals" value="sleep-quality">
+                                    <label for="sleep-quality">Sleep quality</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="sleep-muscles" name="sleep-goals" value="muscle-relaxation">
+                                    <label for="sleep-muscles">Muscle relaxation</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label for="goals">Is there anything specific you're training for? Anything specific you're looking to get out of your mix? If you have an exact nutrient content per serving or ratio you're looking for, please include it here.</label>
                         <textarea id="goals" name="goals" rows="3"></textarea>
@@ -93,8 +149,41 @@
                 <div class="form-section" data-section="dietary">
                     <h2>Dietary Habits & Nutritional Needs</h2>
                     
+                    <!-- New: Diet Type Question -->
                     <div class="form-group">
-                     <label for="sodium-intake">How many servings of <a href="sodium-rich-foods.html" target="_blank" class="info-link">sodium-rich foods</a> do you consume on average?</label>
+                        <label for="diet-type" class="important-question">
+                            Which best describes your overall diet?
+                            <span class="important-indicator">*</span>
+                            <span class="tooltip-icon" data-tooltip="Your diet type significantly affects your electrolyte needs and absorption">?</span>
+                        </label>
+                        <select id="diet-type" name="diet-type" required>
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="omnivore">Omnivore (includes meat and plant foods)</option>
+                            <option value="vegetarian">Vegetarian (includes dairy/eggs, no meat)</option>
+                            <option value="vegan">Vegan (plant-based only)</option>
+                            <option value="pescatarian">Pescatarian (includes fish, no other meat)</option>
+                            <option value="other">Other dietary pattern</option>
+                        </select>
+                    </div>
+                    
+                    <!-- New: Protein Intake Question -->
+                    <div class="form-group">
+                        <label for="protein-intake">
+                            How would you describe your protein intake?
+                            <span class="tooltip-icon" data-tooltip="High protein intake can affect calcium requirements">?</span>
+                        </label>
+                        <select id="protein-intake" name="protein-intake" required>
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="low">Low (less than 0.8g per kg bodyweight)</option>
+                            <option value="moderate">Moderate (0.8-1.5g per kg bodyweight)</option>
+                            <option value="high">High (1.6-2g per kg bodyweight)</option>
+                            <option value="very-high">Very high (more than 2g per kg bodyweight)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Existing sodium intake question -->
+                    <div class="form-group">
+                        <label for="sodium-intake">How many servings of <a href="sodium-rich-foods.html" target="_blank" class="info-link">sodium-rich foods</a> do you consume on average?</label>
                         <select id="sodium-intake" name="sodium-intake" required>
                             <option value="" disabled selected>Select an option</option>
                             <option value="0">0 servings per week</option>
@@ -108,6 +197,7 @@
                         </select>
                     </div>
                     
+                    <!-- Existing potassium intake question -->
                     <div class="form-group">
                         <label for="potassium-intake">How many servings of <a href="potassium-rich-foods.html" target="_blank" class="info-link">potassium-rich foods</a> do you consume on average?</label>
                         <select id="potassium-intake" name="potassium-intake" required>
@@ -123,6 +213,7 @@
                         </select>
                     </div>
                     
+                    <!-- Existing magnesium intake question -->
                     <div class="form-group">
                         <label for="magnesium-intake">How many servings of magnesium-rich foods do you consume on average?</label>
                         <select id="magnesium-intake" name="magnesium-intake" required>
@@ -138,6 +229,7 @@
                         </select>
                     </div>
                     
+                    <!-- Existing calcium intake question -->
                     <div class="form-group">
                         <label for="calcium-intake">How many servings of <a href="calcium-rich-foods.html" target="_blank" class="info-link">calcium-rich foods</a> do you consume on average?</label>
                         <select id="calcium-intake" name="calcium-intake" required>
@@ -153,9 +245,50 @@
                         </select>
                     </div>
                     
+                    <!-- New: Dairy-specific intake question -->
                     <div class="form-group">
-                        <label for="supplements">Do you regularly take supplements containing any of these electrolytes: sodium, potassium, magnesium, or calcium? If so, please indicate your daily intake for each</label>
-                        <textarea id="supplements" name="supplements" rows="3"></textarea>
+                        <label for="dairy-intake">
+                            How many servings of dairy products do you consume on average?
+                            <span class="tooltip-icon" data-tooltip="Dairy is a primary source of calcium with high bioavailability">?</span>
+                        </label>
+                        <select id="dairy-intake" name="dairy-intake" required>
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="0">0 servings per week</option>
+                            <option value="1-3">1–3 servings per week</option>
+                            <option value="4-6">4–6 servings per week</option>
+                            <option value="7">1 serving per day (7 servings per week)</option>
+                            <option value="14">2 servings per day (14 servings per week)</option>
+                            <option value="21">3+ servings per day (21+ servings per week)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- New: Enhanced supplement inputs -->
+                    <div class="form-group">
+                        <label>Do you take any of the following supplements?</label>
+                        <div class="supplement-inputs">
+                            <div class="supplement-row">
+                                <label for="sodium-supplement">Sodium:</label>
+                                <input type="number" id="sodium-supplement" name="sodium-supplement" min="0" placeholder="mg per day">
+                            </div>
+                            <div class="supplement-row">
+                                <label for="potassium-supplement">Potassium:</label>
+                                <input type="number" id="potassium-supplement" name="potassium-supplement" min="0" placeholder="mg per day">
+                            </div>
+                            <div class="supplement-row">
+                                <label for="magnesium-supplement">Magnesium:</label>
+                                <input type="number" id="magnesium-supplement" name="magnesium-supplement" min="0" placeholder="mg per day">
+                            </div>
+                            <div class="supplement-row">
+                                <label for="calcium-supplement">Calcium:</label>
+                                <input type="number" id="calcium-supplement" name="calcium-supplement" min="0" placeholder="mg per day">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Keep the existing supplements textarea for additional info -->
+                    <div class="form-group">
+                        <label for="supplements">Any other supplements or details about your supplement regimen?</label>
+                        <textarea id="supplements" name="supplements" rows="2"></textarea>
                     </div>
                 </div>
                 
@@ -174,8 +307,42 @@
                         </select>
                     </div>
                     
+                    <!-- New: Exercise Type Question -->
                     <div class="form-group">
-                        <label for="sweat-level">How would you describe your typical sweat levels during physical activity or in warm conditions?</label>
+                        <label>
+                            What type of exercise do you primarily engage in?
+                            <span class="tooltip-icon" data-tooltip="Different exercise types affect your electrolyte needs differently">?</span>
+                        </label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="exercise-strength" name="exercise-type" value="strength">
+                                <label for="exercise-strength">Strength/resistance training</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="exercise-endurance" name="exercise-type" value="endurance">
+                                <label for="exercise-endurance">Endurance activities (running, cycling, swimming)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="exercise-high-impact" name="exercise-type" value="high-impact">
+                                <label for="exercise-high-impact">High-impact activities (jumping, contact sports)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="exercise-low-impact" name="exercise-type" value="low-impact">
+                                <label for="exercise-low-impact">Low-impact activities (walking, yoga)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="exercise-none" name="exercise-type" value="none">
+                                <label for="exercise-none">None</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sweat-level" class="important-question">
+                            How would you describe your typical sweat levels during physical activity or in warm conditions?
+                            <span class="important-indicator">*</span>
+                            <span class="tooltip-icon" data-tooltip="Sweat rate is a significant factor in electrolyte loss">?</span>
+                        </label>
                         <select id="sweat-level" name="sweat-level" required>
                             <option value="" disabled selected>Select an option</option>
                             <option value="minimal">Minimal: I rarely sweat, even during intense activity.</option>
@@ -183,6 +350,64 @@
                             <option value="moderate">Moderate: I sweat a noticeable amount during activity or heat.</option>
                             <option value="heavy">Heavy: I sweat a lot, and it often soaks through clothes.</option>
                             <option value="excessive">Excessive: I sweat profusely, even with minimal effort.</option>
+                        </select>
+                    </div>
+                    
+                    <!-- New: Vitamin D Status -->
+                    <div class="form-group">
+                        <label for="vitamin-d-status">
+                            What is your vitamin D status?
+                            <span class="tooltip-icon" data-tooltip="Vitamin D significantly affects calcium absorption and utilization">?</span>
+                        </label>
+                        <select id="vitamin-d-status" name="vitamin-d-status">
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="deficient">Deficient (confirmed by blood test)</option>
+                            <option value="insufficient">Insufficient (confirmed by blood test)</option>
+                            <option value="optimal">Optimal (confirmed by blood test)</option>
+                            <option value="unknown">Unknown, but I get regular sun exposure</option>
+                            <option value="unknown-limited">Unknown, with limited sun exposure</option>
+                        </select>
+                    </div>
+                    
+                    <!-- New: Bone Health -->
+                    <div class="form-group">
+                        <label>
+                            Have you experienced any of the following? (Select all that apply)
+                            <span class="tooltip-icon" data-tooltip="Bone health issues may indicate greater calcium needs">?</span>
+                        </label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bone-fracture" name="bone-health" value="stress-fracture">
+                                <label for="bone-fracture">Stress fracture within the last 2 years</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bone-density" name="bone-health" value="low-bone-density">
+                                <label for="bone-density">Diagnosed with low bone density</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bone-family" name="bone-health" value="family-history">
+                                <label for="bone-family">Family history of osteoporosis</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="bone-none" name="bone-health" value="none">
+                                <label for="bone-none">None of the above</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- New: Female-specific questions (will be shown conditionally) -->
+                    <div class="form-group" id="female-specific-questions" style="display: none;">
+                        <label for="menstrual-status">
+                            What is your menstrual status?
+                            <span class="tooltip-icon" data-tooltip="Hormonal status significantly impacts calcium requirements">?</span>
+                        </label>
+                        <select id="menstrual-status" name="menstrual-status">
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="regular">Regular cycles</option>
+                            <option value="irregular">Irregular cycles</option>
+                            <option value="amenorrhea">No menstruation (not due to menopause)</option>
+                            <option value="menopause">Menopausal/Post-menopausal</option>
+                            <option value="hormonal-contraception">Using hormonal contraception</option>
                         </select>
                     </div>
                     
