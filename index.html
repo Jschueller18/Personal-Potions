@@ -139,6 +139,48 @@
                         </div>
                     </div>
                     
+                    <!-- New: Daily Mix Details (conditionally shown) -->
+                    <div class="form-group use-case-details" id="daily-mix-details" style="display: none;">
+                        <h4>Daily Mix Details</h4>
+                        <div class="form-group">
+                            <label>What specific benefits are you looking for from your daily electrolyte drink? (Select all that apply)</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="daily-goal-hydration" name="daily-goals" value="general-hydration">
+                                    <label for="daily-goal-hydration">General hydration</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="daily-goal-energy" name="daily-goals" value="energy-levels">
+                                    <label for="daily-goal-energy">Energy levels</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="daily-goal-mental" name="daily-goals" value="mental-clarity">
+                                    <label for="daily-goal-mental">Mental clarity/focus</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="daily-goal-muscle" name="daily-goals" value="muscle-function">
+                                    <label for="daily-goal-muscle">Muscle function</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="daily-goal-recovery" name="daily-goals" value="workout-recovery">
+                                    <label for="daily-goal-recovery">Recovery between workouts</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="water-intake">How much water do you typically drink per day?</label>
+                            <select id="water-intake" name="water-intake">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="less-than-1">Less than 32 fl oz (1 liter)</option>
+                                <option value="1-2">32-64 fl oz (1-2 liters)</option>
+                                <option value="2-3">64-96 fl oz (2-3 liters)</option>
+                                <option value="3-4">96-128 fl oz (3-4 liters)</option>
+                                <option value="more-than-4">More than 128 fl oz (4 liters)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label for="goals">Is there anything specific you're training for? Anything specific you're looking to get out of your mix? If you have an exact nutrient content per serving or ratio you're looking for, please include it here.</label>
                         <textarea id="goals" name="goals" rows="3"></textarea>

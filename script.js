@@ -34,6 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const bedtimeMixCheckbox = document.getElementById('bedtime-mix');
     const bedtimeDetails = document.getElementById('bedtime-details');
+    
+    const dailyDrinkCheckbox = document.getElementById('daily-drink');
+    const dailyMixDetails = document.getElementById('daily-mix-details');
 
     // Current section index
     let currentSectionIndex = 0;
@@ -126,6 +129,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check on page load
         if (bedtimeMixCheckbox.checked) {
             bedtimeDetails.style.display = 'block';
+        }
+    }
+    
+    // Daily mix details conditional logic
+    if (dailyDrinkCheckbox) {
+        dailyDrinkCheckbox.addEventListener('change', function() {
+            dailyMixDetails.style.display = this.checked ? 'block' : 'none';
+        });
+        
+        // Check on page load
+        if (dailyDrinkCheckbox.checked) {
+            dailyMixDetails.style.display = 'block';
         }
     }
 
@@ -249,17 +264,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update progress
         updateFormProgress();
         
-        // Scroll to top of form
-        form.scrollIntoView({ behavior: 'smooth' });
+        // Show/hide prev/next/submit buttons
+        if (currentSectionIndex === 0) {
+            prevBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'inline-block';
+        }
+        
+        if (currentSectionIndex === formSections.length - 1) {
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'inline-block';
+        } else {
+            nextBtn.style.display = 'inline-block';
+            submitBtn.style.display = 'none';
+        }
     }
-
-    // Function to update the form progress
+    
+    // Function to update the progress bar and labels
     function updateFormProgress() {
-        // Update progress bar
+        // Update progress bar width
         const progressPercentage = ((currentSectionIndex + 1) / formSections.length) * 100;
         progressBar.style.width = progressPercentage + '%';
         
-        // Update progress labels
+        // Update section labels
         progressLabels.forEach(function(label, index) {
             if (index <= currentSectionIndex) {
                 label.classList.add('active');
@@ -267,150 +294,120 @@ document.addEventListener('DOMContentLoaded', function() {
                 label.classList.remove('active');
             }
         });
-        
-        // Update buttons
-        prevBtn.style.display = currentSectionIndex === 0 ? 'none' : 'block';
-        
-        if (currentSectionIndex === formSections.length - 1) {
-            nextBtn.style.display = 'none';
-            submitBtn.style.display = 'block';
-        } else {
-            nextBtn.style.display = 'block';
-            submitBtn.style.display = 'none';
-        }
     }
 
-    // Enhanced validation for the current section
+    // Function to validate the current section (basic validation example)
     function validateCurrentSection() {
         const currentSection = formSections[currentSectionIndex];
-        const requiredFields = currentSection.querySelectorAll('[required]');
-        let valid = true;
+        const requiredInputs = currentSection.querySelectorAll('[required]:not([type="checkbox"])');
+        const requiredCheckboxGroups = new Set();
         
-        // Clear previous errors
-        const errorElements = currentSection.querySelectorAll('.error');
-        errorElements.forEach(el => {
-            el.classList.remove('error');
+        // Collect checkbox groups that have at least one required checkbox
+        currentSection.querySelectorAll('input[type="checkbox"][required]').forEach(checkbox => {
+            requiredCheckboxGroups.add(checkbox.name);
         });
         
-        // Remove any existing error messages
-        const existingErrorMessages = currentSection.querySelectorAll('.error-message');
-        existingErrorMessages.forEach(msg => msg.remove());
+        // Validate normal required fields (text, select, etc.)
+        let isValid = true;
         
-        requiredFields.forEach(function(field) {
-            // Skip validation for hidden fields
-            if (isHidden(field)) {
+        requiredInputs.forEach(input => {
+            // Skip validation if the input is in a hidden container
+            if (isHidden(input)) {
                 return;
             }
             
-            // Check if field is checkbox group
-            if (field.type === 'checkbox') {
-                const name = field.name;
-                const checkedBoxes = currentSection.querySelectorAll(`input[name="${name}"]:checked`);
+            if (!input.value.trim()) {
+                isValid = false;
+                input.classList.add('invalid');
                 
-                if (checkedBoxes.length === 0 && field.required) {
-                    valid = false;
-                    
-                    // Find the checkbox group container
-                    const container = field.closest('.checkbox-group');
-                    if (container) {
-                        container.classList.add('error');
-                        
-                        // Add error message if not exists
-                        if (!container.querySelector('.error-message')) {
-                            const errorMsg = document.createElement('div');
-                            errorMsg.className = 'error-message';
-                            errorMsg.textContent = 'Please select at least one option';
-                            container.parentElement.appendChild(errorMsg);
-                        }
-                    }
+                // Add error message if not already present
+                let errorMessage = input.nextElementSibling;
+                if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                    errorMessage = document.createElement('p');
+                    errorMessage.classList.add('error-message');
+                    errorMessage.textContent = 'This field is required.';
+                    input.parentNode.insertBefore(errorMessage, input.nextSibling);
                 }
-            } 
-            // Check other field types
-            else if (field.value.trim() === '') {
-                valid = false;
-                field.classList.add('error');
+            } else {
+                input.classList.remove('invalid');
                 
-                // Add error message if not exists
-                const parent = field.parentElement;
-                if (!parent.querySelector('.error-message')) {
-                    const errorMsg = document.createElement('div');
-                    errorMsg.className = 'error-message';
-                    errorMsg.textContent = 'This field is required';
-                    parent.appendChild(errorMsg);
-                }
-            }
-            // Additional validation for numeric fields
-            else if (field.type === 'number' && field.value !== '') {
-                const value = parseFloat(field.value);
-                const min = field.hasAttribute('min') ? parseFloat(field.getAttribute('min')) : null;
-                const max = field.hasAttribute('max') ? parseFloat(field.getAttribute('max')) : null;
-                
-                if ((min !== null && value < min) || (max !== null && value > max)) {
-                    valid = false;
-                    field.classList.add('error');
-                    
-                    // Add error message
-                    const parent = field.parentElement;
-                    if (!parent.querySelector('.error-message')) {
-                        const errorMsg = document.createElement('div');
-                        errorMsg.className = 'error-message';
-                        errorMsg.textContent = `Value must be between ${min !== null ? min : 'any'} and ${max !== null ? max : 'any'}`;
-                        parent.appendChild(errorMsg);
-                    }
-                }
-            }
-            // Email validation
-            else if (field.type === 'email' && field.value !== '') {
-                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailPattern.test(field.value)) {
-                    valid = false;
-                    field.classList.add('error');
-                    
-                    // Add error message
-                    const parent = field.parentElement;
-                    if (!parent.querySelector('.error-message')) {
-                        const errorMsg = document.createElement('div');
-                        errorMsg.className = 'error-message';
-                        errorMsg.textContent = 'Please enter a valid email address';
-                        parent.appendChild(errorMsg);
-                    }
+                // Remove any existing error message
+                const errorMessage = input.nextElementSibling;
+                if (errorMessage && errorMessage.classList.contains('error-message')) {
+                    errorMessage.remove();
                 }
             }
         });
         
-        return valid;
+        // Validate checkbox groups (at least one checkbox in each required group should be checked)
+        requiredCheckboxGroups.forEach(groupName => {
+            const checkboxes = currentSection.querySelectorAll(`input[type="checkbox"][name="${groupName}"]`);
+            const container = checkboxes[0].closest('.checkbox-group');
+            
+            // Skip validation if the container is hidden
+            if (isHidden(container)) {
+                return;
+            }
+            
+            let isGroupValid = false;
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    isGroupValid = true;
+                }
+            });
+            
+            if (!isGroupValid) {
+                isValid = false;
+                
+                // Add error message if not already present
+                let errorMessage = container.nextElementSibling;
+                if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                    errorMessage = document.createElement('p');
+                    errorMessage.classList.add('error-message');
+                    errorMessage.textContent = 'Please select at least one option.';
+                    container.parentNode.insertBefore(errorMessage, container.nextSibling);
+                }
+            } else {
+                // Remove any existing error message
+                const errorMessage = container.nextElementSibling;
+                if (errorMessage && errorMessage.classList.contains('error-message')) {
+                    errorMessage.remove();
+                }
+            }
+        });
+        
+        return isValid;
     }
     
     // Helper function to check if an element is hidden
     function isHidden(el) {
-        return (el.offsetParent === null) || 
-               (el.style.display === 'none') || 
-               (el.closest('.form-group') && el.closest('.form-group').style.display === 'none');
+        return (el.offsetParent === null || getComputedStyle(el).display === 'none');
     }
-
-    // Validate all sections
+    
+    // Function to validate all sections
     function validateAllSections() {
-        let valid = true;
-        
-        // Store current section
-        const currentSection = currentSectionIndex;
+        // Remember current section
+        const originalSection = currentSectionIndex;
+        let allValid = true;
         
         // Check each section
         for (let i = 0; i < formSections.length; i++) {
             goToSection(i);
-            if (!validateCurrentSection()) {
-                valid = false;
+            const sectionValid = validateCurrentSection();
+            if (!sectionValid) {
+                allValid = false;
                 break;
             }
         }
         
-        // Return to the invalid section or the last section if all valid
-        if (!valid) {
-            // We're already at the invalid section
+        // Return to original section if not valid
+        if (!allValid) {
+            goToSection(currentSectionIndex);
         } else {
-            goToSection(formSections.length - 1);
+            // Otherwise return to the section we were on
+            goToSection(originalSection);
         }
         
-        return valid;
+        return allValid;
     }
 });
