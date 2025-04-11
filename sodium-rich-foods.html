@@ -13,6 +13,7 @@
             --text-color: #333;
             --border-color: #ddd;
             --light-bg: #f9f9f9;
+            --table-stripe: rgba(0, 0, 0, 0.02);
         }
         
         * {
@@ -72,30 +73,58 @@
             margin-bottom: 2rem;
         }
         
-        .food-table {
+        /* Standard serving definition banner */
+        .standard-serving {
+            background-color: #00C8F8;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .standard-serving strong {
+            font-size: 1.4rem;
+        }
+        
+        /* Color legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0 2rem;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-bg);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            margin-right: 1rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        
+        .legend-title {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
         }
         
-        .food-table th {
-            background-color: var(--light-bg);
-            text-align: left;
-            padding: 0.75rem;
-            border-bottom: 2px solid var(--primary-color);
-        }
-        
-        .food-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .food-table tr:nth-child(even) {
-            background-color: var(--light-bg);
-        }
-        
-        .food-table tr:hover {
-            background-color: rgba(0, 200, 248, 0.1);
+        /* Update sodium level classes */
+        .very-high-sodium {
+            background-color: rgba(255, 99, 71, 0.2);
         }
         
         .high-sodium {
@@ -104,6 +133,40 @@
         
         .moderate-sodium {
             background-color: rgba(255, 165, 0, 0.1);
+        }
+        
+        /* Table wrapper for horizontal scrolling on mobile */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+        }
+        
+        .food-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .food-table th {
+            background-color: var(--light-bg);
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 2px solid var(--primary-color);
+            white-space: nowrap;
+        }
+        
+        .food-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Add alternate row striping */
+        .food-table tr:nth-child(odd):not(.very-high-sodium):not(.high-sodium):not(.moderate-sodium) {
+            background-color: var(--table-stripe);
+        }
+        
+        .food-table tr:hover {
+            background-color: rgba(0, 200, 248, 0.1);
         }
         
         .back-link {
@@ -127,6 +190,14 @@
             .food-table td {
                 padding: 0.5rem;
             }
+            
+            .legend {
+                padding: 0.75rem;
+            }
+            
+            .legend-item {
+                margin-bottom: 0.5rem;
+            }
         }
     </style>
 </head>
@@ -142,396 +213,500 @@
             <p>Sodium is an essential electrolyte crucial for optimal bodily function—maintaining fluid balance, supporting nerve transmission, and enabling proper muscle contraction. Your individual sodium needs are as unique as you are, varying based on factors like activity level, sweat rate, genetics, and health goals.</p>
             <p>While conventional wisdom often focuses on limiting sodium, many active individuals actually benefit from carefully calibrated sodium intake. This reference guide lists common sodium-rich foods organized by category. Understanding your personal sodium sources helps you make strategic dietary choices, allowing you to fine-tune your electrolyte balance for peak performance, recovery, and well-being.</p>
             <p>By combining this knowledge with your personalized OPTIMAIZE electrolyte formulation, you can achieve precision-targeted electrolyte levels tailored specifically to your body's unique requirements.</p>
+            
+            <div class="standard-serving">
+                <p><strong>1 Standard Serving = 500mg of Sodium</strong></p>
+                <p>This is the baseline used in the survey questions about your daily sodium intake</p>
+            </div>
+            
+            <!-- Single legend at the top -->
+            <div class="legend">
+                <div class="legend-title">Sodium Content Color Guide</div>
+                <div class="legend-item">
+                    <div class="legend-color very-high-sodium"></div>
+                    <span>Very High (>1000 mg)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color high-sodium"></div>
+                    <span>High (500-1000 mg)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color moderate-sodium"></div>
+                    <span>Moderate (300-499 mg)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color"></div>
+                    <span>Lower (<300 mg)</span>
+                </div>
+            </div>
         </div>
         
         <div class="content-section">
             <h2>Dairy Products</h2>
-            <table class="food-table">
-                <thead>
-                    <tr>
-                        <th>Food Name</th>
-                        <th>Serving Size</th>
-                        <th>Sodium (mg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="high-sodium">
-                        <td>Cheese, pasteurized process, Swiss</td>
-                        <td>1 cup, diced</td>
-                        <td>1918</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Cheese, provolone</td>
-                        <td>1 cup, diced</td>
-                        <td>960</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Cheese, mozzarella, low moisture, part-skim</td>
-                        <td>1 cup, diced</td>
-                        <td>879</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Cheese, cheddar</td>
-                        <td>1 cup, diced</td>
-                        <td>862</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Cheese, cottage, nonfat</td>
-                        <td>1 cup</td>
-                        <td>539</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Cheese, cottage, lowfat, 1% milkfat</td>
-                        <td>4 oz</td>
-                        <td>459</td>
-                    </tr>
-                    <tr>
-                        <td>Cheese, ricotta, whole milk</td>
-                        <td>0.5 cup</td>
-                        <td>136</td>
-                    </tr>
-                    <tr>
-                        <td>Milk, buttermilk, fluid</td>
-                        <td>1 cup</td>
-                        <td>257</td>
-                    </tr>
-                    <tr>
-                        <td>Yogurt, plain, whole milk</td>
-                        <td>1 cup</td>
-                        <td>210</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Sodium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-sodium">
+                            <td>Cheese, pasteurized process, Swiss</td>
+                            <td>1 cup, diced</td>
+                            <td>1918</td>
+                            <td>3.84 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Cheese, provolone</td>
+                            <td>1 cup, diced</td>
+                            <td>960</td>
+                            <td>1.92 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Cheese, mozzarella, low moisture, part-skim</td>
+                            <td>1 cup, diced</td>
+                            <td>879</td>
+                            <td>1.76 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Cheese, cheddar</td>
+                            <td>1 cup, diced</td>
+                            <td>862</td>
+                            <td>1.72 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Cheese, cottage, nonfat</td>
+                            <td>1 cup</td>
+                            <td>539</td>
+                            <td>1.08 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Cheese, cottage, lowfat, 1% milkfat</td>
+                            <td>4 oz</td>
+                            <td>459</td>
+                            <td>0.92 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Milk, buttermilk, fluid</td>
+                            <td>1 cup</td>
+                            <td>257</td>
+                            <td>0.51 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Yogurt, plain, whole milk</td>
+                            <td>1 cup</td>
+                            <td>210</td>
+                            <td>0.42 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Cheese, ricotta, whole milk</td>
+                            <td>0.5 cup</td>
+                            <td>136</td>
+                            <td>0.27 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
         <div class="content-section">
             <h2>Meats</h2>
-            <table class="food-table">
-                <thead>
-                    <tr>
-                        <th>Food Name</th>
-                        <th>Serving Size</th>
-                        <th>Sodium (mg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="high-sodium">
-                        <td>Pork, cured, ham and water product, heated</td>
-                        <td>3 oz</td>
-                        <td>1181</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Pepperoni, beef and pork</td>
-                        <td>2 oz</td>
-                        <td>991</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Sausage, chicken, beef, pork, smoked</td>
-                        <td>1 link</td>
-                        <td>869</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Kielbasa, Polish, turkey and beef, smoked</td>
-                        <td>2 oz</td>
-                        <td>672</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Salami, pork, beef, less sodium</td>
-                        <td>3 oz</td>
-                        <td>623</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Frankfurter, pork</td>
-                        <td>1 link</td>
-                        <td>620</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Turkey, smoked, deli cut</td>
-                        <td>1 oz</td>
-                        <td>576</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Bacon, pork, cured</td>
-                        <td>3 slices</td>
-                        <td>545</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Roast beef, deli style</td>
-                        <td>2 oz</td>
-                        <td>540</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Ham, honey, smoked, cooked</td>
-                        <td>1 oz</td>
-                        <td>495</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Bologna, pork and turkey</td>
-                        <td>2 oz</td>
-                        <td>468</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Chicken breast, oven-roasted, fat-free, sliced</td>
-                        <td>2 slices</td>
-                        <td>457</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Turkey breast, pre-sliced</td>
-                        <td>2 oz</td>
-                        <td>360</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Sodium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-sodium">
+                            <td>Pork, cured, ham and water product, heated</td>
+                            <td>3 oz</td>
+                            <td>1181</td>
+                            <td>2.36 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Pepperoni, beef and pork</td>
+                            <td>2 oz</td>
+                            <td>991</td>
+                            <td>1.98 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Sausage, chicken, beef, pork, smoked</td>
+                            <td>1 link</td>
+                            <td>869</td>
+                            <td>1.74 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Kielbasa, Polish, turkey and beef, smoked</td>
+                            <td>2 oz</td>
+                            <td>672</td>
+                            <td>1.34 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Salami, pork, beef, less sodium</td>
+                            <td>3 oz</td>
+                            <td>623</td>
+                            <td>1.25 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Frankfurter, pork</td>
+                            <td>1 link</td>
+                            <td>620</td>
+                            <td>1.24 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Turkey, smoked, deli cut</td>
+                            <td>1 oz</td>
+                            <td>576</td>
+                            <td>1.15 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Bacon, pork, cured</td>
+                            <td>3 slices</td>
+                            <td>545</td>
+                            <td>1.09 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Roast beef, deli style</td>
+                            <td>2 oz</td>
+                            <td>540</td>
+                            <td>1.08 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Ham, honey, smoked, cooked</td>
+                            <td>1 oz</td>
+                            <td>495</td>
+                            <td>0.99 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Bologna, pork and turkey</td>
+                            <td>2 oz</td>
+                            <td>468</td>
+                            <td>0.94 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Chicken breast, oven-roasted, fat-free, sliced</td>
+                            <td>2 slices</td>
+                            <td>457</td>
+                            <td>0.91 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Turkey breast, pre-sliced</td>
+                            <td>2 oz</td>
+                            <td>360</td>
+                            <td>0.72 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
         <div class="content-section">
             <h2>Vegetables</h2>
-            <table class="food-table">
-                <thead>
-                    <tr>
-                        <th>Food Name</th>
-                        <th>Serving Size</th>
-                        <th>Sodium (mg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="high-sodium">
-                        <td>Beans, baked, canned, with pork</td>
-                        <td>1 cup</td>
-                        <td>1047</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Beans, black turtle, canned</td>
-                        <td>1 cup</td>
-                        <td>922</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Tomato products, canned, sauce with onions, green peppers, celery</td>
-                        <td>1 cup</td>
-                        <td>920</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Squash, summer, zucchini, Italian style, canned</td>
-                        <td>1 cup</td>
-                        <td>849</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Potatoes, scalloped, home-prepared</td>
-                        <td>1 cup</td>
-                        <td>821</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Spinach, canned, regular pack</td>
-                        <td>1 cup</td>
-                        <td>746</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Asparagus, canned, drained</td>
-                        <td>1 cup</td>
-                        <td>695</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Tomato juice, canned, with salt</td>
-                        <td>1 cup</td>
-                        <td>615</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Tomato products, canned, puree, with salt</td>
-                        <td>1 cup</td>
-                        <td>505</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Carrots, canned, regular pack</td>
-                        <td>1 cup, sliced</td>
-                        <td>353</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Beets, canned, regular pack</td>
-                        <td>1 cup</td>
-                        <td>352</td>
-                    </tr>
-                    <tr>
-                        <td>Peas, canned, regular pack</td>
-                        <td>1 cup</td>
-                        <td>296</td>
-                    </tr>
-                    <tr>
-                        <td>Corn, canned, cream style</td>
-                        <td>1 cup</td>
-                        <td>285</td>
-                    </tr>
-                    <tr>
-                        <td>Green beans, canned, regular pack</td>
-                        <td>1 cup</td>
-                        <td>270</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Sodium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-sodium">
+                            <td>Beans, baked, canned, with pork</td>
+                            <td>1 cup</td>
+                            <td>1047</td>
+                            <td>2.09 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Beans, black turtle, canned</td>
+                            <td>1 cup</td>
+                            <td>922</td>
+                            <td>1.84 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Tomato products, canned, sauce with onions, green peppers, celery</td>
+                            <td>1 cup</td>
+                            <td>920</td>
+                            <td>1.84 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Squash, summer, zucchini, Italian style, canned</td>
+                            <td>1 cup</td>
+                            <td>849</td>
+                            <td>1.70 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Potatoes, scalloped, home-prepared</td>
+                            <td>1 cup</td>
+                            <td>821</td>
+                            <td>1.64 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Spinach, canned, regular pack</td>
+                            <td>1 cup</td>
+                            <td>746</td>
+                            <td>1.49 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Asparagus, canned, drained</td>
+                            <td>1 cup</td>
+                            <td>695</td>
+                            <td>1.39 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Tomato juice, canned, with salt</td>
+                            <td>1 cup</td>
+                            <td>615</td>
+                            <td>1.23 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Tomato products, canned, puree, with salt</td>
+                            <td>1 cup</td>
+                            <td>505</td>
+                            <td>1.01 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Carrots, canned, regular pack</td>
+                            <td>1 cup, sliced</td>
+                            <td>353</td>
+                            <td>0.71 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Beets, canned, regular pack</td>
+                            <td>1 cup</td>
+                            <td>352</td>
+                            <td>0.70 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Peas, canned, regular pack</td>
+                            <td>1 cup</td>
+                            <td>296</td>
+                            <td>0.59 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Corn, canned, cream style</td>
+                            <td>1 cup</td>
+                            <td>285</td>
+                            <td>0.57 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Green beans, canned, regular pack</td>
+                            <td>1 cup</td>
+                            <td>270</td>
+                            <td>0.54 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
         <div class="content-section">
             <h2>Processed Foods</h2>
-            <table class="food-table">
-                <thead>
-                    <tr>
-                        <th>Food Name</th>
-                        <th>Serving Size</th>
-                        <th>Sodium (mg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="high-sodium">
-                        <td>Soup, black bean, canned, condensed</td>
-                        <td>1 cup (8 fl oz)</td>
-                        <td>2493</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Soup, chicken noodle, dry mix</td>
-                        <td>1 packet</td>
-                        <td>2339</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Gravy, beef, canned, ready-to-serve</td>
-                        <td>1 cup</td>
-                        <td>1475</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Soup, vegetable beef, ready-to-serve</td>
-                        <td>1 serving</td>
-                        <td>1098</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Soup, chicken broth or bouillon, dry</td>
-                        <td>1 cube</td>
-                        <td>955</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Soup, cream of shrimp, canned</td>
-                        <td>1 cup</td>
-                        <td>954</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Pickles, dill, regular</td>
-                        <td>1 medium</td>
-                        <td>928</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Soy sauce, regular</td>
-                        <td>1 tbsp</td>
-                        <td>902</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Soup, cream of mushroom, canned, condensed</td>
-                        <td>0.5 cup</td>
-                        <td>871</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Soup, chicken, canned, chunky</td>
-                        <td>1 cup</td>
-                        <td>867</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Pie crust, deep dish, frozen, baked</td>
-                        <td>1 pie crust</td>
-                        <td>794</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Pretzels, hard, salted</td>
-                        <td>1 oz</td>
-                        <td>486</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Sauce, cheese, ready-to-serve</td>
-                        <td>0.25 cup</td>
-                        <td>522</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Bread, stuffing, dry mix</td>
-                        <td>1 oz</td>
-                        <td>398</td>
-                    </tr>
-                    <tr>
-                        <td>Salsa, ready-to-serve</td>
-                        <td>0.25 cup</td>
-                        <td>240</td>
-                    </tr>
-                    <tr>
-                        <td>Crackers, cheese, regular</td>
-                        <td>0.5 oz</td>
-                        <td>138</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Sodium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-sodium">
+                            <td>Soup, black bean, canned, condensed</td>
+                            <td>1 cup (8 fl oz)</td>
+                            <td>2493</td>
+                            <td>4.99 servings</td>
+                        </tr>
+                        <tr class="very-high-sodium">
+                            <td>Soup, chicken noodle, dry mix</td>
+                            <td>1 packet</td>
+                            <td>2339</td>
+                            <td>4.68 servings</td>
+                        </tr>
+                        <tr class="very-high-sodium">
+                            <td>Gravy, beef, canned, ready-to-serve</td>
+                            <td>1 cup</td>
+                            <td>1475</td>
+                            <td>2.95 servings</td>
+                        </tr>
+                        <tr class="very-high-sodium">
+                            <td>Soup, vegetable beef, ready-to-serve</td>
+                            <td>1 serving</td>
+                            <td>1098</td>
+                            <td>2.20 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Soup, chicken broth or bouillon, dry</td>
+                            <td>1 cube</td>
+                            <td>955</td>
+                            <td>1.91 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Soup, cream of shrimp, canned</td>
+                            <td>1 cup</td>
+                            <td>954</td>
+                            <td>1.91 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Pickles, dill, regular</td>
+                            <td>1 medium</td>
+                            <td>928</td>
+                            <td>1.86 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Soy sauce, regular</td>
+                            <td>1 tbsp</td>
+                            <td>902</td>
+                            <td>1.80 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Soup, cream of mushroom, canned, condensed</td>
+                            <td>0.5 cup</td>
+                            <td>871</td>
+                            <td>1.74 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Soup, chicken, canned, chunky</td>
+                            <td>1 cup</td>
+                            <td>867</td>
+                            <td>1.73 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Pie crust, deep dish, frozen, baked</td>
+                            <td>1 pie crust</td>
+                            <td>794</td>
+                            <td>1.59 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Sauce, cheese, ready-to-serve</td>
+                            <td>0.25 cup</td>
+                            <td>522</td>
+                            <td>1.04 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Pretzels, hard, salted</td>
+                            <td>1 oz</td>
+                            <td>486</td>
+                            <td>0.97 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Bread, stuffing, dry mix</td>
+                            <td>1 oz</td>
+                            <td>398</td>
+                            <td>0.80 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Salsa, ready-to-serve</td>
+                            <td>0.25 cup</td>
+                            <td>240</td>
+                            <td>0.48 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Crackers, cheese, regular</td>
+                            <td>0.5 oz</td>
+                            <td>138</td>
+                            <td>0.28 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
         <div class="content-section">
             <h2>Fast Foods</h2>
-            <table class="food-table">
-                <thead>
-                    <tr>
-                        <th>Food Name</th>
-                        <th>Serving Size</th>
-                        <th>Sodium (mg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="high-sodium">
-                        <td>Pizza, cheese topping, frozen, baked</td>
-                        <td>1 slice (1/4 of pie)</td>
-                        <td>1274</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Biscuit, with egg and bacon</td>
-                        <td>1 biscuit</td>
-                        <td>1266</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Croissant, with egg, cheese, and ham</td>
-                        <td>1 item</td>
-                        <td>1102</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Biscuit, with egg and sausage</td>
-                        <td>1 item</td>
-                        <td>1089</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>Croissant, with egg, cheese, and sausage</td>
-                        <td>1 sandwich</td>
-                        <td>987</td>
-                    </tr>
-                    <tr class="high-sodium">
-                        <td>English muffin, with egg, cheese, and Canadian bacon</td>
-                        <td>1 sandwich</td>
-                        <td>777</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Hamburger, single patty, with condiments</td>
-                        <td>1 sandwich</td>
-                        <td>650</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Chicken Strips</td>
-                        <td>1 strip</td>
-                        <td>498</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Chicken nuggets, frozen, cooked</td>
-                        <td>5 pieces</td>
-                        <td>474</td>
-                    </tr>
-                    <tr class="moderate-sodium">
-                        <td>Taco, beef, fast food</td>
-                        <td>1 small taco</td>
-                        <td>397</td>
-                    </tr>
-                    <tr>
-                        <td>French fries, frozen, oven-heated</td>
-                        <td>1 cup</td>
-                        <td>260</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Sodium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-sodium">
+                            <td>Pizza, cheese topping, frozen, baked</td>
+                            <td>1 slice (1/4 of pie)</td>
+                            <td>1274</td>
+                            <td>2.55 servings</td>
+                        </tr>
+                        <tr class="very-high-sodium">
+                            <td>Biscuit, with egg and bacon</td>
+                            <td>1 biscuit</td>
+                            <td>1266</td>
+                            <td>2.53 servings</td>
+                        </tr>
+                        <tr class="very-high-sodium">
+                            <td>Croissant, with egg, cheese, and ham</td>
+                            <td>1 item</td>
+                            <td>1102</td>
+                            <td>2.20 servings</td>
+                        </tr>
+                        <tr class="very-high-sodium">
+                            <td>Biscuit, with egg and sausage</td>
+                            <td>1 item</td>
+                            <td>1089</td>
+                            <td>2.18 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Croissant, with egg, cheese, and sausage</td>
+                            <td>1 sandwich</td>
+                            <td>987</td>
+                            <td>1.97 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>English muffin, with egg, cheese, and Canadian bacon</td>
+                            <td>1 sandwich</td>
+                            <td>777</td>
+                            <td>1.55 servings</td>
+                        </tr>
+                        <tr class="high-sodium">
+                            <td>Hamburger, single patty, with condiments</td>
+                            <td>1 sandwich</td>
+                            <td>650</td>
+                            <td>1.30 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Chicken Strips</td>
+                            <td>1 strip</td>
+                            <td>498</td>
+                            <td>1.00 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Chicken nuggets, frozen, cooked</td>
+                            <td>5 pieces</td>
+                            <td>474</td>
+                            <td>0.95 servings</td>
+                        </tr>
+                        <tr class="moderate-sodium">
+                            <td>Taco, beef, fast food</td>
+                            <td>1 small taco</td>
+                            <td>397</td>
+                            <td>0.79 servings</td>
+                        </tr>
+                        <tr>
+                            <td>French fries, frozen, oven-heated</td>
+                            <td>1 cup</td>
+                            <td>260</td>
+                            <td>0.52 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="content-section source-info">
     <h2>Source Information</h2>
