@@ -41,14 +41,44 @@ document.addEventListener('DOMContentLoaded', function() {
     // Current section index
     let currentSectionIndex = 0;
     
-    // Initialize tooltips
+    // Initialize tooltips and tooltip handling
     initTooltips();
+    initElectrolyteTooltips();
     
     // Initialize
     updateFormProgress();
     
     // Ensure first section is visible on page load
     goToSection(0);
+    
+    // Handle electrolyte tooltip functionality
+    function initElectrolyteTooltips() {
+        // Electrolyte tooltip handling
+        const tooltipButtons = document.querySelectorAll('.electrolyte-link');
+        const tooltipContainers = document.querySelectorAll('.electrolyte-tooltip');
+        
+        tooltipButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-tooltip');
+                
+                tooltipContainers.forEach(container => {
+                    if (container.id === targetId) {
+                        container.style.display = container.style.display === 'block' ? 'none' : 'block';
+                    } else {
+                        container.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Close tooltips when clicking the X button
+        document.querySelectorAll('.tooltip-close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                this.closest('.electrolyte-tooltip').style.display = 'none';
+            });
+        });
+    }
     
     // Add event listeners for tooltips
     function initTooltips() {

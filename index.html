@@ -191,7 +191,7 @@
                 <div class="form-section" data-section="dietary">
                     <h2>Dietary Habits & Nutritional Needs</h2>
                     
-                    <!-- New: Diet Type Question -->
+                    <!-- Diet Type Question -->
                     <div class="form-group">
                         <label for="diet-type" class="important-question">
                             Which best describes your overall diet?
@@ -200,15 +200,15 @@
                         </label>
                         <select id="diet-type" name="diet-type" required>
                             <option value="" disabled selected>Select an option</option>
-                            <option value="omnivore">Omnivore (includes meat and plant foods)</option>
-                            <option value="vegetarian">Vegetarian (includes dairy/eggs, no meat)</option>
-                            <option value="vegan">Vegan (plant-based only)</option>
-                            <option value="pescatarian">Pescatarian (includes fish, no other meat)</option>
+                            <option value="omnivore">Omnivore (includes all food groups)</option>
+                            <option value="vegetarian">Vegetarian (no meat)</option>
+                            <option value="vegan">Vegan (no animal products)</option>
+                            <option value="pescatarian">Pescatarian (vegetarian + seafood)</option>
                             <option value="other">Other dietary pattern</option>
                         </select>
                     </div>
                     
-                    <!-- New: Protein Intake Question -->
+                    <!-- Protein Intake Question -->
                     <div class="form-group">
                         <label for="protein-intake">
                             How would you describe your protein intake?
@@ -223,88 +223,183 @@
                         </select>
                     </div>
                     
-                    <!-- Existing sodium intake question -->
-                    <div class="form-group">
-                        <label for="sodium-intake">How many servings of <a href="sodium-rich-foods.html" target="_blank" class="info-link">sodium-rich foods</a> do you consume on average?</label>
-                        <select id="sodium-intake" name="sodium-intake" required>
-                            <option value="" disabled selected>Select an option</option>
-                            <option value="0">0 servings per week</option>
-                            <option value="1-3">1–3 servings per week</option>
-                            <option value="4-6">4–6 servings per week</option>
-                            <option value="7">1 serving per day (7 servings per week)</option>
-                            <option value="14">2 servings per day (14 servings per week)</option>
-                            <option value="21">3 servings per day (21 servings per week)</option>
-                            <option value="28">4 servings per day (28 servings per week)</option>
-                            <option value="35+">5+ servings per day (35+ servings per week)</option>
-                        </select>
+                    <!-- Serving Guide Box -->
+                    <div class="serving-guide">
+                        <h3>Understanding Food Servings</h3>
+                        <p>For each question below, a "serving" refers to a standard portion of food containing that electrolyte. 
+                        Click on the blue food name to see examples of what counts as 1 serving.</p>
                     </div>
                     
-                    <!-- Existing potassium intake question -->
-                    <div class="form-group">
-                        <label for="potassium-intake">How many servings of <a href="potassium-rich-foods.html" target="_blank" class="info-link">potassium-rich foods</a> do you consume on average?</label>
-                        <select id="potassium-intake" name="potassium-intake" required>
-                            <option value="" disabled selected>Select an option</option>
-                            <option value="0">0 servings per week</option>
-                            <option value="1-3">1–3 servings per week</option>
-                            <option value="4-6">4–6 servings per week</option>
-                            <option value="7">1 serving per day (7 servings per week)</option>
-                            <option value="14">2 servings per day (14 servings per week)</option>
-                            <option value="21">3 servings per day (21 servings per week)</option>
-                            <option value="28">4 servings per day (28 servings per week)</option>
-                            <option value="35+">5+ servings per day (35+ servings per week)</option>
-                        </select>
+                    <!-- Sodium Intake with tooltip -->
+                    <div class="form-group" style="position: relative;">
+                        <label for="sodium-intake">
+                            How many servings of 
+                            <span class="electrolyte-link" data-tooltip="sodium-tooltip">sodium-rich foods</span>
+                            do you consume on average per day? (decimals allowed)
+                        </label>
+                        
+                        <div id="sodium-tooltip" class="electrolyte-tooltip">
+                            <div class="tooltip-header">
+                                <h3>Sodium-Rich Foods</h3>
+                                <button class="tooltip-close">✕</button>
+                            </div>
+                            <div class="tooltip-content">
+                                <p>What counts as 1 serving:</p>
+                                <div class="serving-list">
+                                    <ul>
+                                        <li>1/4 tsp salt = 1 serving</li>
+                                        <li>1 tbsp soy sauce = 2 servings</li>
+                                        <li>3 slices bacon = 1 serving</li>
+                                        <li>1 cup canned soup = 1 serving</li>
+                                    </ul>
+                                    <ul>
+                                        <li>2 slices of bread = 1/2 serving</li>
+                                        <li>2 oz cheese = 1/2 serving</li>
+                                        <li>1 frozen meal = 1-2 servings</li>
+                                        <li>1 fast food burger = 1 serving</li>
+                                    </ul>
+                                </div>
+                                <div class="view-more">
+                                    <a href="sodium-rich-foods.html">View full sodium foods list →</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="number" id="sodium-intake" name="sodium-intake" min="0" step="0.01" required placeholder="Enter average daily servings">
+                        <p class="help-text">For less than daily consumption, use decimals (e.g., 0.5 = every other day)</p>
                     </div>
                     
-                    <!-- Existing magnesium intake question -->
-                    <div class="form-group">
-                        <label for="magnesium-intake">How many servings of magnesium-rich foods do you consume on average?</label>
-                        <select id="magnesium-intake" name="magnesium-intake" required>
-                            <option value="" disabled selected>Select an option</option>
-                            <option value="0">0 servings per week</option>
-                            <option value="1-3">1–3 servings per week</option>
-                            <option value="4-6">4–6 servings per week</option>
-                            <option value="7">1 serving per day (7 servings per week)</option>
-                            <option value="14">2 servings per day (14 servings per week)</option>
-                            <option value="21">3 servings per day (21 servings per week)</option>
-                            <option value="28">4 servings per day (28 servings per week)</option>
-                            <option value="35+">5+ servings per day (35+ servings per week)</option>
-                        </select>
+                    <!-- Potassium Intake with tooltip -->
+                    <div class="form-group" style="position: relative;">
+                        <label for="potassium-intake">
+                            How many servings of 
+                            <span class="electrolyte-link" data-tooltip="potassium-tooltip">potassium-rich foods</span>
+                            do you consume on average per day? (decimals allowed)
+                        </label>
+                        
+                        <div id="potassium-tooltip" class="electrolyte-tooltip">
+                            <div class="tooltip-header">
+                                <h3>Potassium-Rich Foods</h3>
+                                <button class="tooltip-close">✕</button>
+                            </div>
+                            <div class="tooltip-content">
+                                <p>What counts as 1 serving:</p>
+                                <div class="serving-list">
+                                    <ul>
+                                        <li>1 medium banana = 1 serving</li>
+                                        <li>1 medium potato = 2 servings</li>
+                                        <li>1/2 avocado = 1 serving</li>
+                                        <li>1 cup leafy greens = 1 serving</li>
+                                    </ul>
+                                    <ul>
+                                        <li>1/2 cup beans = 1 serving</li>
+                                        <li>1 cup milk = 1 serving</li>
+                                        <li>3 oz salmon = 1 serving</li>
+                                        <li>1 cup coconut water = 1 serving</li>
+                                    </ul>
+                                </div>
+                                <p style="font-size: 0.7rem; font-style: italic; margin-top: 0.5rem; color: #666;">Note: Very high potassium foods (potatoes, avocados) count as 2 servings</p>
+                                <div class="view-more">
+                                    <a href="potassium-rich-foods.html">View full potassium foods list →</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="number" id="potassium-intake" name="potassium-intake" min="0" step="0.01" required placeholder="Enter average daily servings">
+                        <p class="help-text">For less than daily consumption, use decimals (e.g., 0.5 = every other day)</p>
                     </div>
                     
-                    <!-- Existing calcium intake question -->
-                    <div class="form-group">
-                        <label for="calcium-intake">How many servings of <a href="calcium-rich-foods.html" target="_blank" class="info-link">calcium-rich foods</a> do you consume on average?</label>
-                        <select id="calcium-intake" name="calcium-intake" required>
-                            <option value="" disabled selected>Select an option</option>
-                            <option value="0">0 servings per week</option>
-                            <option value="1-3">1–3 servings per week</option>
-                            <option value="4-6">4–6 servings per week</option>
-                            <option value="7">1 serving per day (7 servings per week)</option>
-                            <option value="14">2 servings per day (14 servings per week)</option>
-                            <option value="21">3 servings per day (21 servings per week)</option>
-                            <option value="28">4 servings per day (28 servings per week)</option>
-                            <option value="35+">5+ servings per day (35+ servings per week)</option>
-                        </select>
+                    <!-- Magnesium Intake with tooltip -->
+                    <div class="form-group" style="position: relative;">
+                        <label for="magnesium-intake">
+                            How many servings of 
+                            <span class="electrolyte-link" data-tooltip="magnesium-tooltip">magnesium-rich foods</span>
+                            do you consume on average per day? (decimals allowed)
+                        </label>
+                        
+                        <div id="magnesium-tooltip" class="electrolyte-tooltip">
+                            <div class="tooltip-header">
+                                <h3>Magnesium-Rich Foods</h3>
+                                <button class="tooltip-close">✕</button>
+                            </div>
+                            <div class="tooltip-content">
+                                <p>What counts as 1 serving:</p>
+                                <div class="serving-list">
+                                    <ul>
+                                        <li>1 oz pumpkin seeds = 2 servings</li>
+                                        <li>1 oz almonds/nuts = 1 serving</li>
+                                        <li>1/2 cup spinach (cooked) = 2 servings</li>
+                                        <li>1/2 cup beans = 1 serving</li>
+                                    </ul>
+                                    <ul>
+                                        <li>1 oz dark chocolate = 1 serving</li>
+                                        <li>1/2 avocado = 1 serving</li>
+                                        <li>1 cup brown rice = 1 serving</li>
+                                        <li>2 tbsp peanut butter = 1 serving</li>
+                                    </ul>
+                                </div>
+                                <p style="font-size: 0.7rem; font-style: italic; margin-top: 0.5rem; color: #666;">Note: Very high magnesium foods (seeds, spinach) count as 2 servings</p>
+                                <div class="view-more">
+                                    <a href="magnesium-rich-foods.html">View full magnesium foods list →</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="number" id="magnesium-intake" name="magnesium-intake" min="0" step="0.01" required placeholder="Enter average daily servings">
+                        <p class="help-text">For less than daily consumption, use decimals (e.g., 0.5 = every other day)</p>
                     </div>
                     
-                    <!-- New: Dairy-specific intake question -->
+                    <!-- Calcium Intake with tooltip -->
+                    <div class="form-group" style="position: relative;">
+                        <label for="calcium-intake">
+                            How many servings of 
+                            <span class="electrolyte-link" data-tooltip="calcium-tooltip">calcium-rich foods</span>
+                            do you consume on average per day? (decimals allowed)
+                        </label>
+                        
+                        <div id="calcium-tooltip" class="electrolyte-tooltip">
+                            <div class="tooltip-header">
+                                <h3>Calcium-Rich Foods</h3>
+                                <button class="tooltip-close">✕</button>
+                            </div>
+                            <div class="tooltip-content">
+                                <p>What counts as 1 serving:</p>
+                                <div class="serving-list">
+                                    <ul>
+                                        <li>1 cup milk = 1 serving</li>
+                                        <li>1 cup yogurt = 1 serving</li>
+                                        <li>1.5 oz cheese = 1 serving</li>
+                                        <li>3 oz sardines (with bones) = 1 serving</li>
+                                    </ul>
+                                    <ul>
+                                        <li>1/2 cup tofu (firm) = 1 serving</li>
+                                        <li>1 cup fortified plant milk = 1 serving</li>
+                                        <li>1 cup cooked kale = 1 serving</li>
+                                        <li>1/2 cup white beans = 1 serving</li>
+                                    </ul>
+                                </div>
+                                <div class="view-more">
+                                    <a href="calcium-rich-foods.html">View full calcium foods list →</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <input type="number" id="calcium-intake" name="calcium-intake" min="0" step="0.01" required placeholder="Enter average daily servings">
+                        <p class="help-text">For less than daily consumption, use decimals (e.g., 0.5 = every other day)</p>
+                    </div>
+                    
+                    <!-- Dairy Intake -->
                     <div class="form-group">
                         <label for="dairy-intake">
-                            How many servings of dairy products do you consume on average?
+                            How many servings of dairy products do you consume on average per day? (decimals allowed)
                             <span class="tooltip-icon" data-tooltip="Dairy is a primary source of calcium with high bioavailability">?</span>
+                            <span class="text-xs text-gray-500">(1 serving = 1 cup milk, 1.5 oz cheese, 1 cup yogurt)</span>
                         </label>
-                        <select id="dairy-intake" name="dairy-intake" required>
-                            <option value="" disabled selected>Select an option</option>
-                            <option value="0">0 servings per week</option>
-                            <option value="1-3">1–3 servings per week</option>
-                            <option value="4-6">4–6 servings per week</option>
-                            <option value="7">1 serving per day (7 servings per week)</option>
-                            <option value="14">2 servings per day (14 servings per week)</option>
-                            <option value="21">3+ servings per day (21+ servings per week)</option>
-                        </select>
+                        <input type="number" id="dairy-intake" name="dairy-intake" min="0" step="0.01" required placeholder="Enter average daily servings">
+                        <p class="help-text">For less than daily consumption, use decimals (e.g., 0.5 = every other day)</p>
                     </div>
                     
-                    <!-- New: Enhanced supplement inputs -->
+                    <!-- Supplement inputs -->
                     <div class="form-group">
                         <label>Do you take any of the following supplements?</label>
                         <div class="supplement-inputs">
@@ -327,7 +422,7 @@
                         </div>
                     </div>
                     
-                    <!-- Keep the existing supplements textarea for additional info -->
+                    <!-- Supplements textarea -->
                     <div class="form-group">
                         <label for="supplements">Any other supplements or details about your supplement regimen?</label>
                         <textarea id="supplements" name="supplements" rows="2"></textarea>
