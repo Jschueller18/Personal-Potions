@@ -13,7 +13,7 @@
             --text-color: #333;
             --border-color: #ddd;
             --light-bg: #f9f9f9;
-            --table-stripe: rgba(0, 0, 0, 0.02);
+            --table-stripe: rgba(0, 200, 248, 0.05);
         }
         
         * {
@@ -88,53 +88,6 @@
             font-size: 1.4rem;
         }
         
-        /* Color legend */
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin: 1rem 0 2rem;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--light-bg);
-            padding: 1rem;
-            border-radius: 8px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            font-size: 0.9rem;
-            margin-right: 1rem;
-        }
-        
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            margin-right: 0.5rem;
-        }
-        
-        .legend-title {
-            width: 100%;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Update potassium level classes */
-        .very-high-potassium {
-            background-color: rgba(0, 200, 248, 0.2);
-        }
-        
-        .high-potassium {
-            background-color: rgba(0, 200, 248, 0.12);
-        }
-        
-        .moderate-potassium {
-            background-color: rgba(0, 200, 248, 0.05);
-        }
-        
         /* Table wrapper for horizontal scrolling on mobile */
         .table-wrapper {
             overflow-x: auto;
@@ -160,13 +113,13 @@
             border-bottom: 1px solid var(--border-color);
         }
         
-        /* Add alternate row striping */
-        .food-table tr:nth-child(odd):not(.very-high-potassium):not(.high-potassium):not(.moderate-potassium) {
+        /* Add alternating row striping with light blue */
+        .food-table tr:nth-child(even) {
             background-color: var(--table-stripe);
         }
         
         .food-table tr:hover {
-            background-color: rgba(0, 200, 248, 0.1);
+            background-color: rgba(0, 200, 248, 0.15);
         }
         
         .back-link {
@@ -190,14 +143,6 @@
             .food-table td {
                 padding: 0.5rem;
             }
-            
-            .legend {
-                padding: 0.75rem;
-            }
-            
-            .legend-item {
-                margin-bottom: 0.5rem;
-            }
         }
     </style>
 </head>
@@ -217,27 +162,6 @@
                 <p><strong>1 Standard Serving = 400mg of Potassium</strong></p>
                 <p>This is the baseline used in the survey questions about your daily potassium intake</p>
             </div>
-            
-            <!-- Single legend at the top -->
-            <div class="legend">
-                <div class="legend-title">Potassium Content Color Guide</div>
-                <div class="legend-item">
-                    <div class="legend-color very-high-potassium"></div>
-                    <span>Very High (>500 mg)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color high-potassium"></div>
-                    <span>High (400-499 mg)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color moderate-potassium"></div>
-                    <span>Moderate (300-399 mg)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color"></div>
-                    <span>Lower (<300 mg)</span>
-                </div>
-            </div>
         </div>
         
         <div class="content-section">
@@ -253,55 +177,55 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Milk, 2%, protein fortified</td>
                             <td>1.0 cups</td>
                             <td>448</td>
                             <td>1.12 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Milk, 1%, protein fortified</td>
                             <td>1.0 cups</td>
                             <td>443</td>
                             <td>1.11 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Chocolate milk, reduced fat</td>
                             <td>1.0 cups</td>
                             <td>422</td>
                             <td>1.06 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Chocolate milk, whole</td>
                             <td>1.0 cups</td>
                             <td>418</td>
                             <td>1.05 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Milk powder, nonfat (reconstituted)</td>
                             <td>1.0 cups</td>
                             <td>418</td>
                             <td>1.05 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Yogurt, plain, low fat</td>
                             <td>1.0 container (6 oz)</td>
                             <td>398</td>
                             <td>1.00 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Milk, whole, 3.7% fat</td>
                             <td>1.0 cups</td>
                             <td>368</td>
                             <td>0.92 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Yogurt, fruit, low fat</td>
                             <td>1.0 container (6 oz)</td>
                             <td>367</td>
                             <td>0.92 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Greek yogurt</td>
                             <td>1.0 cup</td>
                             <td>350</td>
@@ -331,49 +255,49 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Cod, Atlantic, canned</td>
                             <td>3.0 oz</td>
                             <td>449</td>
                             <td>1.12 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Salmon, coho, wild, cooked</td>
                             <td>3.0 oz</td>
                             <td>387</td>
                             <td>0.97 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Pork, tenderloin, lean</td>
                             <td>3.0 oz</td>
                             <td>370</td>
                             <td>0.93 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Salami, pork, beef, less sodium</td>
                             <td>3.0 oz</td>
                             <td>320</td>
                             <td>0.80 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Pork, shoulder, lean and fat, cooked</td>
                             <td>3.0 oz</td>
                             <td>333</td>
                             <td>0.83 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Beef, ribeye, lean only</td>
                             <td>3.0 oz</td>
                             <td>330</td>
                             <td>0.83 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Ham, rump, bone-in, lean only</td>
                             <td>3.0 oz</td>
                             <td>327</td>
                             <td>0.82 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Beef, top loin, lean and fat</td>
                             <td>3.0 oz</td>
                             <td>305</td>
@@ -445,211 +369,211 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Swiss chard</td>
                             <td>1.0 cup cooked</td>
                             <td>960</td>
                             <td>2.40 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Potatoes, Russet, flesh and skin, baked</td>
                             <td>1.0 potato large</td>
                             <td>925</td>
                             <td>2.31 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Pinto beans</td>
                             <td>1.0 cup cooked</td>
                             <td>750</td>
                             <td>1.88 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Lentils</td>
                             <td>1.0 cup cooked</td>
                             <td>730</td>
                             <td>1.83 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Coconut water</td>
                             <td>1.0 cup (240g)</td>
                             <td>600</td>
                             <td>1.50 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Kidney beans</td>
                             <td>1.0 cup cooked</td>
                             <td>600</td>
                             <td>1.50 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Tomato products, canned, puree, without salt added</td>
                             <td>0.5 cups</td>
                             <td>549</td>
                             <td>1.37 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Sweet potato, baked in skin</td>
                             <td>1.0 medium</td>
                             <td>542</td>
                             <td>1.36 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Apricots, dried, sulfured, stewed</td>
                             <td>0.5 cups, halves</td>
                             <td>514</td>
                             <td>1.29 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Tomato sauce with onions</td>
                             <td>0.5 cups</td>
                             <td>506</td>
                             <td>1.27 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Brussels sprouts</td>
                             <td>1.0 cup cooked</td>
                             <td>500</td>
                             <td>1.25 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Molasses</td>
                             <td>1.0 tablespoon</td>
                             <td>500</td>
                             <td>1.25 servings</td>
                         </tr>
-                        <tr class="very-high-potassium">
+                        <tr>
                             <td>Tomato sauce with onions, green peppers, and celery</td>
                             <td>0.5 cups</td>
                             <td>498</td>
                             <td>1.25 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Avocado</td>
                             <td>1/2 avocado (68g)</td>
                             <td>487</td>
                             <td>1.22 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Soybeans, green, cooked, boiled, drained (edamame)</td>
                             <td>0.5 cups</td>
                             <td>485</td>
                             <td>1.21 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Lima beans, cooked, boiled, drained</td>
                             <td>0.5 cups</td>
                             <td>485</td>
                             <td>1.21 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Chickpeas/garbanzo beans</td>
                             <td>1.0 cup cooked</td>
                             <td>475</td>
                             <td>1.19 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Potatoes, scalloped, home-prepared with butter</td>
                             <td>0.5 cups</td>
                             <td>463</td>
                             <td>1.16 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Orange juice, with added calcium and vitamin D</td>
                             <td>1.0 cups</td>
                             <td>443</td>
                             <td>1.11 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Cantaloupe</td>
                             <td>1.0 cup cubed</td>
                             <td>430</td>
                             <td>1.08 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Artichoke</td>
                             <td>1.0 medium</td>
                             <td>425</td>
                             <td>1.06 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Banana, medium</td>
                             <td>1.0 medium (118g)</td>
                             <td>422</td>
                             <td>1.06 servings</td>
                         </tr>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Black beans, cooked, boiled</td>
                             <td>0.5 cups</td>
                             <td>401</td>
                             <td>1.00 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Beans, baked, canned, with pork</td>
                             <td>0.5 cups</td>
                             <td>391</td>
                             <td>0.98 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Lima beans, frozen, cooked</td>
                             <td>0.5 cups</td>
                             <td>383</td>
                             <td>0.96 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Black beans, canned</td>
                             <td>0.5 cups</td>
                             <td>370</td>
                             <td>0.93 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Papaya</td>
                             <td>1.0 medium</td>
                             <td>360</td>
                             <td>0.90 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Black-eyed peas, cooked, boiled, drained</td>
                             <td>0.5 cups</td>
                             <td>345</td>
                             <td>0.86 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Granola, homemade</td>
                             <td>0.5 cups</td>
                             <td>329</td>
                             <td>0.82 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Quinoa</td>
                             <td>1.0 cup cooked</td>
                             <td>320</td>
                             <td>0.80 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Squash, winter, acorn, cooked, mashed</td>
                             <td>0.5 cups, mashed</td>
                             <td>322</td>
                             <td>0.81 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Black-eyed peas, frozen, cooked</td>
                             <td>0.5 cups</td>
                             <td>319</td>
                             <td>0.80 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Zucchini, italian style, canned</td>
                             <td>0.5 cups</td>
                             <td>311</td>
                             <td>0.78 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Kale</td>
                             <td>1.0 cup cooked</td>
                             <td>300</td>
                             <td>0.75 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Prunes</td>
                             <td>5.0 prunes</td>
                             <td>300</td>
@@ -877,31 +801,31 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="high-potassium">
+                        <tr>
                             <td>Soup, beef and vegetables, canned</td>
                             <td>1.0 cups</td>
                             <td>435</td>
                             <td>1.09 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Frozen pizza, cheese, rising crust</td>
                             <td>1.0 slice 1/4 of pie</td>
                             <td>359</td>
                             <td>0.90 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Potato sticks</td>
                             <td>1.0 oz</td>
                             <td>351</td>
                             <td>0.88 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Pie Crust, chocolate, ready-made</td>
                             <td>1.0 crust</td>
                             <td>340</td>
                             <td>0.85 servings</td>
                         </tr>
-                        <tr class="moderate-potassium">
+                        <tr>
                             <td>Potato chips, barbecue-flavor</td>
                             <td>1.0 oz</td>
                             <td>336</td>

@@ -13,6 +13,7 @@
             --text-color: #333;
             --border-color: #ddd;
             --light-bg: #f9f9f9;
+            --table-stripe: rgba(0, 200, 248, 0.05);
         }
         
         * {
@@ -72,10 +73,78 @@
             margin-bottom: 2rem;
         }
         
+        /* Standard serving definition banner */
+        .standard-serving {
+            background-color: #00C8F8;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .standard-serving strong {
+            font-size: 1.4rem;
+        }
+        
+        /* Color legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0 2rem;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-bg);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            margin-right: 1rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        
+        .legend-title {
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Update calcium level classes */
+        .very-high-calcium {
+            background-color: rgba(0, 200, 248, 0.2);
+        }
+        
+        .high-calcium {
+            background-color: rgba(0, 200, 248, 0.12);
+        }
+        
+        .moderate-calcium {
+            background-color: rgba(0, 200, 248, 0.05);
+        }
+        
+        /* Table wrapper for horizontal scrolling on mobile */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+        }
+        
         .food-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 1rem;
         }
         
         .food-table th {
@@ -83,6 +152,7 @@
             text-align: left;
             padding: 0.75rem;
             border-bottom: 2px solid var(--primary-color);
+            white-space: nowrap;
         }
         
         .food-table td {
@@ -90,20 +160,13 @@
             border-bottom: 1px solid var(--border-color);
         }
         
+        /* Add alternating row striping with light blue */
         .food-table tr:nth-child(even) {
-            background-color: var(--light-bg);
+            background-color: var(--table-stripe);
         }
         
         .food-table tr:hover {
-            background-color: rgba(0, 200, 248, 0.1);
-        }
-        
-        .high-calcium {
-            background-color: rgba(0, 200, 248, 0.1);
-        }
-        
-        .moderate-calcium {
-            background-color: rgba(0, 200, 248, 0.05);
+            background-color: rgba(0, 200, 248, 0.15);
         }
         
         .back-link {
@@ -127,9 +190,17 @@
             .food-table td {
                 padding: 0.5rem;
             }
+            
+            .legend {
+                padding: 0.75rem;
+            }
+            
+            .legend-item {
+                margin-bottom: 0.5rem;
+            }
         }
-    </style
-        <link rel="icon" type="image/png" href="pplogo.png">
+    </style>
+    <link rel="icon" type="image/png" href="pplogo.png">
 </head>
 <body>
     <header>
@@ -143,244 +214,455 @@
             <p>Calcium is a vital mineral essential for strong bones, muscle function, nerve transmission, and cellular health. Your personal calcium requirements vary based on your age, biological sex, activity level, and overall health status.</p>
             <p>While dairy products are commonly associated with calcium, many other food sources can contribute significantly to your daily intake. Understanding your diverse calcium sources helps you strategically balance your diet for optimal performance, recovery, and long-term health.</p>
             <p>By combining awareness of your calcium intake with your personalized OPTIMAIZE electrolyte formulation, you can achieve precisely calibrated mineral levels tailored to your body's unique biochemistry and activity demands.</p>
+            
+            <div class="standard-serving">
+                <p><strong>1 Standard Serving = 300mg of Calcium</strong></p>
+                <p>This is the baseline used in the survey questions about your daily calcium intake</p>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-title">Calcium Content Color Guide</div>
+                <div class="legend-item">
+                    <div class="legend-color very-high-calcium"></div>
+                    <span>Very High (>400 mg)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color high-calcium"></div>
+                    <span>High (300-400 mg)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color moderate-calcium"></div>
+                    <span>Moderate (100-299 mg)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color"></div>
+                    <span>Lower (<100 mg)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>Important Note About Calcium Absorption</h2>
+            <p>Not all calcium sources are absorbed equally by the body. Calcium from dairy products is typically absorbed at a rate of 30-35%, while calcium from some plant sources may have lower absorption rates due to compounds like oxalates and phytates that can bind to calcium.</p>
+            <p>Calcium absorption rates:</p>
+            <ul>
+                <li>Dairy products: 30-35% absorption</li>
+                <li>Calcium-fortified foods: 30-35% absorption</li>
+                <li>Calcium-set tofu: 30-35% absorption</li>
+                <li>Kale, bok choy, broccoli: 40-50% absorption</li>
+                <li>Spinach, swiss chard, beet greens: 5-10% absorption (high oxalate content)</li>
+            </ul>
+            <p>For optimal absorption, consume calcium-rich foods with vitamin D sources and spread intake throughout the day rather than in one large dose.</p>
         </div>
         
         <div class="content-section">
             <h2>Dairy Products</h2>
-            <table class="food-table">
-                <thead>
-                    <tr>
-                        <th>Food Name</th>
-                        <th>Serving Size</th>
-                        <th>Calcium (mg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="high-calcium">
-                        <td>Milk, Sheep, fluid</td>
-                        <td>1 cup</td>
-                        <td>473</td>
-                    </tr>
-                    <tr class="high-calcium">
-                        <td>Milk, Nonfat, fluid, protein fortified</td>
-                        <td>1 cup</td>
-                        <td>352</td>
-                    </tr>
-                    <tr class="high-calcium">
-                        <td>Milk, Lowfat, fluid, 1% milkfat, protein fortified</td>
-                        <td>1 cup</td>
-                        <td>349</td>
-                    </tr>
-                    <tr class="high-calcium">
-                        <td>Yogurt, plain, low fat</td>
-                        <td>1 container (6 oz)</td>
-                        <td>311</td>
-                    </tr>
-                    <tr class="high-calcium">
-                        <td>Cheese, pasteurized process, American, fortified with vitamin D</td>
-                        <td>1 oz</td>
-                        <td>296</td>
-                    </tr>
-                    <tr class="high-calcium">
-                        <td>Milk, Chocolate, fluid, commercial, whole, with vitamin A and D</td>
-                        <td>1 cup</td>
-                        <td>280</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Cheese, Parmesan, grated</td>
-                        <td>2 tbsp</td>
-                        <td>214</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Cheese, Ricotta, part skim milk</td>
-                        <td>0.25 cup</td>
-                        <td>169</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Cheese, blue</td>
-                        <td>1 oz</td>
-                        <td>150</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Cheese, Swiss</td>
-                        <td>1 oz</td>
-                        <td>147</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Cheese, pasteurized process, Swiss</td>
-                        <td>1 oz</td>
-                        <td>135</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Cheese, Mozzarella, low moisture, part-skim</td>
-                        <td>1 oz</td>
-                        <td>115</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Ice creams, BREYERS, All Natural Light Vanilla</td>
-                        <td>1 serving (1/2 cup)</td>
-                        <td>115</td>
-                    </tr>
-                    <tr>
-                        <td>Cheese, Camembert</td>
-                        <td>1 oz</td>
-                        <td>110</td>
-                    </tr>
-                    <tr>
-                        <td>Cheese, Feta</td>
-                        <td>1 oz</td>
-                        <td>93</td>
-                    </tr>
-                    <tr>
-                        <td>Cheese, cottage, low-fat, 2% milkfat</td>
-                        <td>0.5 cup</td>
-                        <td>63</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Calcium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-calcium">
+                            <td>Milk, Sheep, fluid</td>
+                            <td>1 cup</td>
+                            <td>473</td>
+                            <td>1.58 servings</td>
+                        </tr>
+                        <tr class="high-calcium">
+                            <td>Milk, Nonfat, fluid, protein fortified</td>
+                            <td>1 cup</td>
+                            <td>352</td>
+                            <td>1.17 servings</td>
+                        </tr>
+                        <tr class="high-calcium">
+                            <td>Milk, Lowfat, fluid, 1% milkfat, protein fortified</td>
+                            <td>1 cup</td>
+                            <td>349</td>
+                            <td>1.16 servings</td>
+                        </tr>
+                        <tr class="high-calcium">
+                            <td>Yogurt, plain, low fat</td>
+                            <td>1 container (6 oz)</td>
+                            <td>311</td>
+                            <td>1.04 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cheese, pasteurized process, American, fortified with vitamin D</td>
+                            <td>1 oz</td>
+                            <td>296</td>
+                            <td>0.99 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Milk, Chocolate, fluid, commercial, whole, with vitamin A and D</td>
+                            <td>1 cup</td>
+                            <td>280</td>
+                            <td>0.93 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cheese, Parmesan, grated</td>
+                            <td>2 tbsp</td>
+                            <td>214</td>
+                            <td>0.71 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cheese, Ricotta, part skim milk</td>
+                            <td>0.25 cup</td>
+                            <td>169</td>
+                            <td>0.56 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cheese, blue</td>
+                            <td>1 oz</td>
+                            <td>150</td>
+                            <td>0.50 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cheese, Swiss</td>
+                            <td>1 oz</td>
+                            <td>147</td>
+                            <td>0.49 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cheese, pasteurized process, Swiss</td>
+                            <td>1 oz</td>
+                            <td>135</td>
+                            <td>0.45 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cheese, Mozzarella, low moisture, part-skim</td>
+                            <td>1 oz</td>
+                            <td>115</td>
+                            <td>0.38 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Ice creams, BREYERS, All Natural Light Vanilla</td>
+                            <td>1 serving (1/2 cup)</td>
+                            <td>115</td>
+                            <td>0.38 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cheese, Camembert</td>
+                            <td>1 oz</td>
+                            <td>110</td>
+                            <td>0.37 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Cheese, Feta</td>
+                            <td>1 oz</td>
+                            <td>93</td>
+                            <td>0.31 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Cheese, cottage, low-fat, 2% milkfat</td>
+                            <td>0.5 cup</td>
+                            <td>63</td>
+                            <td>0.21 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
         <div class="content-section">
             <h2>Meats & Fish</h2>
-            <table class="food-table">
-                <thead>
-                    <tr>
-                        <th>Food Name</th>
-                        <th>Serving Size</th>
-                        <th>Calcium (mg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="moderate-calcium">
-                        <td>Fish, Salmon, pink, canned, with bones</td>
-                        <td>3 oz</td>
-                        <td>181</td>
-                    </tr>
-                    <tr>
-                        <td>Fish, herring, Atlantic, pickled</td>
-                        <td>3 oz</td>
-                        <td>81</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Calcium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="moderate-calcium">
+                            <td>Fish, Salmon, pink, canned, with bones</td>
+                            <td>3 oz</td>
+                            <td>181</td>
+                            <td>0.60 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Fish, herring, Atlantic, pickled</td>
+                            <td>3 oz</td>
+                            <td>81</td>
+                            <td>0.27 servings</td>
+                        </tr>
+                        <tr class="high-calcium">
+                            <td>Sardines, canned with bones</td>
+                            <td>3 oz</td>
+                            <td>325</td>
+                            <td>1.08 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Canned pilchards/sprats with bones</td>
+                            <td>3 oz</td>
+                            <td>240</td>
+                            <td>0.80 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
         <div class="content-section">
             <h2>Vegetables, Legumes, & Nuts</h2>
-            <table class="food-table">
-                <thead>
-                    <tr>
-                        <th>Food Name</th>
-                        <th>Serving Size</th>
-                        <th>Calcium (mg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="high-calcium">
-                        <td>Tofu, raw, firm, prepared with calcium sulfate</td>
-                        <td>0.25 cup</td>
-                        <td>430</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Nuts, Almonds, dry roasted, without salt added</td>
-                        <td>0.5 cup</td>
-                        <td>185</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Cabbage, Chinese (pak-choi), cooked</td>
-                        <td>1 cup, shredded</td>
-                        <td>158</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Beans, pink, mature seeds, raw</td>
-                        <td>0.5 cup</td>
-                        <td>137</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Soybeans, green, cooked, boiled, drained</td>
-                        <td>0.5 cup</td>
-                        <td>131</td>
-                    </tr>
-                    <tr>
-                        <td>Corn flour, yellow, masa, enriched</td>
-                        <td>0.5 cup</td>
-                        <td>78</td>
-                    </tr>
-                    <tr>
-                        <td>Beans, baked, canned, with pork</td>
-                        <td>0.5 cup</td>
-                        <td>67</td>
-                    </tr>
-                    <tr>
-                        <td>Oranges, raw, with peel</td>
-                        <td>0.5 cup</td>
-                        <td>59</td>
-                    </tr>
-                    <tr>
-                        <td>Seeds, sunflower, oil roasted, without salt</td>
-                        <td>0.5 cup</td>
-                        <td>58</td>
-                    </tr>
-                    <tr>
-                        <td>Beans, black turtle, cooked, boiled</td>
-                        <td>0.5 cup</td>
-                        <td>51</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Calcium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-calcium">
+                            <td>Tofu, raw, firm, prepared with calcium sulfate</td>
+                            <td>0.25 cup</td>
+                            <td>430</td>
+                            <td>1.43 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Nuts, Almonds, dry roasted, without salt added</td>
+                            <td>0.5 cup</td>
+                            <td>185</td>
+                            <td>0.62 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cabbage, Chinese (pak-choi), cooked</td>
+                            <td>1 cup, shredded</td>
+                            <td>158</td>
+                            <td>0.53 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Beans, pink, mature seeds, raw</td>
+                            <td>0.5 cup</td>
+                            <td>137</td>
+                            <td>0.46 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Soybeans, green, cooked, boiled, drained</td>
+                            <td>0.5 cup</td>
+                            <td>131</td>
+                            <td>0.44 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Corn flour, yellow, masa, enriched</td>
+                            <td>0.5 cup</td>
+                            <td>78</td>
+                            <td>0.26 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Beans, baked, canned, with pork</td>
+                            <td>0.5 cup</td>
+                            <td>67</td>
+                            <td>0.22 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Oranges, raw, with peel</td>
+                            <td>0.5 cup</td>
+                            <td>59</td>
+                            <td>0.20 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Seeds, sunflower, oil roasted, without salt</td>
+                            <td>0.5 cup</td>
+                            <td>58</td>
+                            <td>0.19 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Beans, black turtle, cooked, boiled</td>
+                            <td>0.5 cup</td>
+                            <td>51</td>
+                            <td>0.17 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Chia seeds</td>
+                            <td>2 tbsp</td>
+                            <td>180</td>
+                            <td>0.60 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Sesame seeds</td>
+                            <td>2 tbsp</td>
+                            <td>175</td>
+                            <td>0.58 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Blackstrap molasses</td>
+                            <td>1 tbsp</td>
+                            <td>175</td>
+                            <td>0.58 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Dried figs</td>
+                            <td>5 figs</td>
+                            <td>135</td>
+                            <td>0.45 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>White beans, cooked</td>
+                            <td>1 cup</td>
+                            <td>130</td>
+                            <td>0.43 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="content-section">
+            <h2>Leafy Greens</h2>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Calcium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="moderate-calcium">
+                            <td>Collard greens, cooked</td>
+                            <td>1 cup</td>
+                            <td>270</td>
+                            <td>0.90 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Spinach, cooked</td>
+                            <td>1 cup</td>
+                            <td>240</td>
+                            <td>0.80 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Turnip greens, cooked</td>
+                            <td>1 cup</td>
+                            <td>200</td>
+                            <td>0.67 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Kale, cooked</td>
+                            <td>1 cup</td>
+                            <td>180</td>
+                            <td>0.60 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Mustard greens, cooked</td>
+                            <td>1 cup</td>
+                            <td>165</td>
+                            <td>0.55 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Bok choy (Chinese cabbage), cooked</td>
+                            <td>1 cup</td>
+                            <td>158</td>
+                            <td>0.53 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Broccoli, cooked</td>
+                            <td>1 cup</td>
+                            <td>60</td>
+                            <td>0.20 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
         <div class="content-section">
             <h2>Processed Foods</h2>
-            <table class="food-table">
-                <thead>
-                    <tr>
-                        <th>Food Name</th>
-                        <th>Serving Size</th>
-                        <th>Calcium (mg)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="high-calcium">
-                        <td>Beverages, Almond milk, sweetened, vanilla flavor</td>
-                        <td>1 cup</td>
-                        <td>451</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>DIGIORNO Pizza, cheese topping, rising crust</td>
-                        <td>1 slice (1/8 of pie)</td>
-                        <td>175</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Cereals, CREAM OF WHEAT, instant, prepared</td>
-                        <td>1 cup</td>
-                        <td>154</td>
-                    </tr>
-                    <tr class="moderate-calcium">
-                        <td>Whey, sweet, dried</td>
-                        <td>2 tbsp</td>
-                        <td>144</td>
-                    </tr>
-                    <tr>
-                        <td>Beverages, V8 SPLASH Smoothies, Peach Mango</td>
-                        <td>1 serving (8 oz)</td>
-                        <td>100</td>
-                    </tr>
-                    <tr>
-                        <td>Orange juice, frozen concentrate, unsweetened</td>
-                        <td>1 cup</td>
-                        <td>100</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Calcium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-calcium">
+                            <td>Beverages, Almond milk, sweetened, vanilla flavor</td>
+                            <td>1 cup</td>
+                            <td>451</td>
+                            <td>1.50 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>DIGIORNO Pizza, cheese topping, rising crust</td>
+                            <td>1 slice (1/8 of pie)</td>
+                            <td>175</td>
+                            <td>0.58 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Cereals, CREAM OF WHEAT, instant, prepared</td>
+                            <td>1 cup</td>
+                            <td>154</td>
+                            <td>0.51 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Whey, sweet, dried</td>
+                            <td>2 tbsp</td>
+                            <td>144</td>
+                            <td>0.48 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Beverages, V8 SPLASH Smoothies, Peach Mango</td>
+                            <td>1 serving (8 oz)</td>
+                            <td>100</td>
+                            <td>0.33 servings</td>
+                        </tr>
+                        <tr class="moderate-calcium">
+                            <td>Orange juice, frozen concentrate, unsweetened</td>
+                            <td>1 cup</td>
+                            <td>100</td>
+                            <td>0.33 servings</td>
+                        </tr>
+                        <tr class="high-calcium">
+                            <td>Fortified soy milk</td>
+                            <td>1 cup</td>
+                            <td>350</td>
+                            <td>1.17 servings</td>
+                        </tr>
+                        <tr class="high-calcium">
+                            <td>Fortified orange juice</td>
+                            <td>1 cup</td>
+                            <td>350</td>
+                            <td>1.17 servings</td>
+                        </tr>
+                        <tr class="high-calcium">
+                            <td>Fortified non-dairy yogurt</td>
+                            <td>1 cup</td>
+                            <td>330</td>
+                            <td>1.10 servings</td>
+                        </tr>
+                        <tr class="high-calcium">
+                            <td>Fortified breakfast cereal</td>
+                            <td>1 cup</td>
+                            <td>300</td>
+                            <td>1.00 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
-      <div class="content-section source-info">
-    <h2>Source Information</h2>
-    <p>The information on this page is sourced from the USDA National Agricultural Library:</p>
-    <p><a href="https://www.nal.usda.gov/sites/default/files/page-files/calcium.pdf" target="_blank" style="color: var(--secondary-color);">USDA National Agricultural Library - Calcium in Foods PDF</a></p>
-    <p>Values may vary slightly based on food preparation methods, brands, and specific product formulations.</p>
-</div>
+        <div class="content-section source-info">
+            <h2>Source Information</h2>
+            <p>The information on this page is sourced from the USDA National Agricultural Library:</p>
+            <p><a href="https://www.nal.usda.gov/sites/default/files/page-files/calcium.pdf" target="_blank" style="color: var(--secondary-color);">USDA National Agricultural Library - Calcium in Foods PDF</a></p>
+            <p>Values may vary slightly based on food preparation methods, brands, and specific product formulations.</p>
+        </div>
         
         <div class="content-section">
             <a href="index.html" class="back-link">← Back to Diagnostic Survey</a>
