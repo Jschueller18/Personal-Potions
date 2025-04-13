@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Potions - Magnesium-Rich Foods Reference</title>
+    <style>
+        :root {
+            --primary-color: #1A472A;
+            --secondary-color: #00C8F8;
+            --accent-color: #f8a100;
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --border-color: #ddd;
+            --light-bg: #f9f9f9;
+            --table-stripe: rgba(0, 200, 248, 0.05);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            padding-bottom: 2rem;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 1rem;
+        }
+        
+        #logo {
+            max-width: 150px;
+            margin-bottom: 0.5rem;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .content-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .intro {
+            margin-bottom: 2rem;
+        }
+        
+        /* Standard serving definition banner */
+        .standard-serving {
+            background-color: #00C8F8;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .standard-serving strong {
+            font-size: 1.4rem;
+        }
+        
+        /* Color legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0 2rem;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-bg);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            margin-right: 1rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        
+        .legend-title {
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Update magnesium level classes */
+        .very-high-magnesium {
+            background-color: rgba(0, 200, 248, 0.2);
+        }
+        
+        .high-magnesium {
+            background-color: rgba(0, 200, 248, 0.12);
+        }
+        
+        .moderate-magnesium {
+            background-color: rgba(0, 200, 248, 0.05);
+        }
+        
+        /* Table wrapper for horizontal scrolling on mobile */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+        }
+        
+        .food-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .food-table th {
+            background-color: var(--light-bg);
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 2px solid var(--primary-color);
+            white-space: nowrap;
+        }
+        
+        .food-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Add alternating row striping with light blue */
+        .food-table tr:nth-child(even) {
+            background-color: var(--table-stripe);
+        }
+        
+        .food-table tr:hover {
+            background-color: rgba(0, 200, 248, 0.15);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .content-section {
+                padding: 1.5rem;
+            }
+            
+            .food-table th, 
+            .food-table td {
+                padding: 0.5rem;
+            }
+            
+            .legend {
+                padding: 0.75rem;
+            }
+            
+            .legend-item {
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/png" href="pplogo.png">
+</head>
+<body>
+    <header>
+        <img src="personalpotionslogo.png" alt="Personal Potions Logo" id="logo">
+        <h1>Magnesium-Rich Foods Reference</h1>
+    </header>
+    
+    <div class="container">
+        <div class="content-section intro">
+            <h2>Understanding Magnesium in Your Diet</h2>
+            <p>Magnesium is an essential mineral involved in over 300 enzymatic reactions in the body. It plays a crucial role in muscle and nerve function, blood glucose control, protein synthesis, blood pressure regulation, and bone development.</p>
+            <p>The recommended daily intake for adults is approximately 310-420 mg of magnesium, though individual needs vary based on age, biological sex, and overall health status.</p>
+            
+            <div class="standard-serving">
+                <p><strong>1 Standard Serving = 100mg of Magnesium</strong></p>
+                <p>This is the baseline used in the survey questions about your daily magnesium intake</p>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-title">Magnesium Content Color Guide</div>
+                <div class="legend-item">
+                    <div class="legend-color very-high-magnesium"></div>
+                    <span>Very High (>150 mg)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color high-magnesium"></div>
+                    <span>High (100-149 mg)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color moderate-magnesium"></div>
+                    <span>Moderate (50-99 mg)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color"></div>
+                    <span>Lower (<50 mg)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Seeds and Nuts</h2>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Magnesium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-magnesium">
+                            <td>Pumpkin and squash seeds, roasted</td>
+                            <td>1 cup</td>
+                            <td>649</td>
+                            <td>6.49 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Almonds, dry roasted</td>
+                            <td>1 cup whole kernels</td>
+                            <td>385</td>
+                            <td>3.85 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Cashews</td>
+                            <td>1 cup</td>
+                            <td>292</td>
+                            <td>2.92 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Peanuts, dry-roasted</td>
+                            <td>1 cup</td>
+                            <td>260</td>
+                            <td>2.60 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Hazelnuts (filberts)</td>
+                            <td>1 cup, chopped</td>
+                            <td>187</td>
+                            <td>1.87 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Sunflower seed kernels, toasted</td>
+                            <td>1 cup</td>
+                            <td>173</td>
+                            <td>1.73 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Beans and Legumes</h2>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Magnesium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-magnesium">
+                            <td>Beans, pink, mature seeds, raw</td>
+                            <td>1 cup</td>
+                            <td>382</td>
+                            <td>3.82 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Beans, black, mature seeds, raw</td>
+                            <td>1 cup</td>
+                            <td>332</td>
+                            <td>3.32 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Beans, adzuki, mature seeds, raw</td>
+                            <td>1 cup</td>
+                            <td>250</td>
+                            <td>2.50 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Soybeans, green, raw</td>
+                            <td>1 cup</td>
+                            <td>166</td>
+                            <td>1.66 servings</td>
+                        </tr>
+                        <tr class="high-magnesium">
+                            <td>Lima beans, immature seeds, cooked</td>
+                            <td>1 cup</td>
+                            <td>126</td>
+                            <td>1.26 servings</td>
+                        </tr>
+                        <tr class="high-magnesium">
+                            <td>Soybeans, green, cooked (edamame)</td>
+                            <td>1 cup</td>
+                            <td>108</td>
+                            <td>1.08 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Grains and Cereals</h2>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Magnesium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-magnesium">
+                            <td>Whey, sweet, dried</td>
+                            <td>1 cup</td>
+                            <td>255</td>
+                            <td>2.55 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Corn grain, white</td>
+                            <td>1 cup</td>
+                            <td>211</td>
+                            <td>2.11 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Granola, homemade</td>
+                            <td>1 cup</td>
+                            <td>205</td>
+                            <td>2.05 servings</td>
+                        </tr>
+                        <tr class="very-high-magnesium">
+                            <td>Rice flour, brown</td>
+                            <td>1 cup</td>
+                            <td>177</td>
+                            <td>1.77 servings</td>
+                        </tr>
+                        <tr class="high-magnesium">
+                            <td>Cornmeal, whole-grain, white</td>
+                            <td>1 cup</td>
+                            <td>155</td>
+                            <td>1.55 servings</td>
+                        </tr>
+                        <tr class="high-magnesium">
+                            <td>Oat flour, partially debranned</td>
+                            <td>1 cup</td>
+                            <td>150</td>
+                            <td>1.50 servings</td>
+                        </tr>
+                        <tr class="high-magnesium">
+                            <td>Pasta, whole-wheat, dry</td>
+                            <td>1 cup spaghetti</td>
+                            <td>116</td>
+                            <td>1.16 servings</td>
+                        </tr>
+                        <tr class="high-magnesium">
+                            <td>Corn flour, yellow, masa, enriched</td>
+                            <td>1 cup</td>
+                            <td>106</td>
+                            <td>1.06 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Vegetables and Greens</h2>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Magnesium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="high-magnesium">
+                            <td>Spinach, canned, solids and liquids</td>
+                            <td>1 cup</td>
+                            <td>131</td>
+                            <td>1.31 servings</td>
+                        </tr>
+                        <tr class="high-magnesium">
+                            <td>Teff, cooked</td>
+                            <td>1 cup</td>
+                            <td>126</td>
+                            <td>1.26 servings</td>
+                        </tr>
+                        <tr class="moderate-magnesium">
+                            <td>Plantains, yellow, raw</td>
+                            <td>1 plantain</td>
+                            <td>97</td>
+                            <td>0.97 servings</td>
+                        </tr>
+                        <tr class="moderate-magnesium">
+                            <td>Potatoes, Russet, flesh and skin, baked</td>
+                            <td>1 large potato</td>
+                            <td>90</td>
+                            <td>0.90 servings</td>
+                        </tr>
+                        <tr class="moderate-magnesium">
+                            <td>Squash, winter, acorn, cooked, mashed</td>
+                            <td>1 cup, mashed</td>
+                            <td>64</td>
+                            <td>0.64 servings</td>
+                        </tr>
+                        <tr class="moderate-magnesium">
+                            <td>Squash, winter, butternut, cooked, baked</td>
+                            <td>1 cup, cubes</td>
+                            <td>59</td>
+                            <td>0.59 servings</td>
+                        </tr>
+                        <tr class="moderate-magnesium">
+                            <td>Beets, cooked</td>
+                            <td>1 cup</td>
+                            <td>51</td>
+                            <td>0.51 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Fish and Meat</h2>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Magnesium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="moderate-magnesium">
+                            <td>Fish, yellowtail, cooked, dry heat</td>
+                            <td>0.5 fillet</td>
+                            <td>55</td>
+                            <td>0.55 servings</td>
+                        </tr>
+                        <tr class="moderate-magnesium">
+                            <td>Crustaceans, crab, queen, cooked</td>
+                            <td>3 oz</td>
+                            <td>54</td>
+                            <td>0.54 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Fish, bluefish, cooked, dry heat</td>
+                            <td>1 fillet</td>
+                            <td>49</td>
+                            <td>0.49 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Mollusks, oyster, eastern, cooked</td>
+                            <td>3 oz</td>
+                            <td>49</td>
+                            <td>0.49 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Salmon, coho, wild, cooked</td>
+                            <td>3 oz</td>
+                            <td>30</td>
+                            <td>0.30 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Chicken, dark meat, meat only, cooked</td>
+                            <td>1 cup</td>
+                            <td>35</td>
+                            <td>0.35 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Other Foods</h2>
+            <div class="table-wrapper">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food Name</th>
+                            <th>Serving Size</th>
+                            <th>Magnesium (mg)</th>
+                            <th>Servings Equivalent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="very-high-magnesium">
+                            <td>Trail mix, regular, with nuts and chocolate chips</td>
+                            <td>1 cup</td>
+                            <td>235</td>
+                            <td>2.35 servings</td>
+                        </tr>
+                        <tr class="moderate-magnesium">
+                            <td>Tofu, raw, firm, prepared with calcium sulfate</td>
+                            <td>0.5 cups</td>
+                            <td>73</td>
+                            <td>0.73 servings</td>
+                        </tr>
+                        <tr class="moderate-magnesium">
+                            <td>Dark chocolate (60-69% cacao solids)</td>
+                            <td>1 oz</td>
+                            <td>50</td>
+                            <td>0.50 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Cheese, Swiss</td>
+                            <td>1 cup, diced</td>
+                            <td>44</td>
+                            <td>0.44 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Milk, whole</td>
+                            <td>1 cup</td>
+                            <td>32</td>
+                            <td>0.32 servings</td>
+                        </tr>
+                        <tr>
+                            <td>Yogurt, plain, low fat</td>
+                            <td>1 container (6 oz)</td>
+                            <td>29</td>
+                            <td>0.29 servings</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section source-info">
+            <h2>Source Information</h2>
+            <p>The information on this page is sourced from the USDA National Nutrient Database for Standard Reference Legacy (2018):</p>
+            <p><a href="https://www.nal.usda.gov/" target="_blank" style="color: var(--secondary-color);">USDA National Agricultural Library</a></p>
+            <p>Values may vary slightly based on food preparation methods, brands, and specific product formulations.</p>
+        </div>
+
+        <div class="content-section">
+            <a href="index.html" class="back-link">← Back to Diagnostic Survey</a>
+        </div>
+    </div>
+</body>
+</html> 
