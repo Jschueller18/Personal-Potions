@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const menstrualSupportCheckbox = document.getElementById('menstrual-support');
     const menstrualDetails = document.getElementById('menstrual-details');
+    
+    const hangoverSupportCheckbox = document.getElementById('hangover-support');
+    const hangoverDetails = document.getElementById('hangover-details');
 
     // Current section index
     let currentSectionIndex = 0;
@@ -186,6 +189,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check on page load
         if (menstrualSupportCheckbox.checked) {
             menstrualDetails.style.display = 'block';
+        }
+    }
+    
+    // Hangover cure details conditional logic
+    if (hangoverSupportCheckbox) {
+        hangoverSupportCheckbox.addEventListener('change', function() {
+            hangoverDetails.style.display = this.checked ? 'block' : 'none';
+        });
+        
+        // Check on page load
+        if (hangoverSupportCheckbox.checked) {
+            hangoverDetails.style.display = 'block';
         }
     }
 

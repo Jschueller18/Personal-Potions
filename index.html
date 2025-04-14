@@ -79,6 +79,10 @@
                                 <label for="menstrual-support">Menstrual support (Balanced electrolytes to address menstrual symptoms)</label>
                             </div>
                             <div class="checkbox-item">
+                                <input type="checkbox" id="hangover-support" name="usage" value="hangover">
+                                <label for="hangover-support">Hangover cure (Supports recovery after alcohol consumption)</label>
+                            </div>
+                            <div class="checkbox-item">
                                 <input type="checkbox" id="usage-other" name="usage" value="other">
                                 <label for="usage-other">Other</label>
                             </div>
@@ -284,6 +288,53 @@
                             <label for="current-remedies">What do you currently use to manage menstrual symptoms?</label>
                             <p class="help-text">(e.g., pain relievers, heating pads, magnesium supplements)</p>
                             <textarea id="current-remedies" name="current-remedies" rows="2"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Hangover Cure Details (conditionally shown) -->
+                    <div class="form-group use-case-details" id="hangover-details" style="display: none;">
+                        <h4>Hangover Cure Details</h4>
+                        
+                        <!-- Question 1: Timing of Consumption -->
+                        <div class="form-group">
+                            <label for="hangover-timing" class="important-question">
+                                When do you plan to take the hangover cure mix?
+                                <span class="important-indicator">*</span>
+                                <span class="tooltip-icon" data-tooltip="Timing affects which electrolytes are most important for your recovery">?</span>
+                            </label>
+                            <select id="hangover-timing" name="hangover-timing">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="preventative">Before drinking (preventative)</option>
+                                <option value="before-bed">Before bed after drinking</option>
+                                <option value="morning-after">Upon waking the next morning</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Question 2: Primary Symptoms -->
+                        <div class="form-group">
+                            <label class="important-question">
+                                What are your typical hangover symptoms?
+                                <span class="important-indicator">*</span>
+                                <span class="tooltip-icon" data-tooltip="Different symptoms respond to different electrolyte formulations">?</span>
+                            </label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="symptom-headache" name="hangover-symptoms" value="headache" required>
+                                    <label for="symptom-headache">Headache/migraine pain</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="symptom-nausea" name="hangover-symptoms" value="nausea">
+                                    <label for="symptom-nausea">Nausea and stomach discomfort</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="symptom-muscle" name="hangover-symptoms" value="muscle">
+                                    <label for="symptom-muscle">Muscle aches and fatigue</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="symptom-anxiety" name="hangover-symptoms" value="anxiety">
+                                    <label for="symptom-anxiety">Anxiety and restlessness</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
