@@ -37,6 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const dailyDrinkCheckbox = document.getElementById('daily-drink');
     const dailyMixDetails = document.getElementById('daily-mix-details');
+    
+    const menstrualSupportCheckbox = document.getElementById('menstrual-support');
+    const menstrualDetails = document.getElementById('menstrual-details');
 
     // Current section index
     let currentSectionIndex = 0;
@@ -171,6 +174,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check on page load
         if (dailyDrinkCheckbox.checked) {
             dailyMixDetails.style.display = 'block';
+        }
+    }
+    
+    // Menstrual support details conditional logic
+    if (menstrualSupportCheckbox) {
+        menstrualSupportCheckbox.addEventListener('change', function() {
+            menstrualDetails.style.display = this.checked ? 'block' : 'none';
+        });
+        
+        // Check on page load
+        if (menstrualSupportCheckbox.checked) {
+            menstrualDetails.style.display = 'block';
         }
     }
 

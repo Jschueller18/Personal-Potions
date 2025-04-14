@@ -75,6 +75,10 @@
                                 <label for="bedtime-mix">Bedtime mix (Ingredients and ratios to support optimal sleep)</label>
                             </div>
                             <div class="checkbox-item">
+                                <input type="checkbox" id="menstrual-support" name="usage" value="menstrual">
+                                <label for="menstrual-support">Menstrual support (Balanced electrolytes to address menstrual symptoms)</label>
+                            </div>
+                            <div class="checkbox-item">
                                 <input type="checkbox" id="usage-other" name="usage" value="other">
                                 <label for="usage-other">Other</label>
                             </div>
@@ -178,6 +182,108 @@
                                 <option value="3-4">96-128 fl oz (3-4 liters)</option>
                                 <option value="more-than-4">More than 128 fl oz (4 liters)</option>
                             </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Menstrual Support Details (conditionally shown) -->
+                    <div class="form-group use-case-details" id="menstrual-details" style="display: none;">
+                        <h4>Menstrual Support Details</h4>
+                        
+                        <!-- Question 1: Specific Symptoms (Highest Impact) -->
+                        <div class="form-group">
+                            <label class="important-question">
+                                Which menstrual symptoms are you primarily looking to address?
+                                <span class="important-indicator">*</span>
+                                <span class="tooltip-icon" data-tooltip="Different symptoms require different electrolyte ratios">?</span>
+                            </label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="menstrual-cramps" name="menstrual-symptoms" value="cramps">
+                                    <label for="menstrual-cramps">Cramps/pain</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="menstrual-bloating" name="menstrual-symptoms" value="bloating">
+                                    <label for="menstrual-bloating">Bloating/water retention</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="menstrual-headache" name="menstrual-symptoms" value="headache">
+                                    <label for="menstrual-headache">Headaches or migraines</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="menstrual-mood" name="menstrual-symptoms" value="mood">
+                                    <label for="menstrual-mood">Mood changes (irritability, anxiety, depression)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="menstrual-fatigue" name="menstrual-symptoms" value="fatigue">
+                                    <label for="menstrual-fatigue">Fatigue/low energy</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Question 3: Symptom Severity -->
+                        <div class="form-group">
+                            <label for="symptom-severity" class="important-question">
+                                How would you rate the overall severity of your menstrual symptoms?
+                                <span class="important-indicator">*</span>
+                            </label>
+                            <select id="symptom-severity" name="symptom-severity" required>
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="mild">Mild (noticeable but doesn't interfere with daily activities)</option>
+                                <option value="moderate">Moderate (somewhat interferes with daily activities)</option>
+                                <option value="severe">Severe (significantly interferes with daily activities)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Question 4: Menstrual Flow Volume -->
+                        <div class="form-group">
+                            <label for="menstrual-flow">
+                                How would you describe your typical menstrual flow?
+                                <span class="tooltip-icon" data-tooltip="Flow volume affects electrolyte and mineral needs">?</span>
+                            </label>
+                            <select id="menstrual-flow" name="menstrual-flow">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="light">Light (requiring minimal protection)</option>
+                                <option value="moderate">Moderate (average flow)</option>
+                                <option value="heavy">Heavy (requiring frequent changes of protection)</option>
+                                <option value="very-heavy">Very heavy (changing protection hourly or using multiple products)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Question 5: Water Retention/Bloating Severity -->
+                        <div class="form-group">
+                            <label for="water-retention">
+                                How would you describe your water retention or bloating during your cycle?
+                                <span class="tooltip-icon" data-tooltip="Water retention indicates sodium/potassium ratio needs">?</span>
+                            </label>
+                            <select id="water-retention" name="water-retention">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="none">No noticeable water retention</option>
+                                <option value="mild">Mild bloating (clothes fit slightly tighter)</option>
+                                <option value="moderate">Moderate bloating (visible swelling in abdomen, fingers, etc.)</option>
+                                <option value="severe">Severe bloating (significant discomfort and visible swelling)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Question 6: Muscle Tension Specifics -->
+                        <div class="form-group">
+                            <label for="muscle-tension">
+                                Do you experience muscle tension or cramping during your cycle?
+                                <span class="tooltip-icon" data-tooltip="Muscle tension indicates magnesium needs">?</span>
+                            </label>
+                            <select id="muscle-tension" name="muscle-tension">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="none">No muscle tension or cramping</option>
+                                <option value="mild">Mild muscle tension or cramping</option>
+                                <option value="moderate">Moderate muscle tension or cramping</option>
+                                <option value="severe">Severe muscle tension or cramping</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Additional helpful context -->
+                        <div class="form-group">
+                            <label for="current-remedies">What do you currently use to manage menstrual symptoms?</label>
+                            <p class="help-text">(e.g., pain relievers, heating pads, magnesium supplements)</p>
+                            <textarea id="current-remedies" name="current-remedies" rows="2"></textarea>
                         </div>
                     </div>
                     
