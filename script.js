@@ -8,9 +8,53 @@ document.addEventListener('DOMContentLoaded', function() {
     const nextBtn = document.getElementById('next-btn');
     const submitBtn = document.getElementById('submit-btn');
     const responseMessage = document.getElementById('response-message');
+    
+    // Debug elements
+    const debugArea = document.getElementById('debug-area');
+    const debugMessage = document.getElementById('debug-message');
+    const viewDataBtn = document.getElementById('view-data-btn');
+    
+    // Enable debug mode with URL parameter ?debug=true
+    const urlParams = new URLSearchParams(window.location.search);
+    const debugMode = urlParams.get('debug') === 'true';
+    
+    if (debugMode && debugArea) {
+        debugArea.style.display = 'block';
+        console.log('Debug mode enabled');
+        
+        // Check for previous submissions
+        const latestSubmissionId = localStorage.getItem('personalPotionsLatestSubmission');
+        if (latestSubmissionId) {
+            debugMessage.textContent = `Latest submission: ${latestSubmissionId}`;
+        }
+        
+        // Add view data button functionality
+        if (viewDataBtn) {
+            viewDataBtn.addEventListener('click', function() {
+                const latestId = localStorage.getItem('personalPotionsLatestSubmission');
+                if (latestId) {
+                    const submissionData = localStorage.getItem(latestId);
+                    console.log('Latest submission data:', JSON.parse(submissionData));
+                    alert('Submission data printed to console');
+                } else {
+                    alert('No submissions found');
+                }
+            });
+        }
+    }
 
     // Form data object to store all responses
     let formData = {};
+
+    // Debug buttons
+    console.log('Submit button found:', !!submitBtn);
+    if (submitBtn) {
+        console.log('Submit button initial display:', getComputedStyle(submitBtn).display);
+    }
+
+    // Set initial button states
+    if (submitBtn) submitBtn.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'inline-block';
 
     // Show "Other" text fields when "Other" option is selected
     const usageOtherCheckbox = document.getElementById('usage-other');
@@ -227,6 +271,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Add direct click handler for submit button
+    if (submitBtn) {
+        console.log('Adding click event to submit button');
+        submitBtn.addEventListener('click', function(e) {
+            console.log('Submit button clicked');
+            // Prevent default to avoid double submission
+            e.preventDefault();
+            
+            // Trigger form submission manually
+            if (form) {
+                // Final validation
+                if (validateCurrentSection()) {
+                    // Save current section data
+                    saveCurrentSectionData();
+                    
+                    // Manually dispatch form submit event
+                    console.log('Dispatching form submit event');
+                    const submitEvent = new Event('submit', {
+                        'bubbles': true,
+                        'cancelable': true
+                    });
+                    form.dispatchEvent(submitEvent);
+                }
+            }
+        });
+    }
 
     // Function to save data from the current section
     function saveCurrentSectionData() {
@@ -418,8 +489,54 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Submission error:', error);
-                responseMessage.textContent = "There was an issue submitting your form. Please try again or contact us directly.";
-                responseMessage.style.color = "#d9534f";
+                
+                // Check if this is a network error (likely server not running)
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.message.includes('Server error')) {
+                    console.log('Server connection failed - using fallback submission');
+                    
+                    // Fallback to email submission or local storage
+                    responseMessage.textContent = "Thank you for your submission! Since the server is in development mode, your data has been saved locally.";
+                    responseMessage.style.color = "#1E4A2D";
+                    responseMessage.classList.add('visible');
+                    
+                    // Store in localStorage as fallback
+                    try {
+                        const submissionId = 'submission_' + new Date().getTime();
+                        localStorage.setItem(submissionId, JSON.stringify(customerData));
+                        localStorage.setItem('personalPotionsLatestSubmission', submissionId);
+                        console.log('Saved submission data to localStorage as fallback with ID:', submissionId);
+                        
+                        // Show success message and reset form after delay
+                        setTimeout(() => {
+                            form.reset();
+                            formData = {}; // Reset stored data
+                            goToSection(0);
+                            
+                            // Keep success message visible
+                            responseMessage.textContent += " You may now start a new submission or view previous submissions in your browser's console.";
+                        }, 2000);
+                        
+                    } catch (storageError) {
+                        console.error('LocalStorage error:', storageError);
+                        
+                        // Add a button to send via email
+                        const mailtoLink = `mailto:support@personalpotions.com?subject=Survey Submission&body=Form data: ${encodeURIComponent(JSON.stringify(customerData))}`;
+                        const emailButton = document.createElement('button');
+                        emailButton.textContent = 'Send via Email Instead';
+                        emailButton.classList.add('primary-btn');
+                        emailButton.style.marginTop = '15px';
+                        emailButton.addEventListener('click', function() {
+                            window.location.href = mailtoLink;
+                        });
+                        
+                        responseMessage.appendChild(document.createElement('br'));
+                        responseMessage.appendChild(emailButton);
+                    }
+                } else {
+                    // Regular error
+                    responseMessage.textContent = "There was an issue submitting your form. Please try again or contact us directly.";
+                    responseMessage.style.color = "#d9534f";
+                }
             });
         });
     }
@@ -457,6 +574,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentSectionIndex === formSections.length - 1) {
             nextBtn.style.display = 'none';
             submitBtn.style.display = 'inline-block';
+            console.log('Last section reached, displaying submit button');
         } else {
             nextBtn.style.display = 'inline-block';
             submitBtn.style.display = 'none';

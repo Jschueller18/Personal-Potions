@@ -865,10 +865,15 @@
                 <div class="form-actions">
                     <button type="button" id="prev-btn" class="secondary-btn">Previous</button>
                     <button type="button" id="next-btn" class="primary-btn">Next</button>
-                    <button type="submit" id="submit-btn" style="display: none;">Create My Custom Mix</button>
+                    <button type="button" id="submit-btn" class="submit-btn">Create My Custom Mix</button>
                 </div>
                 
                 <p id="response-message"></p>
+                <div id="debug-area" style="margin-top: 20px; padding: 10px; border: 1px dashed #ccc; display: none;">
+                    <h4>Debug Information</h4>
+                    <p id="debug-message">No submissions yet</p>
+                    <button type="button" id="view-data-btn" class="secondary-btn" style="margin-top: 10px; font-size: 0.8rem;">View Latest Submission</button>
+                </div>
             </form>
         </div>
     </section>

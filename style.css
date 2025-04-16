@@ -322,8 +322,24 @@ button[type="submit"]:hover {
     background-color: #163b23;
 }
 
+.submit-btn {
+    background-color: #1E4A2D;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.submit-btn:hover {
+    background-color: #163b23;
+}
+
 #submit-btn {
-    /* Make sure the submit button is visible and properly styled */
+    display: inline-block !important; /* Override any inline style */
     background-color: #1E4A2D;
     color: white;
     border: none;
@@ -332,10 +348,7 @@ button[type="submit"]:hover {
     cursor: pointer;
     transition: background-color 0.3s;
     font-weight: 600;
-}
-
-#submit-btn:hover {
-    background-color: #163b23;
+    margin-top: 10px;
 }
 
 #response-message {
