@@ -281,23 +281,70 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show loading message
             responseMessage.textContent = "Submitting your information...";
             responseMessage.style.color = "#333";
+            responseMessage.classList.add('visible');
             
-            // Prepare data for submission
-            const jsonData = JSON.stringify(formData);
+            // Format data for the backend API
+            // Map our form data to the format expected by the backend
+            const customerData = {
+                firstName: formData.firstName || '',
+                lastName: formData.lastName || '',
+                email: formData.email,
+                age: parseInt(formData.age) || 0,
+                weight: parseInt(formData.weight) || 0,
+                biologicalSex: formData.sex,
+                height: parseInt(formData.height) || 0,
+                usage: Array.isArray(formData.usage) ? formData.usage : [formData.usage],
+                goals: formData.goals || '',
+                activityLevel: formData.activityLevel || 'moderate',
+                sweatLevel: formData.sweatLevel || 'moderate',
+                dietType: formData.dietType || '',
+                sodiumIntake: formData.sodiumIntake || 'moderate',
+                potassiumIntake: formData.potassiumIntake || 'moderate',
+                // Store all the original form data as well
+                formData: formData
+            };
             
-            // In a real implementation, you would send this to your server
-            console.log('Submitting data:', jsonData);
+            // Log data for debugging
+            console.log('Submitting data:', customerData);
             
-            // Simulate form submission (replace with actual submission code)
-            setTimeout(function() {
+            // Send data to our backend API
+            fetch('/api/customers/survey', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(customerData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
                 responseMessage.textContent = "Thank you! Your personalized electrolyte mix details will be sent to your email shortly.";
                 responseMessage.style.color = "#1E4A2D";
-                form.reset();
-                formData = {}; // Reset stored data
                 
-                // Reset to first section
-                goToSection(0);
-            }, 2000);
+                // If we have a customerId and formulation, redirect to results page
+                if (data.customer && data.customer._id) {
+                    setTimeout(() => {
+                        window.location.href = `/results.html?customerId=${data.customer._id}`;
+                    }, 2000);
+                } else {
+                    // Otherwise just reset the form
+                    form.reset();
+                    formData = {}; // Reset stored data
+                    // Reset to first section
+                    goToSection(0);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                responseMessage.textContent = "There was an issue submitting your form. Please try again or contact us directly.";
+                responseMessage.style.color = "#d9534f";
+            });
         });
     }
 
@@ -384,17 +431,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 let errorMessage = input.nextElementSibling;
                 if (!errorMessage || !errorMessage.classList.contains('error-message')) {
                     errorMessage = document.createElement('p');
-                    errorMessage.classList.add('error-message');
+                    errorMessage.classList.add('error-message', 'visible');
                     errorMessage.textContent = 'This field is required.';
                     input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                } else {
+                    errorMessage.classList.add('visible');
                 }
             } else {
                 input.classList.remove('invalid');
                 
-                // Remove any existing error message
+                // Remove any existing error message visibility
                 const errorMessage = input.nextElementSibling;
                 if (errorMessage && errorMessage.classList.contains('error-message')) {
-                    errorMessage.remove();
+                    errorMessage.classList.remove('visible');
                 }
             }
         });
@@ -423,15 +472,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 let errorMessage = container.nextElementSibling;
                 if (!errorMessage || !errorMessage.classList.contains('error-message')) {
                     errorMessage = document.createElement('p');
-                    errorMessage.classList.add('error-message');
+                    errorMessage.classList.add('error-message', 'visible');
                     errorMessage.textContent = 'Please select at least one option.';
                     container.parentNode.insertBefore(errorMessage, container.nextSibling);
+                } else {
+                    errorMessage.classList.add('visible');
                 }
             } else {
-                // Remove any existing error message
+                // Remove any existing error message visibility
                 const errorMessage = container.nextElementSibling;
                 if (errorMessage && errorMessage.classList.contains('error-message')) {
-                    errorMessage.remove();
+                    errorMessage.classList.remove('visible');
                 }
             }
         });

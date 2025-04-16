@@ -308,19 +308,47 @@ button {
 }
 
 button[type="submit"] {
-    background-color: #19C6F2; /* Light Blue */
+    background-color: #1E4A2D;
     color: white;
-    padding: 14px 30px;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 600;
 }
 
 button[type="submit"]:hover {
-    background-color: #0fb8e0;
+    background-color: #163b23;
+}
+
+#submit-btn {
+    /* Make sure the submit button is visible and properly styled */
+    background-color: #1E4A2D;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 600;
+}
+
+#submit-btn:hover {
+    background-color: #163b23;
 }
 
 #response-message {
     margin-top: 20px;
     text-align: center;
     font-weight: 600;
+    padding: 10px;
+    border-radius: 4px;
+    display: none; /* Initially hidden, will be shown via JavaScript */
+}
+
+#response-message.visible {
+    display: block;
 }
 
 /* Footer styles */
@@ -482,12 +510,12 @@ footer {
   display: none;
 }
 
-input.error, select.error, textarea.error {
-  border-color: #CC3333;
+.error-message.visible {
+  display: block;
 }
 
-.error .error-message {
-  display: block;
+input.invalid, select.invalid, textarea.invalid {
+  border-color: #CC3333;
 }
 
 /* Checkbox group error state */
