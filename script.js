@@ -278,34 +278,86 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Show loading message
-            responseMessage.textContent = "Submitting your information...";
-            responseMessage.style.color = "#333";
-            responseMessage.classList.add('visible');
-            
             // Format data for the backend API
-            // Map our form data to the format expected by the backend
+            // Map our form data to match exactly what the backend expects
             const customerData = {
+                // Personal information - exact field matches
                 firstName: formData.firstName || '',
                 lastName: formData.lastName || '',
                 email: formData.email,
                 age: parseInt(formData.age) || 0,
                 weight: parseInt(formData.weight) || 0,
-                biologicalSex: formData.sex,
-                height: parseInt(formData.height) || 0,
-                usage: Array.isArray(formData.usage) ? formData.usage : [formData.usage],
+                biologicalSex: formData.sex === 'male' ? 'male' : 
+                               formData.sex === 'female' ? 'female' : 
+                               formData.sex || '',
+                
+                // Usage - ensure it's always an array with valid enum values
+                usage: Array.isArray(formData.usage) ? formData.usage.map(item => 
+                    // Map usage values to ensure they match backend enums
+                    item === 'sweat' ? 'sweat' :
+                    item === 'daily' ? 'daily' :
+                    item === 'bedtime' ? 'bedtime' :
+                    item === 'menstrual' ? 'menstrual' :
+                    item === 'hangover' ? 'hangover' : item
+                ) : (formData.usage ? [formData.usage] : []),
+                
+                // Map common fields - ensure enum values match backend expectations
+                activityLevel: formData.activityLevel === 'sedentary' ? 'sedentary' :
+                              formData.activityLevel === 'lightly-active' ? 'lightly-active' :
+                              formData.activityLevel === 'moderately-active' ? 'moderately-active' :
+                              formData.activityLevel === 'very-active' ? 'very-active' :
+                              'moderately-active',
+                
+                sweatLevel: formData.sweatLevel === 'minimal' ? 'minimal' :
+                           formData.sweatLevel === 'light' ? 'light' :
+                           formData.sweatLevel === 'moderate' ? 'moderate' :
+                           formData.sweatLevel === 'heavy' ? 'heavy' :
+                           formData.sweatLevel === 'excessive' ? 'excessive' :
+                           'moderate',
+                
                 goals: formData.goals || '',
-                activityLevel: formData.activityLevel || 'moderate',
-                sweatLevel: formData.sweatLevel || 'moderate',
-                dietType: formData.dietType || '',
-                sodiumIntake: formData.sodiumIntake || 'moderate',
-                potassiumIntake: formData.potassiumIntake || 'moderate',
-                // Store all the original form data as well
-                formData: formData
+                
+                dietType: formData.dietType === 'omnivore' ? 'omnivore' :
+                         formData.dietType === 'vegetarian' ? 'vegetarian' :
+                         formData.dietType === 'vegan' ? 'vegan' :
+                         formData.dietType === 'pescatarian' ? 'pescatarian' :
+                         formData.dietType === 'other' ? 'other' :
+                         'omnivore',
+                
+                // Intake estimations with enum validation
+                sodiumIntake: ['low', 'moderate', 'high'].includes(formData.sodiumIntake) ? 
+                             formData.sodiumIntake : 'moderate',
+                potassiumIntake: ['low', 'moderate', 'high'].includes(formData.potassiumIntake) ? 
+                                formData.potassiumIntake : 'moderate',
+                magnesiumIntake: ['low', 'moderate', 'high'].includes(formData.magnesiumIntake) ? 
+                                formData.magnesiumIntake : 'moderate',
+                calciumIntake: ['low', 'moderate', 'high'].includes(formData.calciumIntake) ? 
+                              formData.calciumIntake : 'moderate',
+                
+                // Include any other potentially useful fields
+                hydrationChallenges: Array.isArray(formData.hydrationChallenges) ? 
+                                    formData.hydrationChallenges : [],
+                healthConditions: Array.isArray(formData.conditions) ? 
+                                 formData.conditions : []
             };
             
-            // Log data for debugging
-            console.log('Submitting data:', customerData);
+            // Format validation - check if required fields are present
+            const requiredFields = ['firstName', 'lastName', 'email', 'biologicalSex'];
+            const missingFields = requiredFields.filter(field => !customerData[field]);
+            
+            if (missingFields.length > 0) {
+                console.warn('Warning: Missing required fields:', missingFields);
+            }
+            
+            // Log data for debugging and testing
+            console.log('Submitting to backend API:', customerData);
+            console.log('Original form data:', formData);
+            console.log('Form validation complete - all required fields present:', missingFields.length === 0);
+            
+            // Show loading message
+            responseMessage.textContent = "Submitting your information...";
+            responseMessage.style.color = "#333";
+            responseMessage.classList.add('visible');
             
             // Send data to our backend API
             fetch('/api/customers/survey', {
@@ -317,22 +369,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(customerData)
             })
             .then(response => {
+                console.log('Response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    return response.text().then(text => {
+                        console.error('Error response body:', text);
+                        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                    });
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Success:', data);
+                console.log('Success response:', data);
+                
+                // Log successful submission details for testing
+                if (data.customer) {
+                    console.log('Customer created successfully:', {
+                        id: data.customer._id,
+                        name: `${data.customer.firstName} ${data.customer.lastName}`,
+                        email: data.customer.email
+                    });
+                }
+                
+                if (data.formulation) {
+                    console.log('Formulation generated successfully:', {
+                        id: data.formulation._id,
+                        useCase: data.formulation.useCase,
+                        servingsPerDay: data.formulation.recommendedServingsPerDay
+                    });
+                }
+                
                 responseMessage.textContent = "Thank you! Your personalized electrolyte mix details will be sent to your email shortly.";
                 responseMessage.style.color = "#1E4A2D";
                 
                 // If we have a customerId and formulation, redirect to results page
                 if (data.customer && data.customer._id) {
+                    console.log('Redirecting to results page with customer ID:', data.customer._id);
                     setTimeout(() => {
                         window.location.href = `/results.html?customerId=${data.customer._id}`;
                     }, 2000);
                 } else {
+                    console.log('No customer ID found in response, resetting form');
                     // Otherwise just reset the form
                     form.reset();
                     formData = {}; // Reset stored data
@@ -341,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Submission error:', error);
                 responseMessage.textContent = "There was an issue submitting your form. Please try again or contact us directly.";
                 responseMessage.style.color = "#d9534f";
             });
