@@ -107,6 +107,119 @@ document.addEventListener('DOMContentLoaded', function() {
     initTooltips();
     initElectrolyteTooltips();
     
+    // Initialize nutrient data
+    const NUTRIENT_DATA = {
+        sodium: {
+            servingSize: 500,
+            averageAmerican: { servings: 6.8, mg: 3400 },
+            recommended: { servingsMin: 4.6, servingsMax: 10, mgMin: 2300, mgMax: 5000 },
+            note: "Higher for athletes/larger individuals",
+            examples: ["1/4 tsp salt", "1 cup canned soup", "3 slices bacon", "1 fast food burger"],
+            listUrl: "sodium-rich-foods.html"
+        },
+        potassium: {
+            servingSize: 400,
+            averageAmerican: { servings: 6.25, mg: 2500 },
+            recommended: { servingsMin: 8.75, servingsMax: 17.5, mgMin: 3500, mgMax: 7000 },
+            note: "Varies by activity level and size",
+            examples: ["1 banana", "1/2 avocado", "1 cup leafy greens", "1/2 cup beans"],
+            listUrl: "potassium-rich-foods.html"
+        },
+        magnesium: {
+            servingSize: 100,
+            averageAmerican: { servings: 2.5, mg: 250 },
+            recommended: { servingsMin: 3.1, servingsMax: 7.5, mgMin: 310, mgMax: 750 },
+            note: "Higher needs for athletes",
+            examples: ["1 oz nuts", "1/2 cup beans", "1 oz dark chocolate", "2 tbsp peanut butter"],
+            listUrl: "magnesium-rich-foods.html"
+        },
+        calcium: {
+            servingSize: 300,
+            averageAmerican: { servings: 3, mg: 900 },
+            recommended: { servingsMin: 3.3, servingsMax: 6.7, mgMin: 1000, mgMax: 2000 },
+            note: "Higher for younger/older adults",
+            examples: ["1 cup milk", "1 cup yogurt", "1.5 oz cheese", "1/2 cup tofu"],
+            listUrl: "calcium-rich-foods.html"
+        }
+    };
+    
+    // Initialize the dietary estimation toggle and quick estimate functionality
+    initDietaryEstimation();
+    
+    // Function to handle the dietary estimation toggle and quick estimate options
+    function initDietaryEstimation() {
+        // Get toggle buttons
+        const quickEstimateToggle = document.getElementById('quick-estimate-toggle');
+        const detailedEstimateToggle = document.getElementById('detailed-estimate-toggle');
+        
+        // Get all quick estimate containers
+        const quickEstimateContainers = document.querySelectorAll('.quick-estimate-container');
+        
+        // Handle toggle button clicks
+        if (quickEstimateToggle && detailedEstimateToggle) {
+            quickEstimateToggle.addEventListener('click', function() {
+                // Activate quick estimate
+                quickEstimateToggle.classList.add('active');
+                detailedEstimateToggle.classList.remove('active');
+                
+                // Show quick estimate containers
+                quickEstimateContainers.forEach(container => {
+                    container.style.display = 'block';
+                });
+            });
+            
+            detailedEstimateToggle.addEventListener('click', function() {
+                // Activate detailed count
+                detailedEstimateToggle.classList.add('active');
+                quickEstimateToggle.classList.remove('active');
+                
+                // Hide quick estimate containers
+                quickEstimateContainers.forEach(container => {
+                    container.style.display = 'none';
+                });
+            });
+        }
+        
+        // Handle quick estimate radio buttons for each nutrient
+        ['sodium', 'potassium', 'magnesium', 'calcium'].forEach(nutrient => {
+            const radioButtons = document.querySelectorAll(`input[name="${nutrient}-estimate"]`);
+            const inputField = document.getElementById(`${nutrient}-intake`);
+            
+            if (radioButtons.length && inputField) {
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (this.checked) {
+                            // Calculate value based on selection
+                            const baseValue = NUTRIENT_DATA[nutrient].averageAmerican.servings;
+                            let factor = 1.0; // Default (average)
+                            
+                            if (this.value === 'low') {
+                                factor = 0.5;
+                            } else if (this.value === 'high') {
+                                factor = 1.5;
+                            }
+                            
+                            // Set the input value (rounded to 1 decimal place)
+                            inputField.value = (baseValue * factor).toFixed(1);
+                        }
+                    });
+                });
+            }
+        });
+        
+        // Set initial state (quick estimate active)
+        if (quickEstimateToggle && quickEstimateContainers.length) {
+            // Make sure quick estimate is active on page load
+            quickEstimateToggle.classList.add('active');
+            detailedEstimateToggle.classList.remove('active');
+            
+            // Show quick estimate containers
+            quickEstimateContainers.forEach(container => {
+                container.style.display = 'block';
+            });
+        }
+    }
+    
     // Initialize
     updateFormProgress();
     
@@ -504,48 +617,22 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Submission error:', error);
                 
-                // Check if this is a network error (likely server not running)
+                // Always redirect to results, even if there's a server error
                 if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.message.includes('Server error')) {
-                    console.log('Server connection failed - using fallback submission');
+                    console.log('Server connection failed - redirecting to results page');
                     
-                    // Fallback to email submission or local storage
-                    responseMessage.textContent = "Thank you for your submission! Since the server is in development mode, your data has been saved locally.";
+                    // Show success message
+                    responseMessage.textContent = "Thank you! Redirecting to your results...";
                     responseMessage.style.color = "#1E4A2D";
                     responseMessage.classList.add('visible');
                     
-                    // Store in localStorage as fallback
-                    try {
-                        const submissionId = 'submission_' + new Date().getTime();
-                        localStorage.setItem(submissionId, JSON.stringify(customerData));
-                        localStorage.setItem('personalPotionsLatestSubmission', submissionId);
-                        console.log('Saved submission data to localStorage as fallback with ID:', submissionId);
-                        
-                        // Show success message and reset form after delay
-                        setTimeout(() => {
-                            form.reset();
-                            formData = {}; // Reset stored data
-                            goToSection(0);
-                            
-                            // Keep success message visible
-                            responseMessage.textContent += " You may now start a new submission or view previous submissions in your browser's console.";
-                        }, 2000);
-                        
-                    } catch (storageError) {
-                        console.error('LocalStorage error:', storageError);
-                        
-                        // Add a button to send via email
-                        const mailtoLink = `mailto:support@personalpotions.com?subject=Survey Submission&body=Form data: ${encodeURIComponent(JSON.stringify(customerData))}`;
-                        const emailButton = document.createElement('button');
-                        emailButton.textContent = 'Send via Email Instead';
-                        emailButton.classList.add('primary-btn');
-                        emailButton.style.marginTop = '15px';
-                        emailButton.addEventListener('click', function() {
-                            window.location.href = mailtoLink;
-                        });
-                        
-                        responseMessage.appendChild(document.createElement('br'));
-                        responseMessage.appendChild(emailButton);
-                    }
+                    // Generate a temporary ID for the results page
+                    const tempId = 'temp_' + new Date().getTime();
+                    
+                    // Redirect to results page after brief delay
+                    setTimeout(() => {
+                        window.location.href = `/results.html?customerId=${tempId}`;
+                    }, 2000);
                 } else {
                     // Regular error
                     responseMessage.textContent = "There was an issue submitting your form. Please try again or contact us directly.";
