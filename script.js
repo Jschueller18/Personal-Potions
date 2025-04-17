@@ -448,14 +448,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify(customerData)
+                body: JSON.stringify(customerData),
+                // Add credentials to ensure cookies are sent
+                credentials: 'same-origin'
             })
             .then(response => {
                 console.log('Response status:', response.status);
                 if (!response.ok) {
                     return response.text().then(text => {
                         console.error('Error response body:', text);
-                        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                        throw new Error(`Server error: ${response.status} ${text || response.statusText}`);
                     });
                 }
                 return response.json();

@@ -1,0 +1,15 @@
+{
+  "name": "personal-potions-frontend",
+  "version": "1.0.0",
+  "description": "Personal Potions - Custom Electrolyte Formulation Website",
+  "main": "index.js",
+  "scripts": {
+    "start": "echo 'This is a static site'",
+    "build": "echo 'No build step required'"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+} 

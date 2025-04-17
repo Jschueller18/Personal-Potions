@@ -237,15 +237,24 @@
                 loadingSection.style.display = 'none';
                 resultsContent.style.display = 'block';
                 
-                // In the future, this would fetch the actual data from the API
-                // fetch('/api/customers/' + customerIdParam)
-                // .then(response => response.json())
-                // .then(data => {
-                //     // Process and display the data
-                // })
-                // .catch(error => {
-                //     showError("Error loading your results: " + error.message);
-                // });
+                // For demo purposes, show some placeholder data
+                customerName.textContent = "Demo User";
+                
+                // This try-catch block is for when we implement real API calls
+                try {
+                    // In the future, this would fetch the actual data from the API
+                    // fetch('/api/customers/' + customerIdParam)
+                    // .then(response => response.json())
+                    // .then(data => {
+                    //     // Process and display the data
+                    // })
+                    // .catch(error => {
+                    //     showError("Error loading your results: " + error.message);
+                    // });
+                } catch (error) {
+                    console.error("API connection error:", error);
+                    // Proceed with demo data, no need to show error
+                }
             }, 1500);
             
             function showError(message) {
