@@ -18,6 +18,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const debugMode = urlParams.get('debug') === 'true';
     
+    // Check for success parameter in URL
+    const success = urlParams.get('success');
+    if (success === 'true' && responseMessage) {
+        responseMessage.textContent = "Thank you! Your personalized electrolyte mix details will be sent to your email shortly.";
+        responseMessage.style.color = "#1E4A2D";
+        responseMessage.classList.add('visible');
+        
+        // Scroll to top to show success message
+        window.scrollTo(0, 0);
+    }
+    
     if (debugMode && debugArea) {
         debugArea.style.display = 'block';
         console.log('Debug mode enabled');
