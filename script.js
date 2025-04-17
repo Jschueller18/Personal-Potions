@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submit-btn');
     const responseMessage = document.getElementById('response-message');
     
+    // Explicitly hide the submit button on page load
+    if (submitBtn) {
+        submitBtn.style.display = 'none';
+    }
+    
     // Debug elements
     const debugArea = document.getElementById('debug-area');
     const debugMessage = document.getElementById('debug-message');
@@ -62,10 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (submitBtn) {
         console.log('Submit button initial display:', getComputedStyle(submitBtn).display);
     }
-
-    // Set initial button states
-    if (submitBtn) submitBtn.style.display = 'none';
-    if (nextBtn) nextBtn.style.display = 'inline-block';
 
     // Show "Other" text fields when "Other" option is selected
     const usageOtherCheckbox = document.getElementById('usage-other');

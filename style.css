@@ -323,19 +323,19 @@ button[type="submit"]:hover {
 }
 
 .submit-btn {
+    display: none; /* Ensure submit button is hidden by default */
     background-color: #1E4A2D;
     color: white;
+    padding: 10px 20px;
     border: none;
-    padding: 12px 25px;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    font-weight: 600;
-    font-size: 1rem;
+    font-size: 1.1em;
+    margin-right: 10px;
 }
 
 .submit-btn:hover {
-    background-color: #163b23;
+    background-color: #153B21;
 }
 
 #submit-btn {
