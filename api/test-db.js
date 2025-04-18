@@ -1,6 +1,7 @@
-import { MongoClient } from 'mongodb';
+// CommonJS format for better Vercel compatibility
+const { MongoClient } = require('mongodb');
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   try {
     // Log environment for debugging
     console.log('Starting database connection test');
@@ -48,4 +49,4 @@ export default async function handler(req, res) {
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
-} 
+}; 
