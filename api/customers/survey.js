@@ -27,11 +27,29 @@ module.exports = async (req, res) => {
     // Log request data for debugging
     console.log('Received submission:', customerData);
     
-    // Connect to MongoDB
+    // Check if MONGODB_URI is defined
     const uri = process.env.MONGODB_URI;
+    if (!uri) {
+      console.error('MONGODB_URI is not defined');
+      // For development fallback to a default connection string if needed
+      // For now, we'll return an error so we know there's a config issue
+      return res.status(500).json({ 
+        error: 'MongoDB connection string is not configured',
+        note: 'Please set MONGODB_URI environment variable'
+      });
+    }
+    
     console.log('Connecting to database with URI starting with:', uri ? uri.substring(0, 20) + '...' : 'undefined');
     
-    const client = new MongoClient(uri);
+    // Create a new MongoClient
+    const client = new MongoClient(uri, {
+      // Adding connection options for better reliability
+      connectTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10
+    });
+    
+    // Connect to MongoDB
     await client.connect();
     console.log('Connected to MongoDB successfully');
     
@@ -57,7 +75,8 @@ module.exports = async (req, res) => {
     // Return detailed error for debugging
     return res.status(500).json({ 
       error: error.message, 
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      tip: 'Check your MongoDB connection string and verify network access to your MongoDB instance'
     });
   }
 }; 
