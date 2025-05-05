@@ -1,5 +1,12 @@
-// CommonJS format for better Vercel compatibility
-const { MongoClient } = require('mongodb');
+// Supabase client for better database connections
+const { createClient } = require('@supabase/supabase-js');
+
+// Load environment variables if needed
+try {
+  require('dotenv').config();
+} catch (e) {
+  console.warn('dotenv not available, continuing without it');
+}
 
 module.exports = async (req, res) => {
   // Allow cross-origin requests
@@ -22,52 +29,44 @@ module.exports = async (req, res) => {
     const customerData = req.body;
     
     // Add timestamp
-    customerData.createdAt = new Date();
+    customerData.created_at = new Date().toISOString();
     
     // Log request data for debugging
     console.log('Received submission:', customerData);
     
-    // Check if MONGODB_URI is defined
-    const uri = process.env.MONGODB_URI;
-    if (!uri) {
-      console.error('MONGODB_URI is not defined');
-      // For development fallback to a default connection string if needed
-      // For now, we'll return an error so we know there's a config issue
+    // Check if Supabase environment variables are defined
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Supabase credentials not defined');
       return res.status(500).json({ 
-        error: 'MongoDB connection string is not configured',
-        note: 'Please set MONGODB_URI environment variable'
+        error: 'Database connection credentials are not configured',
+        note: 'Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables'
       });
     }
     
-    console.log('Connecting to database with URI starting with:', uri ? uri.substring(0, 20) + '...' : 'undefined');
+    console.log('Connecting to Supabase...');
     
-    // Create a new MongoClient
-    const client = new MongoClient(uri, {
-      // Adding connection options for better reliability
-      connectTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-      maxPoolSize: 10
-    });
+    // Create Supabase client
+    const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Connect to MongoDB
-    await client.connect();
-    console.log('Connected to MongoDB successfully');
+    // Insert the customer data into the customers table
+    const { data, error } = await supabase
+      .from('customers')
+      .insert(customerData)
+      .select();
     
-    // Access the database and collection
-    const db = client.db('realdata');
-    const collection = db.collection('customers');
+    if (error) {
+      throw error;
+    }
     
-    // Insert the customer data
-    const result = await collection.insertOne(customerData);
-    console.log('Document inserted successfully with ID:', result.insertedId);
-    
-    // Close the connection
-    await client.close();
+    console.log('Customer data inserted successfully:', data);
     
     // Return success with customer data
     return res.status(200).json({ 
       success: true, 
-      customer: { _id: result.insertedId, ...customerData }
+      customer: data[0]
     });
   } catch (error) {
     console.error('Error processing submission:', error);
@@ -76,7 +75,7 @@ module.exports = async (req, res) => {
     return res.status(500).json({ 
       error: error.message, 
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-      tip: 'Check your MongoDB connection string and verify network access to your MongoDB instance'
+      tip: 'Check your Supabase configuration and network access'
     });
   }
 }; 
