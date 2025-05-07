@@ -821,4 +821,180 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return allValid;
     }
+
+    // === TEST DATA GENERATOR ===
+    // Add event listener for the generate test data button
+    const generateTestDataBtn = document.getElementById('generate-test-data');
+    if (generateTestDataBtn) {
+        generateTestDataBtn.addEventListener('click', function() {
+            console.log('Generating random test data for form...');
+            generateRandomFormData();
+        });
+    }
+    
+    // Function to generate random form data
+    function generateRandomFormData() {
+        // Helper function to get random item from array
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+        
+        // Helper function to get random integer between min and max (inclusive)
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        // Helper function to randomly select checkboxes
+        function selectRandomCheckboxes(name, probability = 0.5) {
+            const checkboxes = document.querySelectorAll(`input[type="checkbox"][name="${name}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = Math.random() < probability;
+            });
+        }
+        
+        // Fill text inputs
+        document.getElementById('first-name').value = getRandomItem(['John', 'Jane', 'Alex', 'Emma', 'Michael', 'Sarah', 'David']);
+        document.getElementById('last-name').value = getRandomItem(['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis']);
+        document.getElementById('email').value = `test${getRandomInt(100, 999)}@example.com`;
+        document.getElementById('age').value = getRandomInt(18, 65);
+        document.getElementById('weight').value = getRandomInt(100, 250);
+        
+        // Fill feedback
+        document.getElementById('feedback').value = getRandomItem([
+            'This survey is great!', 
+            'Looking forward to trying the product.', 
+            'I have high expectations for this.', 
+            '',
+            'Please make the mix not too sweet.'
+        ]);
+        
+        // Select biological sex
+        const sexOptions = document.querySelectorAll('input[name="biological-sex"]');
+        const randomSex = getRandomItem(Array.from(sexOptions));
+        if (randomSex) randomSex.checked = true;
+        
+        // Select random usage options
+        selectRandomCheckboxes('usage');
+        
+        // Set activity level
+        const activityLevels = ['sedentary', 'lightly-active', 'moderately-active', 'very-active'];
+        const activityLevelSelect = document.getElementById('activity-level');
+        if (activityLevelSelect) {
+            activityLevelSelect.value = getRandomItem(activityLevels);
+        }
+        
+        // Set sweat level
+        const sweatLevels = ['minimal', 'light', 'moderate', 'heavy', 'excessive'];
+        const sweatLevelSelect = document.getElementById('sweat-level');
+        if (sweatLevelSelect) {
+            sweatLevelSelect.value = getRandomItem(sweatLevels);
+        }
+        
+        // Set diet type
+        const dietTypes = ['omnivore', 'vegetarian', 'vegan', 'pescatarian'];
+        const dietTypeSelect = document.getElementById('diet-type');
+        if (dietTypeSelect) {
+            dietTypeSelect.value = getRandomItem(dietTypes);
+        }
+        
+        // Fill intake estimates for electrolytes
+        const intakeLevels = ['low', 'moderate', 'high'];
+        
+        // Set sodium intake
+        document.querySelectorAll('input[name="sodium-estimate"]').forEach(radio => {
+            radio.checked = false;
+        });
+        const sodiumEstimate = getRandomItem(intakeLevels);
+        const sodiumRadio = document.querySelector(`input[name="sodium-estimate"][value="${sodiumEstimate}"]`);
+        if (sodiumRadio) sodiumRadio.checked = true;
+        document.getElementById('sodium-intake').value = getRandomInt(2, 8);
+        
+        // Set potassium intake
+        document.querySelectorAll('input[name="potassium-estimate"]').forEach(radio => {
+            radio.checked = false;
+        });
+        const potassiumEstimate = getRandomItem(intakeLevels);
+        const potassiumRadio = document.querySelector(`input[name="potassium-estimate"][value="${potassiumEstimate}"]`);
+        if (potassiumRadio) potassiumRadio.checked = true;
+        document.getElementById('potassium-intake').value = getRandomInt(2, 8);
+        
+        // Set magnesium intake
+        document.querySelectorAll('input[name="magnesium-estimate"]').forEach(radio => {
+            radio.checked = false;
+        });
+        const magnesiumEstimate = getRandomItem(intakeLevels);
+        const magnesiumRadio = document.querySelector(`input[name="magnesium-estimate"][value="${magnesiumEstimate}"]`);
+        if (magnesiumRadio) magnesiumRadio.checked = true;
+        document.getElementById('magnesium-intake').value = getRandomInt(1, 5);
+        
+        // Set calcium intake
+        document.querySelectorAll('input[name="calcium-estimate"]').forEach(radio => {
+            radio.checked = false;
+        });
+        const calciumEstimate = getRandomItem(intakeLevels);
+        const calciumRadio = document.querySelector(`input[name="calcium-estimate"][value="${calciumEstimate}"]`);
+        if (calciumRadio) calciumRadio.checked = true;
+        document.getElementById('calcium-intake').value = getRandomInt(1, 5);
+        
+        // Set supplement values
+        document.getElementById('sodium-supplement').value = Math.random() < 0.3 ? getRandomInt(100, 1000) : '';
+        document.getElementById('potassium-supplement').value = Math.random() < 0.3 ? getRandomInt(100, 1000) : '';
+        document.getElementById('magnesium-supplement').value = Math.random() < 0.5 ? getRandomInt(100, 400) : '';
+        document.getElementById('calcium-supplement').value = Math.random() < 0.3 ? getRandomInt(100, 1000) : '';
+        
+        // Select random exercise types
+        selectRandomCheckboxes('exercise-type');
+        
+        // Select random bone health options
+        selectRandomCheckboxes('bone-health');
+        
+        // Select random health conditions
+        selectRandomCheckboxes('conditions');
+        
+        // Set flavor preference
+        const flavors = ['orange', 'lemon-lime', 'cocoa', 'mango'];
+        const flavorOptions = document.querySelectorAll('input[name="flavor"]');
+        flavorOptions.forEach(flavor => {
+            flavor.checked = false;
+        });
+        const randomFlavor = document.querySelector(`input[name="flavor"][value="${getRandomItem(flavors)}"]`);
+        if (randomFlavor) randomFlavor.checked = true;
+        
+        // Set flavor intensity
+        const flavorIntensities = ['light', 'medium', 'high'];
+        const flavorIntensitySelect = document.getElementById('flavor-intensity');
+        if (flavorIntensitySelect) {
+            flavorIntensitySelect.value = getRandomItem(flavorIntensities);
+        }
+        
+        // Set sweetener amount
+        const sweetenerAmounts = ['none', 'light', 'medium', 'high'];
+        const sweetenerAmountSelect = document.getElementById('sweetener-amount');
+        if (sweetenerAmountSelect) {
+            sweetenerAmountSelect.value = getRandomItem(sweetenerAmounts);
+        }
+        
+        // Set sweetener type
+        const sweetenerTypes = ['stevia-erythritol', 'cane-sugar'];
+        const sweetenerTypeSelect = document.getElementById('sweetener-type');
+        if (sweetenerTypeSelect) {
+            sweetenerTypeSelect.value = getRandomItem(sweetenerTypes);
+        }
+        
+        // Set values for any select elements we might have missed
+        document.querySelectorAll('select').forEach(select => {
+            // Skip selects we've already handled and those with no options
+            if (select.value || select.options.length <= 1) return;
+            
+            // Filter out the disabled option (usually the first one)
+            const validOptions = Array.from(select.options).filter(option => !option.disabled);
+            if (validOptions.length > 0) {
+                const randomOption = getRandomItem(validOptions);
+                select.value = randomOption.value;
+            }
+        });
+        
+        console.log('Random test data generated!');
+        alert('Test data generated! Click Next to see data and continue through the form.');
+    }
 });
