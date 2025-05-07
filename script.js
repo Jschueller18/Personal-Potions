@@ -477,15 +477,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Format data for the backend API
             // Map our form data to match exactly what the backend expects
             const customerData = {
-                // Personal information - exact field matches
-                firstName: formData.firstName || '',
-                lastName: formData.lastName || '',
+                // Personal information - extract correct field names
+                firstName: formData['first-name'] || '',
+                lastName: formData['last-name'] || '',
                 email: formData.email,
                 age: parseInt(formData.age) || 0,
                 weight: parseInt(formData.weight) || 0,
-                biologicalSex: formData.sex === 'male' ? 'male' : 
-                               formData.sex === 'female' ? 'female' : 
-                               formData.sex || '',
+                biologicalSex: formData['biological-sex'] || '',
                 
                 // Usage - ensure it's always an array with valid enum values
                 usage: Array.isArray(formData.usage) ? formData.usage.map(item => 
@@ -498,43 +496,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 ) : (formData.usage ? [formData.usage] : []),
                 
                 // Map common fields - ensure enum values match backend expectations
-                activityLevel: formData.activityLevel === 'sedentary' ? 'sedentary' :
-                              formData.activityLevel === 'lightly-active' ? 'lightly-active' :
-                              formData.activityLevel === 'moderately-active' ? 'moderately-active' :
-                              formData.activityLevel === 'very-active' ? 'very-active' :
-                              'moderately-active',
+                activityLevel: formData['activity-level'] || 'moderately-active',
+                sweatLevel: formData['sweat-level'] || 'moderate',
                 
-                sweatLevel: formData.sweatLevel === 'minimal' ? 'minimal' :
-                           formData.sweatLevel === 'light' ? 'light' :
-                           formData.sweatLevel === 'moderate' ? 'moderate' :
-                           formData.sweatLevel === 'heavy' ? 'heavy' :
-                           formData.sweatLevel === 'excessive' ? 'excessive' :
-                           'moderate',
+                // REMOVED: goals field
                 
-                goals: formData.goals || '',
+                dietType: formData['diet-type'] || 'omnivore',
                 
-                dietType: formData.dietType === 'omnivore' ? 'omnivore' :
-                         formData.dietType === 'vegetarian' ? 'vegetarian' :
-                         formData.dietType === 'vegan' ? 'vegan' :
-                         formData.dietType === 'pescatarian' ? 'pescatarian' :
-                         formData.dietType === 'other' ? 'other' :
-                         'omnivore',
+                // Intake estimations 
+                sodiumIntake: formData['sodium-estimate'] || 'moderate',
+                potassiumIntake: formData['potassium-estimate'] || 'moderate',
+                magnesiumIntake: formData['magnesium-estimate'] || 'moderate',
+                calciumIntake: formData['calcium-estimate'] || 'moderate',
                 
-                // Intake estimations with enum validation
-                sodiumIntake: ['low', 'moderate', 'high'].includes(formData.sodiumIntake) ? 
-                             formData.sodiumIntake : 'moderate',
-                potassiumIntake: ['low', 'moderate', 'high'].includes(formData.potassiumIntake) ? 
-                                formData.potassiumIntake : 'moderate',
-                magnesiumIntake: ['low', 'moderate', 'high'].includes(formData.magnesiumIntake) ? 
-                                formData.magnesiumIntake : 'moderate',
-                calciumIntake: ['low', 'moderate', 'high'].includes(formData.calciumIntake) ? 
-                              formData.calciumIntake : 'moderate',
-                
-                // Include any other potentially useful fields
+                // Other fields
                 hydrationChallenges: Array.isArray(formData.hydrationChallenges) ? 
                                     formData.hydrationChallenges : [],
                 healthConditions: Array.isArray(formData.conditions) ? 
-                                 formData.conditions : []
+                                 formData.conditions : [],
+                                 
+                // Add other needed fields
+                workoutDuration: formData['workout-duration'] || '',
+                workoutIntensity: formData['workout-intensity'] || '',
+                menstrualFlow: formData['menstrual-flow'] || '',
+                symptomSeverity: formData['symptom-severity'] || '',
+                waterIntake: formData['water-intake'] || '',
+                waterRetention: formData['water-retention'] || '',
+                muscleTension: formData['muscle-tension'] || '',
+                
+                // Supplements
+                sodiumSupplement: parseInt(formData['sodium-supplement']) || null,
+                potassiumSupplement: parseInt(formData['potassium-supplement']) || null,
+                magnesiumSupplement: parseInt(formData['magnesium-supplement']) || null,
+                calciumSupplement: parseInt(formData['calcium-supplement']) || null,
+                
+                // Nutrition details
+                proteinIntake: formData['protein-intake'] || '',
+                vitaminDStatus: formData['vitamin-d-status'] || '',
+                menstrualStatus: formData['menstrual-status'] || '',
+                dairyIntake: parseFloat(formData['dairy-intake']) || null,
+                
+                // Flavor preferences
+                flavor: formData.flavor || '',
+                flavorIntensity: formData['flavor-intensity'] || '',
+                sweetenerAmount: formData['sweetener-amount'] || '',
+                sweetenerType: formData['sweetener-type'] || '',
+                
+                // User feedback 
+                feedback: formData.feedback || formData['additional-info'] || '',
+                
+                // Arrays from checkbox groups
+                exerciseType: Array.isArray(formData['exercise-type']) ? 
+                             formData['exercise-type'] : [],
+                boneHealth: Array.isArray(formData['bone-health']) ? 
+                           formData['bone-health'] : [],
+                sleepGoals: Array.isArray(formData['sleep-goals']) ? 
+                           formData['sleep-goals'] : [],
+                menstrualSymptoms: Array.isArray(formData['menstrual-symptoms']) ? 
+                                  formData['menstrual-symptoms'] : [],
+                dailyGoals: Array.isArray(formData['daily-goals']) ? 
+                           formData['daily-goals'] : []
             };
             
             // Format validation - check if required fields are present
@@ -859,6 +880,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('age').value = getRandomInt(18, 65);
         document.getElementById('weight').value = getRandomInt(100, 250);
         
+        // Clear additional-info since we removed it from schema
+        if (document.getElementById('additional-info')) {
+            document.getElementById('additional-info').value = '';
+        }
+        
         // Fill feedback
         document.getElementById('feedback').value = getRandomItem([
             'This survey is great!', 
@@ -868,10 +894,23 @@ document.addEventListener('DOMContentLoaded', function() {
             'Please make the mix not too sweet.'
         ]);
         
-        // Select biological sex
-        const sexOptions = document.querySelectorAll('input[name="biological-sex"]');
-        const randomSex = getRandomItem(Array.from(sexOptions));
-        if (randomSex) randomSex.checked = true;
+        // Select biological sex - make sure one is always selected
+        const maleRadio = document.getElementById('sex-male');
+        const femaleRadio = document.getElementById('sex-female');
+        
+        // Make sure biological sex is always set
+        if (Math.random() > 0.5) {
+            maleRadio.checked = true;
+            femaleRadio.checked = false;
+            formData['biological-sex'] = 'male';
+        } else {
+            femaleRadio.checked = true;
+            maleRadio.checked = false;
+            formData['biological-sex'] = 'female';
+        }
+        
+        // Save all data from current section
+        saveCurrentSectionData();
         
         // Select random usage options
         selectRandomCheckboxes('usage');
@@ -900,13 +939,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Fill intake estimates for electrolytes
         const intakeLevels = ['low', 'moderate', 'high'];
         
-        // Set sodium intake
+        // Set sodium intake - Make sure we set estimate values that will be used in submission
         document.querySelectorAll('input[name="sodium-estimate"]').forEach(radio => {
             radio.checked = false;
         });
         const sodiumEstimate = getRandomItem(intakeLevels);
         const sodiumRadio = document.querySelector(`input[name="sodium-estimate"][value="${sodiumEstimate}"]`);
-        if (sodiumRadio) sodiumRadio.checked = true;
+        if (sodiumRadio) {
+            sodiumRadio.checked = true;
+            // Set this estimate in formData directly to ensure it's picked up
+            formData['sodium-estimate'] = sodiumEstimate;
+        }
         document.getElementById('sodium-intake').value = getRandomInt(2, 8);
         
         // Set potassium intake
@@ -915,7 +958,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         const potassiumEstimate = getRandomItem(intakeLevels);
         const potassiumRadio = document.querySelector(`input[name="potassium-estimate"][value="${potassiumEstimate}"]`);
-        if (potassiumRadio) potassiumRadio.checked = true;
+        if (potassiumRadio) {
+            potassiumRadio.checked = true;
+            formData['potassium-estimate'] = potassiumEstimate;
+        }
         document.getElementById('potassium-intake').value = getRandomInt(2, 8);
         
         // Set magnesium intake
@@ -924,7 +970,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         const magnesiumEstimate = getRandomItem(intakeLevels);
         const magnesiumRadio = document.querySelector(`input[name="magnesium-estimate"][value="${magnesiumEstimate}"]`);
-        if (magnesiumRadio) magnesiumRadio.checked = true;
+        if (magnesiumRadio) {
+            magnesiumRadio.checked = true;
+            formData['magnesium-estimate'] = magnesiumEstimate;
+        }
         document.getElementById('magnesium-intake').value = getRandomInt(1, 5);
         
         // Set calcium intake
@@ -933,7 +982,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         const calciumEstimate = getRandomItem(intakeLevels);
         const calciumRadio = document.querySelector(`input[name="calcium-estimate"][value="${calciumEstimate}"]`);
-        if (calciumRadio) calciumRadio.checked = true;
+        if (calciumRadio) {
+            calciumRadio.checked = true;
+            formData['calcium-estimate'] = calciumEstimate;
+        }
         document.getElementById('calcium-intake').value = getRandomInt(1, 5);
         
         // Set supplement values
@@ -941,6 +993,15 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('potassium-supplement').value = Math.random() < 0.3 ? getRandomInt(100, 1000) : '';
         document.getElementById('magnesium-supplement').value = Math.random() < 0.5 ? getRandomInt(100, 400) : '';
         document.getElementById('calcium-supplement').value = Math.random() < 0.3 ? getRandomInt(100, 1000) : '';
+        
+        // Set dairy intake (servings per day)
+        const dairyIntakeElement = document.getElementById('dairy-intake');
+        if (dairyIntakeElement) {
+            // Generate a random number between 0 and 5 with one decimal place
+            const randomDairyIntake = (Math.random() * 5).toFixed(1);
+            dairyIntakeElement.value = randomDairyIntake;
+            formData['dairy-intake'] = randomDairyIntake;
+        }
         
         // Select random exercise types
         selectRandomCheckboxes('exercise-type');
