@@ -38,6 +38,83 @@ Once your project is created, you'll need to create a table for customer data:
 
 5. Click **Save** to create the table
 
+### Additional Fields (Option 1)
+
+If you're directly inserting survey data without grouping into jsonb objects, add these additional columns:
+
+| Name | Type | Default | Primary | 
+|------|------|---------|---------|
+| age | integer | NULL | No |
+| weight | integer | NULL | No |
+| biologicalSex | text | NULL | No |
+| activityLevel | text | NULL | No |
+| sweatLevel | text | NULL | No |
+| sweatRate | text | NULL | No |
+| dietType | text | NULL | No |
+| sodiumIntake | text | NULL | No |
+| potassiumIntake | text | NULL | No |
+| magnesiumIntake | text | NULL | No |
+| calciumIntake | text | NULL | No |
+| hydrationChallenges | jsonb | NULL | No |
+| healthConditions | jsonb | NULL | No |
+| exerciseType | jsonb | NULL | No |
+| boneHealth | jsonb | NULL | No |
+| dailyGoals | jsonb | NULL | No |
+| hangoverSymptoms | text | NULL | No |
+| hangoverTiming | text | NULL | No |
+| menstrualFlow | text | NULL | No |
+| menstrualSymptoms | jsonb | NULL | No |
+| muscleTension | text | NULL | No |
+| symptomSeverity | text | NULL | No |
+| waterIntake | text | NULL | No |
+| waterRetention | text | NULL | No |
+| workoutDuration | text | NULL | No |
+| workoutIntensity | text | NULL | No |
+| proteinIntake | text | NULL | No |
+| vitaminDStatus | text | NULL | No |
+| menstrualStatus | text | NULL | No |
+| dairyIntake | numeric | NULL | No |
+| sodiumSupplement | integer | NULL | No |
+| potassiumSupplement | integer | NULL | No |
+| magnesiumSupplement | integer | NULL | No |
+| calciumSupplement | integer | NULL | No |
+| sleepGoals | jsonb | NULL | No |
+| flavor | text | NULL | No |
+| flavorIntensity | text | NULL | No |
+| sweetenerAmount | text | NULL | No |
+| sweetenerType | text | NULL | No |
+| feedback | text | NULL | No |
+
+### Alternative Option (Option 2)
+
+Instead of adding more columns, modify your API code to properly group fields into the jsonb columns according to this structure:
+
+```javascript
+const customerData = {
+  firstName: rawData.firstName,
+  lastName: rawData.lastName,
+  email: rawData.email,
+  usage: rawData.usage || [],
+  healthInfo: {
+    age: rawData.age,
+    weight: rawData.weight,
+    biologicalSex: rawData.biologicalSex,
+    activityLevel: rawData.activityLevel,
+    sweatLevel: rawData.sweatLevel,
+    healthConditions: rawData.healthConditions || []
+  },
+  dietaryInfo: {
+    dietType: rawData.dietType,
+    sodiumIntake: rawData.sodiumIntake,
+    potassiumIntake: rawData.potassiumIntake,
+    magnesiumIntake: rawData.magnesiumIntake,
+    calciumIntake: rawData.calciumIntake,
+    hydrationChallenges: rawData.hydrationChallenges || []
+  },
+  flavorPreferences: {}
+};
+```
+
 ## Step 4: Get Your API Keys
 
 1. Go to **Project Settings** (gear icon) in the left sidebar  
@@ -79,3 +156,4 @@ If you encounter issues:
 - Verify that your environment variables are set correctly
 - Make sure the 'customers' table exists with the correct columns
 - Check that your Supabase project is on the active free tier 
+- Verify that your API is correctly formatting data to match your database schema 
