@@ -556,15 +556,13 @@ document.addEventListener('DOMContentLoaded', function() {
             responseMessage.classList.add('visible');
             
             // Send data to our backend API
-            fetch('/api/customers/survey', {
+            fetch('http://localhost:5000/api/customers/survey', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify(customerData),
-                // Add credentials to ensure cookies are sent
-                credentials: 'same-origin'
+                body: JSON.stringify(customerData)
             })
             .then(response => {
                 console.log('Response status:', response.status);
