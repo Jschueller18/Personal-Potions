@@ -581,8 +581,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Log successful submission details for testing
                 if (data.customer) {
+                    // Support both MongoDB (_id) and Supabase (id) formats
+                    const customerId = data.customer._id || data.customer.id;
                     console.log('Customer created successfully:', {
-                        id: data.customer._id,
+                        id: customerId,
                         name: `${data.customer.firstName} ${data.customer.lastName}`,
                         email: data.customer.email
                     });
@@ -590,7 +592,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (data.formulation) {
                     console.log('Formulation generated successfully:', {
-                        id: data.formulation._id,
+                        id: data.formulation._id || data.formulation.id,
                         useCase: data.formulation.useCase,
                         servingsPerDay: data.formulation.recommendedServingsPerDay
                     });
@@ -600,19 +602,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 responseMessage.style.color = "#1E4A2D";
                 
                 // If we have a customerId and formulation, redirect to results page
-                if (data.customer && data.customer._id) {
-                    console.log('Redirecting to results page with customer ID:', data.customer._id);
-                    setTimeout(() => {
-                        window.location.href = `/results.html?customerId=${data.customer._id}`;
-                    }, 2000);
-                } else {
-                    console.log('No customer ID found in response, resetting form');
-                    // Otherwise just reset the form
-                    form.reset();
-                    formData = {}; // Reset stored data
-                    // Reset to first section
-                    goToSection(0);
+                if (data.customer) {
+                    // Support both MongoDB and Supabase ID formats
+                    const customerId = data.customer._id || data.customer.id;
+                    if (customerId) {
+                        console.log('Redirecting to results page with customer ID:', customerId);
+                        setTimeout(() => {
+                            window.location.href = `/results.html?customerId=${customerId}`;
+                        }, 2000);
+                        return;
+                    }
                 }
+                
+                console.log('No customer ID found in response, resetting form');
+                // Otherwise just reset the form
+                form.reset();
+                formData = {}; // Reset stored data
+                // Reset to first section
+                goToSection(0);
             })
             .catch(error => {
                 console.error('Submission error:', error);

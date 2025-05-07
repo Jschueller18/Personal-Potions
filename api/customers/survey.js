@@ -26,13 +26,51 @@ module.exports = async (req, res) => {
 
   try {
     // Get the data from the request
-    const customerData = req.body;
+    const rawData = req.body;
+    
+    // Log the raw data for debugging
+    console.log('Received raw data:', rawData);
+    
+    // Format the data to match the Supabase schema
+    const customerData = {
+      // Basic fields that directly map to columns
+      firstName: rawData.firstName,
+      lastName: rawData.lastName,
+      email: rawData.email,
+      
+      // Usage data goes into the usage JSONB column
+      usage: rawData.usage || [],
+      
+      // Health information goes into the healthInfo JSONB column
+      healthInfo: {
+        age: rawData.age,
+        weight: rawData.weight,
+        biologicalSex: rawData.biologicalSex,
+        activityLevel: rawData.activityLevel,
+        sweatLevel: rawData.sweatLevel,
+        goals: rawData.goals,
+        healthConditions: rawData.healthConditions || []
+      },
+      
+      // Dietary information goes into the dietaryInfo JSONB column
+      dietaryInfo: {
+        dietType: rawData.dietType,
+        sodiumIntake: rawData.sodiumIntake,
+        potassiumIntake: rawData.potassiumIntake,
+        magnesiumIntake: rawData.magnesiumIntake,
+        calciumIntake: rawData.calciumIntake,
+        hydrationChallenges: rawData.hydrationChallenges || []
+      },
+      
+      // Add an empty flavorPreferences object to match schema
+      flavorPreferences: {}
+    };
     
     // Add timestamp
     customerData.created_at = new Date().toISOString();
     
-    // Log request data for debugging
-    console.log('Received submission:', customerData);
+    // Log the formatted data for debugging
+    console.log('Formatted data for Supabase:', customerData);
     
     // Check if Supabase environment variables are defined
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -58,15 +96,20 @@ module.exports = async (req, res) => {
       .select();
     
     if (error) {
+      console.error('Supabase insert error:', error);
       throw error;
     }
     
     console.log('Customer data inserted successfully:', data);
     
-    // Return success with customer data
+    // Return success with customer data - ensure ID is properly returned
     return res.status(200).json({ 
       success: true, 
-      customer: data[0]
+      customer: {
+        ...data[0],
+        // For MongoDB compatibility with frontend code
+        _id: data[0].id
+      }
     });
   } catch (error) {
     console.error('Error processing submission:', error);

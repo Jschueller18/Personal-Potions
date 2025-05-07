@@ -45,21 +45,44 @@ module.exports = async (req, res) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Test the connection by getting a count of customers
-    const { count, error } = await supabase
+    const { count, error: countError } = await supabase
       .from('customers')
       .select('*', { count: 'exact', head: true });
     
-    if (error) {
-      throw error;
+    if (countError) {
+      throw countError;
     }
     
-    // Return connection status
+    // Get the database table schema information
+    const { data: tableInfo, error: tableError } = await supabase
+      .from('customers')
+      .select('*')
+      .limit(1);
+      
+    // Get table columns
+    let schema = {};
+    if (tableInfo && tableInfo.length > 0) {
+      const sampleRow = tableInfo[0];
+      // Extract column names and types
+      schema = Object.keys(sampleRow).reduce((acc, key) => {
+        const value = sampleRow[key];
+        acc[key] = {
+          type: Array.isArray(value) ? 'array' : typeof value,
+          isJsonb: typeof value === 'object' && value !== null && !Array.isArray(value)
+        };
+        return acc;
+      }, {});
+    }
+    
+    // Return connection status and schema info
     return res.status(200).json({
       status: 'success',
       connected: true,
       database: 'PostgreSQL via Supabase',
       tables: ['customers'],
       customerCount: count,
+      schema: schema,
+      tableInfo: tableError ? tableError.message : 'Schema info available',
       env: {
         nodeEnv: envSource
       }
