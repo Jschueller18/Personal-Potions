@@ -31,10 +31,13 @@ module.exports = async (req, res) => {
     
     // Check if Supabase environment variables are defined
     const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_ANON_KEY;
+    
+    // Try to use the service key first (has more permissions), fallback to anon key
+    const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
     
     console.log('Supabase URL defined:', !!supabaseUrl);
     console.log('Supabase key defined:', !!supabaseKey, supabaseKey ? `(length: ${supabaseKey.length})` : '');
+    console.log('Using key type:', process.env.SUPABASE_SERVICE_KEY ? 'SERVICE_KEY' : 'ANON_KEY');
     
     if (!supabaseUrl || !supabaseKey) {
       console.error('Supabase credentials not defined');
@@ -48,7 +51,8 @@ module.exports = async (req, res) => {
         },
         env: {
           SUPABASE_URL: process.env.SUPABASE_URL ? 'defined' : 'undefined',
-          SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY ? 'defined (length: ' + process.env.SUPABASE_ANON_KEY.length + ')' : 'undefined'
+          SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY ? 'defined' : 'undefined',
+          SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY ? 'defined' : 'undefined'
         }
       });
     }
@@ -84,6 +88,11 @@ module.exports = async (req, res) => {
     if (error) {
       console.error('Supabase insert error:', error);
       
+      // If the error is related to permissions, suggest using the service key
+      const isPossiblePermissionIssue = error.message?.includes('permission') || 
+                                      error.code === '42501' || 
+                                      error.code === 'PGRST116';
+      
       // Include detailed error information but still return success for the form
       return res.status(200).json({ 
         success: true, 
@@ -91,14 +100,17 @@ module.exports = async (req, res) => {
           id: 'error-' + Date.now(),
           _id: 'error-' + Date.now(),
           email: customerData.email || '',
-          message: 'Success (but DB insert failed)'
+          message: isPossiblePermissionIssue ? 
+            'Success (but DB insert failed due to permissions - try using SUPABASE_SERVICE_KEY)' : 
+            'Success (but DB insert failed)'
         },
         dbError: {
           message: error.message,
           code: error.code,
           details: error.details,
           hint: error.hint
-        }
+        },
+        keyType: process.env.SUPABASE_SERVICE_KEY ? 'SERVICE_KEY' : 'ANON_KEY'
       });
     }
     
