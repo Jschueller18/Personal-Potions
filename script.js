@@ -1046,8 +1046,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     responseMessage.style.color = "#D8000C";
                     responseMessage.classList.add('visible');
                     
-                    // Scroll to top to show the error message
-                    window.scrollTo(0, 0);
+                    // Remove scroll to top - error message is already visible
+                    // window.scrollTo(0, 0);
                 }
                 return;
             }
@@ -1061,6 +1061,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.textContent = 'Submitting...';
             }
             
+            // Add more detailed logging for debugging
+            console.log('Sending API request to:', '/api/customers/survey');
+            console.log('With headers:', {'Content-Type': 'application/json'});
+            
             // Send the data to the backend API
             fetch('/api/customers/survey', {
                 method: 'POST',
@@ -1070,13 +1074,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(customerData)
             })
             .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers].map(h => `${h[0]}: ${h[1]}`).join(', '));
                 if (!response.ok) {
                     throw new Error('Network response was not ok: ' + response.status);
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Success:', data);
+                console.log('Success response data:', data);
                 
                 // Store submission ID for debug purposes
                 if (data.customer && data.customer.id) {
@@ -1088,7 +1094,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = '/?success=true';
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Error details:', error);
                 
                 // Show error message
                 if (responseMessage) {
@@ -1096,8 +1102,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     responseMessage.style.color = "#D8000C";
                     responseMessage.classList.add('visible');
                     
-                    // Scroll to top to show the error message
-                    window.scrollTo(0, 0);
+                    // Remove scroll to top - error message is already visible
+                    // window.scrollTo(0, 0);
                 }
                 
                 // Re-enable submit button
