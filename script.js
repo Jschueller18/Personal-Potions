@@ -495,67 +495,68 @@ document.addEventListener('DOMContentLoaded', function() {
                     item === 'hangover' ? 'hangover' : item
                 ) : (formData.usage ? [formData.usage] : []),
                 
-                // Map common fields - ensure enum values match backend expectations
+                // Map activity and sweat levels
                 activityLevel: formData['activity-level'] || 'moderately-active',
                 sweatLevel: formData['sweat-level'] || 'moderate',
                 
-                // REMOVED: goals field
-                
+                // Diet-related fields
                 dietType: formData['diet-type'] || 'omnivore',
                 
-                // Intake estimations 
+                // Intake estimations for electrolytes
                 sodiumIntake: formData['sodium-estimate'] || 'moderate',
                 potassiumIntake: formData['potassium-estimate'] || 'moderate',
                 magnesiumIntake: formData['magnesium-estimate'] || 'moderate',
                 calciumIntake: formData['calcium-estimate'] || 'moderate',
                 
-                // Other fields
-                hydrationChallenges: Array.isArray(formData.hydrationChallenges) ? 
-                                    formData.hydrationChallenges : [],
-                healthConditions: Array.isArray(formData.conditions) ? 
-                                 formData.conditions : [],
-                                 
-                // Add other needed fields
-                workoutDuration: formData['workout-duration'] || '',
-                workoutIntensity: formData['workout-intensity'] || '',
-                menstrualFlow: formData['menstrual-flow'] || '',
-                symptomSeverity: formData['symptom-severity'] || '',
+                // Supplement amounts (in mg)
+                sodiumSupplement: formData['sodium-supplement'] ? parseInt(formData['sodium-supplement']) : null,
+                potassiumSupplement: formData['potassium-supplement'] ? parseInt(formData['potassium-supplement']) : null,
+                magnesiumSupplement: formData['magnesium-supplement'] ? parseInt(formData['magnesium-supplement']) : null,
+                calciumSupplement: formData['calcium-supplement'] ? parseInt(formData['calcium-supplement']) : null,
+                
+                // Additional nutrition/hydration data
+                dairyIntake: formData['dairy-intake'] ? parseFloat(formData['dairy-intake']) : null,
                 waterIntake: formData['water-intake'] || '',
                 waterRetention: formData['water-retention'] || '',
-                muscleTension: formData['muscle-tension'] || '',
                 
-                // Supplements
-                sodiumSupplement: parseInt(formData['sodium-supplement']) || null,
-                potassiumSupplement: parseInt(formData['potassium-supplement']) || null,
-                magnesiumSupplement: parseInt(formData['magnesium-supplement']) || null,
-                calciumSupplement: parseInt(formData['calcium-supplement']) || null,
+                // Sweat replacement specific fields
+                workoutDuration: formData['workout-duration'] || '',
+                workoutIntensity: formData['workout-intensity'] || '',
+                sweatRate: formData['sweat-rate'] || '',
                 
-                // Nutrition details
+                // Health-related fields
+                healthConditions: Array.isArray(formData['conditions']) ? formData['conditions'] : [],
+                exerciseType: Array.isArray(formData['exercise-type']) ? formData['exercise-type'] : [],
+                boneHealth: Array.isArray(formData['bone-health']) ? formData['bone-health'] : [],
                 proteinIntake: formData['protein-intake'] || '',
                 vitaminDStatus: formData['vitamin-d-status'] || '',
+                
+                // Sleep and muscle-related fields
+                sleepGoals: Array.isArray(formData['sleep-goals']) ? formData['sleep-goals'] : [],
+                muscleTension: formData['muscle-tension'] || '',
+                
+                // Hangover-related fields
+                hangoverSymptoms: formData['hangover-symptoms'] || '',
+                hangoverTiming: formData['hangover-timing'] || '',
+                
+                // Menstrual-related fields
                 menstrualStatus: formData['menstrual-status'] || '',
-                dairyIntake: parseFloat(formData['dairy-intake']) || null,
+                menstrualFlow: formData['menstrual-flow'] || '',
+                menstrualSymptoms: Array.isArray(formData['menstrual-symptoms']) ? formData['menstrual-symptoms'] : [],
+                symptomSeverity: formData['symptom-severity'] || '',
+                
+                // Daily hydration goals
+                dailyGoals: Array.isArray(formData['daily-goals']) ? formData['daily-goals'] : [],
+                hydrationChallenges: Array.isArray(formData['hydration-challenges']) ? formData['hydration-challenges'] : [],
                 
                 // Flavor preferences
-                flavor: formData.flavor || '',
+                flavor: formData['flavor'] || '',
                 flavorIntensity: formData['flavor-intensity'] || '',
                 sweetenerAmount: formData['sweetener-amount'] || '',
                 sweetenerType: formData['sweetener-type'] || '',
                 
                 // User feedback 
-                feedback: formData.feedback || formData['additional-info'] || '',
-                
-                // Arrays from checkbox groups
-                exerciseType: Array.isArray(formData['exercise-type']) ? 
-                             formData['exercise-type'] : [],
-                boneHealth: Array.isArray(formData['bone-health']) ? 
-                           formData['bone-health'] : [],
-                sleepGoals: Array.isArray(formData['sleep-goals']) ? 
-                           formData['sleep-goals'] : [],
-                menstrualSymptoms: Array.isArray(formData['menstrual-symptoms']) ? 
-                                  formData['menstrual-symptoms'] : [],
-                dailyGoals: Array.isArray(formData['daily-goals']) ? 
-                           formData['daily-goals'] : []
+                feedback: formData.feedback || formData['additional-info'] || ''
             };
             
             // Format validation - check if required fields are present

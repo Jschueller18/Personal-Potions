@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
     const rawData = req.body;
     
     // Log the raw data for debugging
-    console.log('Received raw data:', rawData);
+    console.log('Received survey submission');
     
     // Format the data to match the Supabase schema
     const customerData = {
@@ -41,36 +41,93 @@ module.exports = async (req, res) => {
       // Usage data goes into the usage JSONB column
       usage: rawData.usage || [],
       
-      // Health information goes into the healthInfo JSONB column
+      // Individual fields for Option 1 schema from SUPABASE_SETUP.md
+      age: rawData.age,
+      weight: rawData.weight,
+      biologicalSex: rawData.biologicalSex,
+      activityLevel: rawData.activityLevel,
+      sweatLevel: rawData.sweatLevel,
+      sweatRate: rawData.sweatRate,
+      dietType: rawData.dietType,
+      sodiumIntake: rawData.sodiumIntake,
+      potassiumIntake: rawData.potassiumIntake,
+      magnesiumIntake: rawData.magnesiumIntake,
+      calciumIntake: rawData.calciumIntake,
+      
+      // JSONB arrays
+      hydrationChallenges: rawData.hydrationChallenges || [],
+      healthConditions: rawData.healthConditions || [],
+      exerciseType: rawData.exerciseType || [],
+      boneHealth: rawData.boneHealth || [],
+      dailyGoals: rawData.dailyGoals || [],
+      
+      // Additional fields
+      hangoverSymptoms: rawData.hangoverSymptoms,
+      hangoverTiming: rawData.hangoverTiming,
+      menstrualFlow: rawData.menstrualFlow,
+      menstrualSymptoms: rawData.menstrualSymptoms || [],
+      muscleTension: rawData.muscleTension,
+      symptomSeverity: rawData.symptomSeverity,
+      waterIntake: rawData.waterIntake,
+      waterRetention: rawData.waterRetention,
+      workoutDuration: rawData.workoutDuration,
+      workoutIntensity: rawData.workoutIntensity,
+      proteinIntake: rawData.proteinIntake,
+      vitaminDStatus: rawData.vitaminDStatus,
+      menstrualStatus: rawData.menstrualStatus,
+      dairyIntake: rawData.dairyIntake,
+      
+      // Supplement values
+      sodiumSupplement: rawData.sodiumSupplement,
+      potassiumSupplement: rawData.potassiumSupplement,
+      magnesiumSupplement: rawData.magnesiumSupplement,
+      calciumSupplement: rawData.calciumSupplement,
+      
+      // Sleep goals
+      sleepGoals: rawData.sleepGoals || [],
+      
+      // Flavor preferences
+      flavor: rawData.flavor,
+      flavorIntensity: rawData.flavorIntensity,
+      sweetenerAmount: rawData.sweetenerAmount,
+      sweetenerType: rawData.sweetenerType,
+      feedback: rawData.feedback,
+      
+      // Also organize data into structured JSONB objects per Option 2 in SUPABASE_SETUP.md
+      // for backward compatibility
       healthInfo: {
         age: rawData.age,
         weight: rawData.weight,
         biologicalSex: rawData.biologicalSex,
         activityLevel: rawData.activityLevel,
         sweatLevel: rawData.sweatLevel,
-        goals: rawData.goals,
         healthConditions: rawData.healthConditions || []
       },
       
-      // Dietary information goes into the dietaryInfo JSONB column
       dietaryInfo: {
         dietType: rawData.dietType,
         sodiumIntake: rawData.sodiumIntake,
         potassiumIntake: rawData.potassiumIntake,
         magnesiumIntake: rawData.magnesiumIntake,
         calciumIntake: rawData.calciumIntake,
+        sodiumSupplement: rawData.sodiumSupplement,
+        potassiumSupplement: rawData.potassiumSupplement,
+        magnesiumSupplement: rawData.magnesiumSupplement,
+        calciumSupplement: rawData.calciumSupplement,
+        dairyIntake: rawData.dairyIntake,
         hydrationChallenges: rawData.hydrationChallenges || []
       },
       
-      // Add an empty flavorPreferences object to match schema
-      flavorPreferences: {}
+      flavorPreferences: {
+        flavor: rawData.flavor,
+        flavorIntensity: rawData.flavorIntensity,
+        sweetenerAmount: rawData.sweetenerAmount,
+        sweetenerType: rawData.sweetenerType
+      }
     };
     
     // Add timestamp
     customerData.created_at = new Date().toISOString();
-    
-    // Log the formatted data for debugging
-    console.log('Formatted data for Supabase:', customerData);
     
     // Check if Supabase environment variables are defined
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -84,7 +141,7 @@ module.exports = async (req, res) => {
       });
     }
     
-    console.log('Connecting to Supabase...');
+    console.log('Inserting filtered customer data with service role key');
     
     // Create Supabase client
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -100,7 +157,7 @@ module.exports = async (req, res) => {
       throw error;
     }
     
-    console.log('Customer data inserted successfully:', data);
+    console.log('Successfully created customer from survey, ID:', data[0].id);
     
     // Return success with customer data - ensure ID is properly returned
     return res.status(200).json({ 
