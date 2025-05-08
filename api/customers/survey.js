@@ -1,11 +1,47 @@
 // Supabase client for database connections
 const { createClient } = require('@supabase/supabase-js');
+const path = require('path');
+const fs = require('fs');
 
-// Load environment variables if needed
+// Improved environment variable loading
 try {
+  // Try to load from .env file first (standard)
   require('dotenv').config();
+  
+  // Also try .env.local if it exists
+  const envLocalPath = path.resolve(process.cwd(), '.env.local');
+  if (fs.existsSync(envLocalPath)) {
+    require('dotenv').config({ path: envLocalPath });
+    console.log('Loaded .env.local file');
+  }
 } catch (e) {
-  console.warn('dotenv not available, continuing without it');
+  console.warn('dotenv loading error:', e.message);
+}
+
+// Direct access function to environment variables with multiple fallbacks
+function getEnvVar(name) {
+  // Try process.env first
+  if (process.env[name]) {
+    return process.env[name];
+  }
+  
+  // Try manually reading from .env.local as a last resort
+  try {
+    const envLocalPath = path.resolve(process.cwd(), '.env.local');
+    if (fs.existsSync(envLocalPath)) {
+      const content = fs.readFileSync(envLocalPath, 'utf8');
+      const match = content.match(new RegExp(`${name}=(.+)`));
+      if (match && match[1]) {
+        console.log(`Manually loaded ${name} from .env.local`);
+        return match[1].trim();
+      }
+    }
+  } catch (e) {
+    console.error('Error manually reading .env.local:', e.message);
+  }
+  
+  // Nothing found
+  return null;
 }
 
 module.exports = async (req, res) => {
@@ -29,30 +65,35 @@ module.exports = async (req, res) => {
     const customerData = req.body;
     console.log('Received customer data:', customerData);
     
-    // Check if Supabase environment variables are defined
-    const supabaseUrl = process.env.SUPABASE_URL;
+    // Use our custom environment getter
+    const supabaseUrl = getEnvVar('SUPABASE_URL');
+    const supabaseServiceKey = getEnvVar('SUPABASE_SERVICE_KEY');
+    const supabaseAnonKey = getEnvVar('SUPABASE_ANON_KEY');
     
     // Try to use the service key first (has more permissions), fallback to anon key
-    const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
+    const supabaseKey = supabaseServiceKey || supabaseAnonKey;
     
+    console.log('Current working directory:', process.cwd());
     console.log('Supabase URL defined:', !!supabaseUrl);
-    console.log('Supabase key defined:', !!supabaseKey, supabaseKey ? `(length: ${supabaseKey.length})` : '');
-    console.log('Using key type:', process.env.SUPABASE_SERVICE_KEY ? 'SERVICE_KEY' : 'ANON_KEY');
+    console.log('Supabase service key defined:', !!supabaseServiceKey);
+    console.log('Supabase anon key defined:', !!supabaseAnonKey);
+    console.log('Using key type:', supabaseServiceKey ? 'SERVICE_KEY' : 'ANON_KEY');
     
     if (!supabaseUrl || !supabaseKey) {
-      console.error('Supabase credentials not defined');
+      console.error('Supabase credentials not defined after all fallbacks');
       return res.status(200).json({ 
         success: true, 
         customer: {
           id: 'test-' + Date.now(),
           _id: 'test-' + Date.now(),
           email: customerData.email || '',
-          message: 'Success (but DB credentials not configured)'
+          message: 'Success (but DB credentials not found after all fallbacks)'
         },
         env: {
-          SUPABASE_URL: process.env.SUPABASE_URL ? 'defined' : 'undefined',
-          SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY ? 'defined' : 'undefined',
-          SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY ? 'defined' : 'undefined'
+          cwd: process.cwd(),
+          SUPABASE_URL: supabaseUrl ? 'defined' : 'undefined',
+          SUPABASE_ANON_KEY: supabaseAnonKey ? 'defined' : 'undefined',
+          SUPABASE_SERVICE_KEY: supabaseServiceKey ? 'defined' : 'undefined'
         }
       });
     }
@@ -110,7 +151,7 @@ module.exports = async (req, res) => {
           details: error.details,
           hint: error.hint
         },
-        keyType: process.env.SUPABASE_SERVICE_KEY ? 'SERVICE_KEY' : 'ANON_KEY'
+        keyType: supabaseServiceKey ? 'SERVICE_KEY' : 'ANON_KEY'
       });
     }
     

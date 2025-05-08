@@ -956,121 +956,154 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Form element found, attaching submit event listener');
         
         form.addEventListener('submit', function(event) {
-            console.log('Form submit event triggered!');
             event.preventDefault();
             
-            // Log the form and submission button state
-            console.log('Form ID:', form.id);
-            console.log('Submit button state:', submitBtn ? 'exists' : 'missing', 
-                        submitBtn ? ('display=' + getComputedStyle(submitBtn).display) : '',
-                        submitBtn ? ('disabled=' + submitBtn.disabled) : '');
+            // Final data save
+            saveCurrentSectionData();
             
-            // Test API connection first with a simple endpoint
-            console.log('Testing API connection...');
-            fetch('/api/test', {
+            // Collect all form data to ensure completeness
+            collectAllFormData();
+            
+            // Simple validation
+            if (!validateAllSections()) {
+                return;
+            }
+            
+            // Format data for the backend API
+            // Map our form data to match exactly what the backend expects (per provided schema)
+            const customerData = {
+                // Personal information
+                firstName: formData['first-name'] || '',
+                lastName: formData['last-name'] || '',
+                email: formData.email || '', // Required for formulation generation
+                
+                // Personal metrics - numeric values
+                age: parseInt(formData.age) || 0,
+                weight: parseInt(formData.weight) || 0,
+                
+                // Basic profile - single-select fields
+                biologicalSex: formData['biological-sex'] || '',
+                activityLevel: formData['activity-level'] || 'moderately-active',
+                sweatLevel: formData['sweat-level'] || 'moderate',
+                dietType: formData['diet-type'] || 'omnivore',
+                
+                // Intake levels - single-select fields
+                sodiumIntake: formData['sodium-estimate'] || 'moderate',
+                potassiumIntake: formData['potassium-estimate'] || 'moderate',
+                magnesiumIntake: formData['magnesium-estimate'] || 'moderate',
+                calciumIntake: formData['calcium-estimate'] || 'moderate',
+                proteinIntake: formData['protein-intake'] || 'moderate',
+                
+                // Array fields - multiple-select options
+                usage: Array.isArray(formData.usage) ? formData.usage : [],
+                hydrationChallenges: Array.isArray(formData['hydration-challenges']) ? formData['hydration-challenges'] : [],
+                healthConditions: Array.isArray(formData.conditions) ? formData.conditions : [],
+                exerciseType: Array.isArray(formData['exercise-type']) ? formData['exercise-type'] : [],
+                boneHealth: Array.isArray(formData['bone-health']) ? formData['bone-health'] : [],
+                dailyGoals: Array.isArray(formData['daily-goals']) ? formData['daily-goals'] : [],
+                menstrualSymptoms: Array.isArray(formData['menstrual-symptoms']) ? formData['menstrual-symptoms'] : [],
+                sleepGoals: Array.isArray(formData['sleep-goals']) ? formData['sleep-goals'] : [],
+                
+                // Health details - single-select fields
+                workoutDuration: formData['workout-duration'] || '',
+                workoutIntensity: formData['workout-intensity'] || '',
+                menstrualFlow: formData['menstrual-flow'] || '',
+                symptomSeverity: formData['symptom-severity'] || '',
+                waterIntake: formData['water-intake'] || '',
+                waterRetention: formData['water-retention'] || '',
+                muscleTension: formData['muscle-tension'] || '',
+                vitaminDStatus: formData['vitamin-d-status'] || '',
+                menstrualStatus: formData['menstrual-status'] || '',
+                hangoverSymptoms: formData['hangover-symptoms'] || '',
+                hangoverTiming: formData['hangover-timing'] || '',
+                
+                // Numeric supplement values
+                sodiumSupplement: formData['sodium-supplement'] ? parseInt(formData['sodium-supplement']) : null,
+                potassiumSupplement: formData['potassium-supplement'] ? parseInt(formData['potassium-supplement']) : null,
+                magnesiumSupplement: formData['magnesium-supplement'] ? parseInt(formData['magnesium-supplement']) : null,
+                calciumSupplement: formData['calcium-supplement'] ? parseInt(formData['calcium-supplement']) : null,
+                dairyIntake: formData['dairy-intake'] ? parseFloat(formData['dairy-intake']) : null,
+                
+                // Flavor preferences
+                flavor: formData['flavor'] || '',
+                flavorIntensity: formData['flavor-intensity'] || '',
+                sweetenerAmount: formData['sweetener-amount'] || '',
+                sweetenerType: formData['sweetener-type'] || '',
+                
+                // Additional information
+                feedback: formData.feedback || ''
+            };
+            
+            // Format validation - check if required fields are present
+            const requiredFields = ['email'];
+            const missingFields = requiredFields.filter(field => !customerData[field]);
+            
+            if (missingFields.length > 0) {
+                console.warn('Warning: Missing required fields:', missingFields);
+                // Display error message for missing required field
+                if (responseMessage) {
+                    responseMessage.textContent = 'Please provide your email address to receive your personalized mix details.';
+                    responseMessage.style.color = "#D8000C";
+                    responseMessage.classList.add('visible');
+                    
+                    // Scroll to top to show the error message
+                    window.scrollTo(0, 0);
+                }
+                return;
+            }
+            
+            // Log data for debugging
+            console.log('Submitting to backend API:', customerData);
+            
+            // Show loading state
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+            }
+            
+            // Send the data to the backend API
+            fetch('/api/customers/survey', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({test: 'data'})
+                body: JSON.stringify(customerData)
             })
             .then(response => {
-                console.log('Test API response status:', response.status);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
                 return response.json();
             })
             .then(data => {
-                console.log('Test API success:', data);
+                console.log('Success:', data);
                 
-                // Now try the actual form submission
-                console.log('Proceeding with actual form submission...');
-                
-                // Final data save
-                saveCurrentSectionData();
-                
-                // Collect all form data to ensure completeness
-                collectAllFormData();
-                
-                // Simple validation
-                if (!validateAllSections()) {
-                    console.error('Form validation failed');
-                    return;
+                // Store submission ID for debug purposes
+                if (data.customer && data.customer.id) {
+                    localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
+                    localStorage.setItem(data.customer.id, JSON.stringify(customerData));
                 }
                 
-                // Format data for the backend API
-                // Map our form data to match exactly what the backend expects
-                const customerData = {
-                    // Personal information - extract correct field names
-                    firstName: formData['first-name'] || '',
-                    lastName: formData['last-name'] || '',
-                    email: formData.email || '',
-                    age: parseInt(formData.age) || 0,
-                    weight: parseInt(formData.weight) || 0,
-                    biologicalSex: formData['biological-sex'] || '',
-
-                    // ... rest of the form data ...
-                };
-                
-                // Show loading state
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Submitting...';
-                }
-                
-                // Log the actual API request
-                console.log('About to send API request to:', '/api/customers/survey');
-                console.log('With data:', JSON.stringify(customerData));
-                
-                // Actually send the data to the backend API
-                fetch('/api/customers/survey', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(customerData)
-                })
-                .then(response => {
-                    console.log('API response status:', response.status);
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('API response data:', data);
-                    
-                    // Store submission ID for debug purposes
-                    if (data.customer && data.customer.id) {
-                        localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
-                        localStorage.setItem(data.customer.id, JSON.stringify(customerData));
-                    }
-                    
-                    // Redirect to success page
-                    console.log('Redirecting to success page...');
-                    window.location.href = '/?success=true';
-                })
-                .catch(error => {
-                    console.error('Error with main API call:', error);
-                    
-                    // Show error message
-                    if (responseMessage) {
-                        responseMessage.textContent = 'Sorry, there was an error submitting your form. Please try again later.';
-                        responseMessage.style.color = "#D8000C";
-                        responseMessage.classList.add('visible');
-                    }
-                    
-                    // Re-enable submit button
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Submit';
-                    }
-                });
+                // Redirect to success page
+                window.location.href = '/?success=true';
             })
             .catch(error => {
-                console.error('Error with test API:', error);
+                console.error('Error:', error);
+                
+                // Show error message
                 if (responseMessage) {
-                    responseMessage.textContent = 'API test failed. Check console for details.';
+                    responseMessage.textContent = 'Sorry, there was an error submitting your form. Please try again later.';
                     responseMessage.style.color = "#D8000C";
                     responseMessage.classList.add('visible');
+                    
+                    // Scroll to top to show the error message
+                    window.scrollTo(0, 0);
+                }
+                
+                // Re-enable submit button
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
                 }
             });
         });
