@@ -405,24 +405,133 @@ document.addEventListener('DOMContentLoaded', function() {
             // Prevent default to avoid double submission
             e.preventDefault();
             
-            // Trigger form submission manually
-            if (form) {
-                // Final validation
-                if (validateCurrentSection()) {
-                    // Save current section data
-                    saveCurrentSectionData();
+            // Final validation
+            if (validateCurrentSection()) {
+                // Save current section data
+                saveCurrentSectionData();
+                
+                // Ensure all form data is collected
+                completeFormData();
+                
+                // Format data for the backend API
+                const customerData = {
+                    // Personal information
+                    firstName: formData['first-name'] || '',
+                    lastName: formData['last-name'] || '',
+                    email: formData.email || '', // Required for formulation generation
                     
-                    // Ensure all form data is collected
-                    completeFormData();
+                    // Personal metrics - numeric values
+                    age: parseInt(formData.age) || 0,
+                    weight: parseInt(formData.weight) || 0,
                     
-                    // Manually dispatch form submit event
-                    console.log('Dispatching form submit event with complete data');
-                    const submitEvent = new Event('submit', {
-                        'bubbles': true,
-                        'cancelable': true
-                    });
-                    form.dispatchEvent(submitEvent);
+                    // Basic profile - single-select fields
+                    biologicalSex: formData['biological-sex'] || '',
+                    activityLevel: formData['activity-level'] || 'moderately-active',
+                    sweatLevel: formData['sweat-level'] || 'moderate',
+                    dietType: formData['diet-type'] || 'omnivore',
+                    
+                    // Intake levels - single-select fields
+                    sodiumIntake: formData['sodium-estimate'] || 'moderate',
+                    potassiumIntake: formData['potassium-estimate'] || 'moderate',
+                    magnesiumIntake: formData['magnesium-estimate'] || 'moderate',
+                    calciumIntake: formData['calcium-estimate'] || 'moderate',
+                    proteinIntake: formData['protein-intake'] || 'moderate',
+                    
+                    // Array fields - multiple-select options
+                    usage: Array.isArray(formData.usage) ? formData.usage : [],
+                    hydrationChallenges: Array.isArray(formData['hydration-challenges']) ? formData['hydration-challenges'] : [],
+                    healthConditions: Array.isArray(formData.conditions) ? formData.conditions : [],
+                    exerciseType: Array.isArray(formData['exercise-type']) ? formData['exercise-type'] : [],
+                    boneHealth: Array.isArray(formData['bone-health']) ? formData['bone-health'] : [],
+                    dailyGoals: Array.isArray(formData['daily-goals']) ? formData['daily-goals'] : [],
+                    menstrualSymptoms: Array.isArray(formData['menstrual-symptoms']) ? formData['menstrual-symptoms'] : [],
+                    sleepGoals: Array.isArray(formData['sleep-goals']) ? formData['sleep-goals'] : [],
+                    
+                    // Health details - single-select fields
+                    workoutDuration: formData['workout-duration'] || '',
+                    workoutIntensity: formData['workout-intensity'] || '',
+                    menstrualFlow: formData['menstrual-flow'] || '',
+                    symptomSeverity: formData['symptom-severity'] || '',
+                    waterIntake: formData['water-intake'] || '',
+                    waterRetention: formData['water-retention'] || '',
+                    muscleTension: formData['muscle-tension'] || '',
+                    vitaminDStatus: formData['vitamin-d-status'] || '',
+                    menstrualStatus: formData['menstrual-status'] || '',
+                    hangoverSymptoms: formData['hangover-symptoms'] || '',
+                    hangoverTiming: formData['hangover-timing'] || '',
+                    
+                    // Numeric supplement values
+                    sodiumSupplement: formData['sodium-supplement'] ? parseInt(formData['sodium-supplement']) : null,
+                    potassiumSupplement: formData['potassium-supplement'] ? parseInt(formData['potassium-supplement']) : null,
+                    magnesiumSupplement: formData['magnesium-supplement'] ? parseInt(formData['magnesium-supplement']) : null,
+                    calciumSupplement: formData['calcium-supplement'] ? parseInt(formData['calcium-supplement']) : null,
+                    dairyIntake: formData['dairy-intake'] ? parseFloat(formData['dairy-intake']) : null,
+                    
+                    // Flavor preferences
+                    flavor: formData['flavor'] || '',
+                    flavorIntensity: formData['flavor-intensity'] || '',
+                    sweetenerAmount: formData['sweetener-amount'] || '',
+                    sweetenerType: formData['sweetener-type'] || '',
+                    
+                    // Additional information
+                    feedback: formData.feedback || ''
+                };
+                
+                // Format validation - check if required fields are present
+                const requiredFields = ['email'];
+                const missingFields = requiredFields.filter(field => !customerData[field]);
+                
+                if (missingFields.length > 0) {
+                    console.warn('Warning: Missing required fields:', missingFields);
+                    return;
                 }
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+                
+                console.log('Submitting to backend API:', customerData);
+                
+                // Send the data directly without form submission event
+                fetch('/api/customers/survey', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(customerData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    
+                    // Store submission ID for debug purposes
+                    if (data.customer && data.customer.id) {
+                        localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
+                        localStorage.setItem(data.customer.id, JSON.stringify(customerData));
+                    }
+                    
+                    // Redirect to success page
+                    window.location.href = '/?success=true';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    
+                    // Show error message
+                    if (responseMessage) {
+                        responseMessage.textContent = 'Sorry, there was an error submitting your form. Please try again later.';
+                        responseMessage.style.color = "#D8000C";
+                        responseMessage.classList.add('visible');
+                    }
+                    
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                });
             }
         });
     }
@@ -926,101 +1035,5 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('Random test data generated!');
         alert('Test data generated! Click Next to see data and continue through the form.');
-    }
-
-    // Form submission
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            // Final data save
-            saveCurrentSectionData();
-            
-            // Collect all form data to ensure completeness
-            completeFormData();
-            
-            // Simple validation
-            if (!validateAllSections()) {
-                return;
-            }
-            
-            // Format data for the backend API
-            // Map our form data to match exactly what the backend expects (per provided schema)
-            const customerData = {
-                // Personal information
-                firstName: formData['first-name'] || '',
-                lastName: formData['last-name'] || '',
-                email: formData.email || '', // Required for formulation generation
-                
-                // Personal metrics - numeric values
-                age: parseInt(formData.age) || 0,
-                weight: parseInt(formData.weight) || 0,
-                
-                // Basic profile - single-select fields
-                biologicalSex: formData['biological-sex'] || '',
-                activityLevel: formData['activity-level'] || 'moderately-active',
-                sweatLevel: formData['sweat-level'] || 'moderate',
-                dietType: formData['diet-type'] || 'omnivore',
-                
-                // Intake levels - single-select fields
-                sodiumIntake: formData['sodium-estimate'] || 'moderate',
-                potassiumIntake: formData['potassium-estimate'] || 'moderate',
-                magnesiumIntake: formData['magnesium-estimate'] || 'moderate',
-                calciumIntake: formData['calcium-estimate'] || 'moderate',
-                proteinIntake: formData['protein-intake'] || 'moderate',
-                
-                // Array fields - multiple-select options
-                usage: Array.isArray(formData.usage) ? formData.usage : [],
-                hydrationChallenges: Array.isArray(formData['hydration-challenges']) ? formData['hydration-challenges'] : [],
-                healthConditions: Array.isArray(formData.conditions) ? formData.conditions : [],
-                exerciseType: Array.isArray(formData['exercise-type']) ? formData['exercise-type'] : [],
-                boneHealth: Array.isArray(formData['bone-health']) ? formData['bone-health'] : [],
-                dailyGoals: Array.isArray(formData['daily-goals']) ? formData['daily-goals'] : [],
-                menstrualSymptoms: Array.isArray(formData['menstrual-symptoms']) ? formData['menstrual-symptoms'] : [],
-                sleepGoals: Array.isArray(formData['sleep-goals']) ? formData['sleep-goals'] : [],
-                
-                // Health details - single-select fields
-                workoutDuration: formData['workout-duration'] || '',
-                workoutIntensity: formData['workout-intensity'] || '',
-                menstrualFlow: formData['menstrual-flow'] || '',
-                symptomSeverity: formData['symptom-severity'] || '',
-                waterIntake: formData['water-intake'] || '',
-                waterRetention: formData['water-retention'] || '',
-                muscleTension: formData['muscle-tension'] || '',
-                vitaminDStatus: formData['vitamin-d-status'] || '',
-                menstrualStatus: formData['menstrual-status'] || '',
-                hangoverSymptoms: formData['hangover-symptoms'] || '',
-                hangoverTiming: formData['hangover-timing'] || '',
-                
-                // Numeric supplement values
-                sodiumSupplement: formData['sodium-supplement'] ? parseInt(formData['sodium-supplement']) : null,
-                potassiumSupplement: formData['potassium-supplement'] ? parseInt(formData['potassium-supplement']) : null,
-                magnesiumSupplement: formData['magnesium-supplement'] ? parseInt(formData['magnesium-supplement']) : null,
-                calciumSupplement: formData['calcium-supplement'] ? parseInt(formData['calcium-supplement']) : null,
-                dairyIntake: formData['dairy-intake'] ? parseFloat(formData['dairy-intake']) : null,
-                
-                // Flavor preferences
-                flavor: formData['flavor'] || '',
-                flavorIntensity: formData['flavor-intensity'] || '',
-                sweetenerAmount: formData['sweetener-amount'] || '',
-                sweetenerType: formData['sweetener-type'] || '',
-                
-                // Additional information
-                feedback: formData.feedback || ''
-            };
-            
-            // Format validation - check if required fields are present
-            const requiredFields = ['email'];
-            const missingFields = requiredFields.filter(field => !customerData[field]);
-            
-            if (missingFields.length > 0) {
-                console.warn('Warning: Missing required fields:', missingFields);
-            }
-            
-            // Log data for debugging and testing
-            console.log('Submitting to backend API:', customerData);
-            console.log('Original form data:', formData);
-            console.log('Form validation complete - all required fields present:', missingFields.length === 0);
-        });
     }
 });
