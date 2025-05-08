@@ -953,35 +953,128 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form submission
     if (form) {
+        console.log('Form element found, attaching submit event listener');
+        
         form.addEventListener('submit', function(event) {
+            console.log('Form submit event triggered!');
             event.preventDefault();
             
-            // Final data save
-            saveCurrentSectionData();
+            // Log the form and submission button state
+            console.log('Form ID:', form.id);
+            console.log('Submit button state:', submitBtn ? 'exists' : 'missing', 
+                        submitBtn ? ('display=' + getComputedStyle(submitBtn).display) : '',
+                        submitBtn ? ('disabled=' + submitBtn.disabled) : '');
             
-            // Ensure all form data is collected - crucial step for complete submission
-            collectAllFormData();
-            
-            // Simple validation
-            if (!validateAllSections()) {
-                return;
-            }
-            
-            // Format data for the backend API
-            // Map our form data to match exactly what the backend expects
-            const customerData = {
-                // Personal information - extract correct field names
-                firstName: formData['first-name'] || '',
-                lastName: formData['last-name'] || '',
-                email: formData.email || '',
-                age: parseInt(formData.age) || 0,
-                weight: parseInt(formData.weight) || 0,
-                biologicalSex: formData['biological-sex'] || '',
+            // Test API connection first with a simple endpoint
+            console.log('Testing API connection...');
+            fetch('/api/test', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({test: 'data'})
+            })
+            .then(response => {
+                console.log('Test API response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Test API success:', data);
+                
+                // Now try the actual form submission
+                console.log('Proceeding with actual form submission...');
+                
+                // Final data save
+                saveCurrentSectionData();
+                
+                // Collect all form data to ensure completeness
+                collectAllFormData();
+                
+                // Simple validation
+                if (!validateAllSections()) {
+                    console.error('Form validation failed');
+                    return;
+                }
+                
+                // Format data for the backend API
+                // Map our form data to match exactly what the backend expects
+                const customerData = {
+                    // Personal information - extract correct field names
+                    firstName: formData['first-name'] || '',
+                    lastName: formData['last-name'] || '',
+                    email: formData.email || '',
+                    age: parseInt(formData.age) || 0,
+                    weight: parseInt(formData.weight) || 0,
+                    biologicalSex: formData['biological-sex'] || '',
 
-                // ... rest of the form data ...
-            };
-            
-            // ... rest of the form submission logic ...
+                    // ... rest of the form data ...
+                };
+                
+                // Show loading state
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Submitting...';
+                }
+                
+                // Log the actual API request
+                console.log('About to send API request to:', '/api/customers/survey');
+                console.log('With data:', JSON.stringify(customerData));
+                
+                // Actually send the data to the backend API
+                fetch('/api/customers/survey', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(customerData)
+                })
+                .then(response => {
+                    console.log('API response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API response data:', data);
+                    
+                    // Store submission ID for debug purposes
+                    if (data.customer && data.customer.id) {
+                        localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
+                        localStorage.setItem(data.customer.id, JSON.stringify(customerData));
+                    }
+                    
+                    // Redirect to success page
+                    console.log('Redirecting to success page...');
+                    window.location.href = '/?success=true';
+                })
+                .catch(error => {
+                    console.error('Error with main API call:', error);
+                    
+                    // Show error message
+                    if (responseMessage) {
+                        responseMessage.textContent = 'Sorry, there was an error submitting your form. Please try again later.';
+                        responseMessage.style.color = "#D8000C";
+                        responseMessage.classList.add('visible');
+                    }
+                    
+                    // Re-enable submit button
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Submit';
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error with test API:', error);
+                if (responseMessage) {
+                    responseMessage.textContent = 'API test failed. Check console for details.';
+                    responseMessage.style.color = "#D8000C";
+                    responseMessage.classList.add('visible');
+                }
+            });
         });
+    } else {
+        console.error('FORM NOT FOUND! Cannot attach submit handler.');
     }
 });

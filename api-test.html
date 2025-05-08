@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; white-space: pre-wrap; }
+        .success { color: green; }
+        .error { color: red; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>API Test Page</h1>
+    
+    <div class="section">
+        <h2>Test Endpoint</h2>
+        <button id="test-api">Test API Connection</button>
+        <div id="test-result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Supabase Connection Diagnostic</h2>
+        <button id="test-supabase">Check Supabase Connection</button>
+        <div id="supabase-result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Survey Endpoint</h2>
+        <button id="test-survey">Test Survey Submission</button>
+        <div id="survey-result"></div>
+    </div>
+    
+    <script>
+        // Test the basic API endpoint
+        document.getElementById('test-api').addEventListener('click', function() {
+            const resultEl = document.getElementById('test-result');
+            resultEl.innerHTML = 'Testing...';
+            
+            fetch('/api/test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ test: 'data' })
+            })
+            .then(response => {
+                resultEl.innerHTML += `<br>Response status: ${response.status}`;
+                return response.json();
+            })
+            .then(data => {
+                resultEl.innerHTML += `<br><span class="success">Success!</span><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                resultEl.innerHTML += `<br><span class="error">Error: ${error.message}</span>`;
+            });
+        });
+        
+        // Test Supabase connection
+        document.getElementById('test-supabase').addEventListener('click', function() {
+            const resultEl = document.getElementById('supabase-result');
+            resultEl.innerHTML = 'Testing Supabase connection...';
+            
+            fetch('/api/supabase-check')
+            .then(response => {
+                resultEl.innerHTML += `<br>Response status: ${response.status}`;
+                return response.json();
+            })
+            .then(data => {
+                const overallStatus = data.connection.status === 'connected' ? 'success' : 'error';
+                resultEl.innerHTML += `<br><span class="${overallStatus}">Status: ${data.connection.status}</span>`;
+                resultEl.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                resultEl.innerHTML += `<br><span class="error">Error: ${error.message}</span>`;
+            });
+        });
+        
+        // Test the survey API endpoint with minimal data
+        document.getElementById('test-survey').addEventListener('click', function() {
+            const resultEl = document.getElementById('survey-result');
+            resultEl.innerHTML = 'Testing survey endpoint...';
+            
+            const testData = {
+                firstName: 'Test',
+                lastName: 'User',
+                email: `test-${Date.now()}@example.com`,
+                age: 30,
+                weight: 150,
+                biologicalSex: 'male',
+                usage: ['daily', 'workout']
+            };
+            
+            fetch('/api/customers/survey', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(testData)
+            })
+            .then(response => {
+                resultEl.innerHTML += `<br>Response status: ${response.status}`;
+                return response.json();
+            })
+            .then(data => {
+                resultEl.innerHTML += `<br><span class="success">Success!</span><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                resultEl.innerHTML += `<br><span class="error">Error: ${error.message}</span>`;
+            });
+        });
+    </script>
+</body>
+</html> 
