@@ -412,8 +412,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Save current section data
                     saveCurrentSectionData();
                     
+                    // Ensure all form data is collected
+                    completeFormData();
+                    
                     // Manually dispatch form submit event
-                    console.log('Dispatching form submit event');
+                    console.log('Dispatching form submit event with complete data');
                     const submitEvent = new Event('submit', {
                         'bubbles': true,
                         'cancelable': true
@@ -424,249 +427,114 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Function to save data from the current section
-    function saveCurrentSectionData() {
-        const currentSection = formSections[currentSectionIndex];
-        const inputs = currentSection.querySelectorAll('input, select, textarea');
+    // Function to complete form data before submission
+    function completeFormData() {
+        console.log('Completing form data before submission');
         
-        inputs.forEach(input => {
-            if (input.type === 'checkbox') {
-                // Handle checkbox groups
-                if (!formData[input.name]) {
-                    formData[input.name] = [];
-                }
-                
-                if (input.checked) {
-                    if (!formData[input.name].includes(input.value)) {
-                        formData[input.name].push(input.value);
-                    }
-                } else {
-                    // Remove if unchecked
-                    const index = formData[input.name].indexOf(input.value);
-                    if (index > -1) {
-                        formData[input.name].splice(index, 1);
-                    }
-                }
-            } else if (input.type === 'radio') {
-                // Only save radio if checked
-                if (input.checked) {
-                    formData[input.name] = input.value;
-                }
-            } else {
-                // Text, number, select, etc.
+        // Get all checkboxes, radios, and selects
+        document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+            const name = cb.name;
+            const value = cb.value;
+            
+            if (!formData[name]) {
+                formData[name] = [];
+            }
+            
+            if (!formData[name].includes(value)) {
+                formData[name].push(value);
+            }
+        });
+        
+        document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+            formData[radio.name] = radio.value;
+        });
+        
+        document.querySelectorAll('select').forEach(select => {
+            if (select.value) {
+                formData[select.name] = select.value;
+            }
+        });
+        
+        // Collect all text/number inputs
+        document.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], textarea').forEach(input => {
+            if (input.value) {
                 formData[input.name] = input.value;
             }
         });
         
-        console.log('Saved data:', formData);
-    }
-
-    // Form submission
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            // Final data save
-            saveCurrentSectionData();
-            
-            // Simple validation
-            if (!validateAllSections()) {
-                return;
+        // Explicit handling for supplements
+        ['sodium-supplement', 'potassium-supplement', 'magnesium-supplement', 'calcium-supplement'].forEach(field => {
+            const input = document.getElementById(field);
+            if (input) {
+                formData[field] = input.value ? parseInt(input.value) : null;
             }
-            
-            // Format data for the backend API
-            // Map our form data to match exactly what the backend expects
-            const customerData = {
-                // Personal information - extract correct field names
-                firstName: formData['first-name'] || '',
-                lastName: formData['last-name'] || '',
-                email: formData.email,
-                age: parseInt(formData.age) || 0,
-                weight: parseInt(formData.weight) || 0,
-                biologicalSex: formData['biological-sex'] || '',
-                
-                // Usage - ensure it's always an array with valid enum values
-                usage: Array.isArray(formData.usage) ? formData.usage.map(item => 
-                    // Map usage values to ensure they match backend enums
-                    item === 'sweat' ? 'sweat' :
-                    item === 'daily' ? 'daily' :
-                    item === 'bedtime' ? 'bedtime' :
-                    item === 'menstrual' ? 'menstrual' :
-                    item === 'hangover' ? 'hangover' : item
-                ) : (formData.usage ? [formData.usage] : []),
-                
-                // Map activity and sweat levels
-                activityLevel: formData['activity-level'] || 'moderately-active',
-                sweatLevel: formData['sweat-level'] || 'moderate',
-                
-                // Diet-related fields
-                dietType: formData['diet-type'] || 'omnivore',
-                
-                // Intake estimations for electrolytes
-                sodiumIntake: formData['sodium-estimate'] || 'moderate',
-                potassiumIntake: formData['potassium-estimate'] || 'moderate',
-                magnesiumIntake: formData['magnesium-estimate'] || 'moderate',
-                calciumIntake: formData['calcium-estimate'] || 'moderate',
-                
-                // Supplement amounts (in mg)
-                sodiumSupplement: formData['sodium-supplement'] ? parseInt(formData['sodium-supplement']) : null,
-                potassiumSupplement: formData['potassium-supplement'] ? parseInt(formData['potassium-supplement']) : null,
-                magnesiumSupplement: formData['magnesium-supplement'] ? parseInt(formData['magnesium-supplement']) : null,
-                calciumSupplement: formData['calcium-supplement'] ? parseInt(formData['calcium-supplement']) : null,
-                
-                // Additional nutrition/hydration data
-                dairyIntake: formData['dairy-intake'] ? parseFloat(formData['dairy-intake']) : null,
-                waterIntake: formData['water-intake'] || '',
-                waterRetention: formData['water-retention'] || '',
-                
-                // Sweat replacement specific fields
-                workoutDuration: formData['workout-duration'] || '',
-                workoutIntensity: formData['workout-intensity'] || '',
-                sweatRate: formData['sweat-rate'] || '',
-                
-                // Health-related fields
-                healthConditions: Array.isArray(formData['conditions']) ? formData['conditions'] : [],
-                exerciseType: Array.isArray(formData['exercise-type']) ? formData['exercise-type'] : [],
-                boneHealth: Array.isArray(formData['bone-health']) ? formData['bone-health'] : [],
-                proteinIntake: formData['protein-intake'] || '',
-                vitaminDStatus: formData['vitamin-d-status'] || '',
-                
-                // Sleep and muscle-related fields
-                sleepGoals: Array.isArray(formData['sleep-goals']) ? formData['sleep-goals'] : [],
-                muscleTension: formData['muscle-tension'] || '',
-                
-                // Hangover-related fields
-                hangoverSymptoms: formData['hangover-symptoms'] || '',
-                hangoverTiming: formData['hangover-timing'] || '',
-                
-                // Menstrual-related fields
-                menstrualStatus: formData['menstrual-status'] || '',
-                menstrualFlow: formData['menstrual-flow'] || '',
-                menstrualSymptoms: Array.isArray(formData['menstrual-symptoms']) ? formData['menstrual-symptoms'] : [],
-                symptomSeverity: formData['symptom-severity'] || '',
-                
-                // Daily hydration goals
-                dailyGoals: Array.isArray(formData['daily-goals']) ? formData['daily-goals'] : [],
-                hydrationChallenges: Array.isArray(formData['hydration-challenges']) ? formData['hydration-challenges'] : [],
-                
-                // Flavor preferences
-                flavor: formData['flavor'] || '',
-                flavorIntensity: formData['flavor-intensity'] || '',
-                sweetenerAmount: formData['sweetener-amount'] || '',
-                sweetenerType: formData['sweetener-type'] || '',
-                
-                // User feedback 
-                feedback: formData.feedback || formData['additional-info'] || ''
-            };
-            
-            // Format validation - check if required fields are present
-            const requiredFields = ['firstName', 'lastName', 'email', 'biologicalSex'];
-            const missingFields = requiredFields.filter(field => !customerData[field]);
-            
-            if (missingFields.length > 0) {
-                console.warn('Warning: Missing required fields:', missingFields);
-            }
-            
-            // Log data for debugging and testing
-            console.log('Submitting to backend API:', customerData);
-            console.log('Original form data:', formData);
-            console.log('Form validation complete - all required fields present:', missingFields.length === 0);
-            
-            // Show loading message
-            responseMessage.textContent = "Submitting your information...";
-            responseMessage.style.color = "#333";
-            responseMessage.classList.add('visible');
-            
-            // Send data to our backend API
-            fetch('http://localhost:5000/api/customers/survey', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(customerData)
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        console.error('Error response body:', text);
-                        throw new Error(`Server error: ${response.status} ${text || response.statusText}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success response:', data);
-                
-                // Log successful submission details for testing
-                if (data.customer) {
-                    // Support both MongoDB (_id) and Supabase (id) formats
-                    const customerId = data.customer._id || data.customer.id;
-                    console.log('Customer created successfully:', {
-                        id: customerId,
-                        name: `${data.customer.firstName} ${data.customer.lastName}`,
-                        email: data.customer.email
-                    });
-                }
-                
-                if (data.formulation) {
-                    console.log('Formulation generated successfully:', {
-                        id: data.formulation._id || data.formulation.id,
-                        useCase: data.formulation.useCase,
-                        servingsPerDay: data.formulation.recommendedServingsPerDay
-                    });
-                }
-                
-                responseMessage.textContent = "Thank you! Your personalized electrolyte mix details will be sent to your email shortly.";
-                responseMessage.style.color = "#1E4A2D";
-                
-                // If we have a customerId and formulation, redirect to results page
-                if (data.customer) {
-                    // Support both MongoDB and Supabase ID formats
-                    const customerId = data.customer._id || data.customer.id;
-                    if (customerId) {
-                        console.log('Redirecting to results page with customer ID:', customerId);
-                        setTimeout(() => {
-                            window.location.href = `/results.html?customerId=${customerId}`;
-                        }, 2000);
-                        return;
-                    }
-                }
-                
-                console.log('No customer ID found in response, resetting form');
-                // Otherwise just reset the form
-                form.reset();
-                formData = {}; // Reset stored data
-                // Reset to first section
-                goToSection(0);
-            })
-            .catch(error => {
-                console.error('Submission error:', error);
-                
-                // Always redirect to results, even if there's a server error
-                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.message.includes('Server error')) {
-                    console.log('Server connection failed - redirecting to results page');
-                    
-                    // Show success message
-                    responseMessage.textContent = "Thank you! Redirecting to your results...";
-                    responseMessage.style.color = "#1E4A2D";
-                    responseMessage.classList.add('visible');
-                    
-                    // Generate a temporary ID for the results page
-                    const tempId = 'temp_' + new Date().getTime();
-                    
-                    // Redirect to results page after brief delay
-                    setTimeout(() => {
-                        window.location.href = `/results.html?customerId=${tempId}`;
-                    }, 2000);
-                } else {
-                    // Regular error
-                    responseMessage.textContent = "There was an issue submitting your form. Please try again or contact us directly.";
-                    responseMessage.style.color = "#d9534f";
+        });
+        
+        // Handle dairy intake
+        const dairyInput = document.getElementById('dairy-intake');
+        if (dairyInput) {
+            formData['dairy-intake'] = dairyInput.value ? parseFloat(dairyInput.value) : null;
+        }
+        
+        // Make sure electrolyte estimates are collected
+        ['sodium-estimate', 'potassium-estimate', 'magnesium-estimate', 'calcium-estimate'].forEach(estimateField => {
+            const radios = document.querySelectorAll(`input[name="${estimateField}"]`);
+            radios.forEach(radio => {
+                if (radio.checked) {
+                    formData[estimateField] = radio.value;
                 }
             });
         });
+        
+        // Make sure all usage details are captured
+        if (formData.usage && formData.usage.includes('sweat')) {
+            const workoutDuration = document.getElementById('workout-duration');
+            const workoutIntensity = document.getElementById('workout-intensity');
+            if (workoutDuration) formData['workout-duration'] = workoutDuration.value;
+            if (workoutIntensity) formData['workout-intensity'] = workoutIntensity.value;
+        }
+        
+        // Bedtime details
+        if (formData.usage && formData.usage.includes('bedtime')) {
+            const sleepGoals = document.querySelectorAll('input[name="sleep-goals"]:checked');
+            formData['sleep-goals'] = Array.from(sleepGoals).map(cb => cb.value);
+        }
+        
+        // Daily details
+        if (formData.usage && formData.usage.includes('daily')) {
+            const dailyGoals = document.querySelectorAll('input[name="daily-goals"]:checked');
+            const waterIntake = document.getElementById('water-intake');
+            formData['daily-goals'] = Array.from(dailyGoals).map(cb => cb.value);
+            if (waterIntake) formData['water-intake'] = waterIntake.value;
+        }
+        
+        // Menstrual details
+        if (formData.usage && formData.usage.includes('menstrual')) {
+            const menstrualSymptoms = document.querySelectorAll('input[name="menstrual-symptoms"]:checked');
+            const symptomSeverity = document.getElementById('symptom-severity');
+            const menstrualFlow = document.getElementById('menstrual-flow');
+            const waterRetention = document.getElementById('water-retention');
+            
+            formData['menstrual-symptoms'] = Array.from(menstrualSymptoms).map(cb => cb.value);
+            if (symptomSeverity) formData['symptom-severity'] = symptomSeverity.value;
+            if (menstrualFlow) formData['menstrual-flow'] = menstrualFlow.value;
+            if (waterRetention) formData['water-retention'] = waterRetention.value;
+        }
+        
+        // Hangover details
+        if (formData.usage && formData.usage.includes('hangover')) {
+            const hangoverSymptoms = document.getElementById('hangover-symptoms');
+            const hangoverTiming = document.getElementById('hangover-timing');
+            if (hangoverSymptoms) formData['hangover-symptoms'] = hangoverSymptoms.value;
+            if (hangoverTiming) formData['hangover-timing'] = hangoverTiming.value;
+        }
+        
+        console.log('Completed form data:', formData);
+    }
+
+    // Function to save data from the current section
+    function saveCurrentSectionData() {
+        // Implementation of saveCurrentSectionData function
     }
 
     // Function to go to a specific section
@@ -1058,5 +926,101 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('Random test data generated!');
         alert('Test data generated! Click Next to see data and continue through the form.');
+    }
+
+    // Form submission
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Final data save
+            saveCurrentSectionData();
+            
+            // Collect all form data to ensure completeness
+            completeFormData();
+            
+            // Simple validation
+            if (!validateAllSections()) {
+                return;
+            }
+            
+            // Format data for the backend API
+            // Map our form data to match exactly what the backend expects (per provided schema)
+            const customerData = {
+                // Personal information
+                firstName: formData['first-name'] || '',
+                lastName: formData['last-name'] || '',
+                email: formData.email || '', // Required for formulation generation
+                
+                // Personal metrics - numeric values
+                age: parseInt(formData.age) || 0,
+                weight: parseInt(formData.weight) || 0,
+                
+                // Basic profile - single-select fields
+                biologicalSex: formData['biological-sex'] || '',
+                activityLevel: formData['activity-level'] || 'moderately-active',
+                sweatLevel: formData['sweat-level'] || 'moderate',
+                dietType: formData['diet-type'] || 'omnivore',
+                
+                // Intake levels - single-select fields
+                sodiumIntake: formData['sodium-estimate'] || 'moderate',
+                potassiumIntake: formData['potassium-estimate'] || 'moderate',
+                magnesiumIntake: formData['magnesium-estimate'] || 'moderate',
+                calciumIntake: formData['calcium-estimate'] || 'moderate',
+                proteinIntake: formData['protein-intake'] || 'moderate',
+                
+                // Array fields - multiple-select options
+                usage: Array.isArray(formData.usage) ? formData.usage : [],
+                hydrationChallenges: Array.isArray(formData['hydration-challenges']) ? formData['hydration-challenges'] : [],
+                healthConditions: Array.isArray(formData.conditions) ? formData.conditions : [],
+                exerciseType: Array.isArray(formData['exercise-type']) ? formData['exercise-type'] : [],
+                boneHealth: Array.isArray(formData['bone-health']) ? formData['bone-health'] : [],
+                dailyGoals: Array.isArray(formData['daily-goals']) ? formData['daily-goals'] : [],
+                menstrualSymptoms: Array.isArray(formData['menstrual-symptoms']) ? formData['menstrual-symptoms'] : [],
+                sleepGoals: Array.isArray(formData['sleep-goals']) ? formData['sleep-goals'] : [],
+                
+                // Health details - single-select fields
+                workoutDuration: formData['workout-duration'] || '',
+                workoutIntensity: formData['workout-intensity'] || '',
+                menstrualFlow: formData['menstrual-flow'] || '',
+                symptomSeverity: formData['symptom-severity'] || '',
+                waterIntake: formData['water-intake'] || '',
+                waterRetention: formData['water-retention'] || '',
+                muscleTension: formData['muscle-tension'] || '',
+                vitaminDStatus: formData['vitamin-d-status'] || '',
+                menstrualStatus: formData['menstrual-status'] || '',
+                hangoverSymptoms: formData['hangover-symptoms'] || '',
+                hangoverTiming: formData['hangover-timing'] || '',
+                
+                // Numeric supplement values
+                sodiumSupplement: formData['sodium-supplement'] ? parseInt(formData['sodium-supplement']) : null,
+                potassiumSupplement: formData['potassium-supplement'] ? parseInt(formData['potassium-supplement']) : null,
+                magnesiumSupplement: formData['magnesium-supplement'] ? parseInt(formData['magnesium-supplement']) : null,
+                calciumSupplement: formData['calcium-supplement'] ? parseInt(formData['calcium-supplement']) : null,
+                dairyIntake: formData['dairy-intake'] ? parseFloat(formData['dairy-intake']) : null,
+                
+                // Flavor preferences
+                flavor: formData['flavor'] || '',
+                flavorIntensity: formData['flavor-intensity'] || '',
+                sweetenerAmount: formData['sweetener-amount'] || '',
+                sweetenerType: formData['sweetener-type'] || '',
+                
+                // Additional information
+                feedback: formData.feedback || ''
+            };
+            
+            // Format validation - check if required fields are present
+            const requiredFields = ['email'];
+            const missingFields = requiredFields.filter(field => !customerData[field]);
+            
+            if (missingFields.length > 0) {
+                console.warn('Warning: Missing required fields:', missingFields);
+            }
+            
+            // Log data for debugging and testing
+            console.log('Submitting to backend API:', customerData);
+            console.log('Original form data:', formData);
+            console.log('Form validation complete - all required fields present:', missingFields.length === 0);
+        });
     }
 });

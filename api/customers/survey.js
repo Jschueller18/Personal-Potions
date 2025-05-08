@@ -26,108 +26,104 @@ module.exports = async (req, res) => {
 
   try {
     // Get the data from the request
-    const rawData = req.body;
+    const customerData = req.body;
     
-    // Log the raw data for debugging
+    // Log the received data for debugging
     console.log('Received survey submission');
     
-    // Format the data to match the Supabase schema
-    const customerData = {
-      // Basic fields that directly map to columns
-      firstName: rawData.firstName,
-      lastName: rawData.lastName,
-      email: rawData.email,
+    // Ensure all expected fields are present in the data (using defaults if missing)
+    const formattedData = {
+      // Personal information
+      firstName: customerData.firstName || '',
+      lastName: customerData.lastName || '',
+      email: customerData.email || '',
       
-      // Usage data goes into the usage JSONB column
-      usage: rawData.usage || [],
+      // Personal metrics
+      age: typeof customerData.age === 'number' ? customerData.age : 0,
+      weight: typeof customerData.weight === 'number' ? customerData.weight : 0,
       
-      // Individual fields for Option 1 schema from SUPABASE_SETUP.md
-      age: rawData.age,
-      weight: rawData.weight,
-      biologicalSex: rawData.biologicalSex,
-      activityLevel: rawData.activityLevel,
-      sweatLevel: rawData.sweatLevel,
-      sweatRate: rawData.sweatRate,
-      dietType: rawData.dietType,
-      sodiumIntake: rawData.sodiumIntake,
-      potassiumIntake: rawData.potassiumIntake,
-      magnesiumIntake: rawData.magnesiumIntake,
-      calciumIntake: rawData.calciumIntake,
+      // Profile fields
+      biologicalSex: customerData.biologicalSex || '',
+      activityLevel: customerData.activityLevel || 'moderately-active',
+      sweatLevel: customerData.sweatLevel || 'moderate',
+      dietType: customerData.dietType || 'omnivore',
       
-      // JSONB arrays
-      hydrationChallenges: rawData.hydrationChallenges || [],
-      healthConditions: rawData.healthConditions || [],
-      exerciseType: rawData.exerciseType || [],
-      boneHealth: rawData.boneHealth || [],
-      dailyGoals: rawData.dailyGoals || [],
+      // Intake levels
+      sodiumIntake: customerData.sodiumIntake || 'moderate',
+      potassiumIntake: customerData.potassiumIntake || 'moderate',
+      magnesiumIntake: customerData.magnesiumIntake || 'moderate',
+      calciumIntake: customerData.calciumIntake || 'moderate',
+      proteinIntake: customerData.proteinIntake || 'moderate',
       
-      // Additional fields
-      hangoverSymptoms: rawData.hangoverSymptoms,
-      hangoverTiming: rawData.hangoverTiming,
-      menstrualFlow: rawData.menstrualFlow,
-      menstrualSymptoms: rawData.menstrualSymptoms || [],
-      muscleTension: rawData.muscleTension,
-      symptomSeverity: rawData.symptomSeverity,
-      waterIntake: rawData.waterIntake,
-      waterRetention: rawData.waterRetention,
-      workoutDuration: rawData.workoutDuration,
-      workoutIntensity: rawData.workoutIntensity,
-      proteinIntake: rawData.proteinIntake,
-      vitaminDStatus: rawData.vitaminDStatus,
-      menstrualStatus: rawData.menstrualStatus,
-      dairyIntake: rawData.dairyIntake,
+      // Arrays - ensure they are always arrays
+      usage: Array.isArray(customerData.usage) ? customerData.usage : [],
+      hydrationChallenges: Array.isArray(customerData.hydrationChallenges) ? customerData.hydrationChallenges : [],
+      healthConditions: Array.isArray(customerData.healthConditions) ? customerData.healthConditions : [],
+      exerciseType: Array.isArray(customerData.exerciseType) ? customerData.exerciseType : [],
+      boneHealth: Array.isArray(customerData.boneHealth) ? customerData.boneHealth : [],
+      dailyGoals: Array.isArray(customerData.dailyGoals) ? customerData.dailyGoals : [],
+      menstrualSymptoms: Array.isArray(customerData.menstrualSymptoms) ? customerData.menstrualSymptoms : [],
+      sleepGoals: Array.isArray(customerData.sleepGoals) ? customerData.sleepGoals : [],
       
-      // Supplement values
-      sodiumSupplement: rawData.sodiumSupplement,
-      potassiumSupplement: rawData.potassiumSupplement,
-      magnesiumSupplement: rawData.magnesiumSupplement,
-      calciumSupplement: rawData.calciumSupplement,
+      // Single select fields
+      workoutDuration: customerData.workoutDuration || '',
+      workoutIntensity: customerData.workoutIntensity || '',
+      menstrualFlow: customerData.menstrualFlow || '',
+      symptomSeverity: customerData.symptomSeverity || '',
+      waterIntake: customerData.waterIntake || '',
+      waterRetention: customerData.waterRetention || '',
+      muscleTension: customerData.muscleTension || '',
+      vitaminDStatus: customerData.vitaminDStatus || '',
+      menstrualStatus: customerData.menstrualStatus || '',
+      hangoverSymptoms: customerData.hangoverSymptoms || '',
+      hangoverTiming: customerData.hangoverTiming || '',
       
-      // Sleep goals
-      sleepGoals: rawData.sleepGoals || [],
+      // Numeric supplement values
+      sodiumSupplement: customerData.sodiumSupplement !== null ? customerData.sodiumSupplement : null,
+      potassiumSupplement: customerData.potassiumSupplement !== null ? customerData.potassiumSupplement : null,
+      magnesiumSupplement: customerData.magnesiumSupplement !== null ? customerData.magnesiumSupplement : null,
+      calciumSupplement: customerData.calciumSupplement !== null ? customerData.calciumSupplement : null,
+      dairyIntake: customerData.dairyIntake !== null ? customerData.dairyIntake : null,
       
       // Flavor preferences
-      flavor: rawData.flavor,
-      flavorIntensity: rawData.flavorIntensity,
-      sweetenerAmount: rawData.sweetenerAmount,
-      sweetenerType: rawData.sweetenerType,
-      feedback: rawData.feedback,
+      flavor: customerData.flavor || '',
+      flavorIntensity: customerData.flavorIntensity || '',
+      sweetenerAmount: customerData.sweetenerAmount || '',
+      sweetenerType: customerData.sweetenerType || '',
       
-      // Also organize data into structured JSONB objects per Option 2 in SUPABASE_SETUP.md
-      // for backward compatibility
+      // Additional info
+      feedback: customerData.feedback || '',
+      
+      // Also create the JSON objects for backward compatibility
       healthInfo: {
-        age: rawData.age,
-        weight: rawData.weight,
-        biologicalSex: rawData.biologicalSex,
-        activityLevel: rawData.activityLevel,
-        sweatLevel: rawData.sweatLevel,
-        healthConditions: rawData.healthConditions || []
+        age: customerData.age || 0,
+        weight: customerData.weight || 0,
+        biologicalSex: customerData.biologicalSex || '',
+        activityLevel: customerData.activityLevel || 'moderately-active',
+        sweatLevel: customerData.sweatLevel || 'moderate',
+        healthConditions: Array.isArray(customerData.healthConditions) ? customerData.healthConditions : []
       },
       
       dietaryInfo: {
-        dietType: rawData.dietType,
-        sodiumIntake: rawData.sodiumIntake,
-        potassiumIntake: rawData.potassiumIntake,
-        magnesiumIntake: rawData.magnesiumIntake,
-        calciumIntake: rawData.calciumIntake,
-        sodiumSupplement: rawData.sodiumSupplement,
-        potassiumSupplement: rawData.potassiumSupplement,
-        magnesiumSupplement: rawData.magnesiumSupplement,
-        calciumSupplement: rawData.calciumSupplement,
-        dairyIntake: rawData.dairyIntake,
-        hydrationChallenges: rawData.hydrationChallenges || []
+        dietType: customerData.dietType || 'omnivore',
+        sodiumIntake: customerData.sodiumIntake || 'moderate',
+        potassiumIntake: customerData.potassiumIntake || 'moderate',
+        magnesiumIntake: customerData.magnesiumIntake || 'moderate',
+        calciumIntake: customerData.calciumIntake || 'moderate',
+        dairyIntake: customerData.dairyIntake,
+        hydrationChallenges: Array.isArray(customerData.hydrationChallenges) ? customerData.hydrationChallenges : []
       },
       
       flavorPreferences: {
-        flavor: rawData.flavor,
-        flavorIntensity: rawData.flavorIntensity,
-        sweetenerAmount: rawData.sweetenerAmount,
-        sweetenerType: rawData.sweetenerType
+        flavor: customerData.flavor || '',
+        flavorIntensity: customerData.flavorIntensity || '',
+        sweetenerAmount: customerData.sweetenerAmount || '',
+        sweetenerType: customerData.sweetenerType || ''
       }
     };
     
     // Add timestamp
-    customerData.created_at = new Date().toISOString();
+    formattedData.created_at = new Date().toISOString();
     
     // Check if Supabase environment variables are defined
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -141,7 +137,7 @@ module.exports = async (req, res) => {
       });
     }
     
-    console.log('Inserting filtered customer data with service role key');
+    console.log('Inserting customer data with service role key');
     
     // Create Supabase client
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -149,7 +145,7 @@ module.exports = async (req, res) => {
     // Insert the customer data into the customers table
     const { data, error } = await supabase
       .from('customers')
-      .insert(customerData)
+      .insert(formattedData)
       .select();
     
     if (error) {
