@@ -431,6 +431,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function collectAllFormData() {
         console.log('Collecting all form data before submission');
         
+        // EXPLICITLY handle critical fields first
+        const emailField = document.querySelector('input[type="email"]');
+        if (emailField) {
+            console.log('Found email field with name:', emailField.name, 'and value:', emailField.value);
+            formData[emailField.name] = emailField.value;
+            // Ensure the email is also stored under the standard 'email' key
+            formData.email = emailField.value;
+        } else {
+            console.warn('Email field not found!');
+        }
+        
+        // Explicitly handle usage - this is a required field per backend schema
+        const usageCheckboxes = document.querySelectorAll('input[name="usage"]:checked');
+        if (usageCheckboxes.length > 0) {
+            formData.usage = Array.from(usageCheckboxes).map(cb => cb.value);
+            console.log('Found usage values:', formData.usage);
+        } else {
+            console.warn('No usage checkboxes checked - this is required!');
+            // Make sure we have at least empty array
+            formData.usage = [];
+        }
+        
         // Get all inputs from the entire form
         const allInputs = document.querySelectorAll('input, select, textarea');
         
@@ -732,6 +754,7 @@ document.addEventListener('DOMContentLoaded', function() {
             goToSection(originalSection);
         }
         
+        console.log('Form validation complete. All sections valid:', allValid);
         return allValid;
     }
 
@@ -951,21 +974,41 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Test data generated! Click Next to see data and continue through the form.');
     }
 
-    // Form submission
+    // Form submit event
     if (form) {
-        console.log('Form element found, attaching submit event listener');
-        
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submit event triggered. Collecting all data...');
             
-            // Final data save
+            // Save the current section data first
             saveCurrentSectionData();
             
-            // Collect all form data to ensure completeness
+            // Make sure we have all data collected from all sections
             collectAllFormData();
+            
+            // Make sure we have all required fields - particularly check for email
+            const emailField = document.querySelector('input[type="email"]');
+            if (emailField) {
+                console.log('Email field found with value:', emailField.value);
+                formData.email = emailField.value;
+            } else {
+                console.warn('Email field not found in the form!');
+            }
+            
+            // Check if email is missing or empty
+            if (!formData.email) {
+                console.error('Email is required but missing or empty');
+                if (responseMessage) {
+                    responseMessage.textContent = 'Please provide your email address to receive your personalized mix details.';
+                    responseMessage.style.color = "#D8000C";
+                    responseMessage.classList.add('visible');
+                }
+                return; // Stop submission if email is missing
+            }
             
             // Simple validation
             if (!validateAllSections()) {
+                console.warn('Form validation failed. Stopping submission.');
                 return;
             }
             
@@ -1038,16 +1081,33 @@ document.addEventListener('DOMContentLoaded', function() {
             const requiredFields = ['email'];
             const missingFields = requiredFields.filter(field => !customerData[field]);
             
+            console.log('DEBUG - Email value:', formData.email);
+            console.log('DEBUG - Original form data:', formData);
+            console.log('DEBUG - Formatted customer data:', customerData);
+            console.log('DEBUG - Missing required fields:', missingFields);
+            
+            // Also check that usage has at least one value (required by backend)
+            const usageEmpty = !customerData.usage || customerData.usage.length === 0;
+            if (usageEmpty) {
+                console.warn('Usage array is empty - this is required by backend');
+                if (missingFields.length === 0) {
+                    missingFields.push('usage');
+                }
+            }
+            
             if (missingFields.length > 0) {
                 console.warn('Warning: Missing required fields:', missingFields);
                 // Display error message for missing required field
                 if (responseMessage) {
-                    responseMessage.textContent = 'Please provide your email address to receive your personalized mix details.';
+                    if (missingFields.includes('email')) {
+                        responseMessage.textContent = 'Please provide your email address to receive your personalized mix details.';
+                    } else if (missingFields.includes('usage')) {
+                        responseMessage.textContent = 'Please select at least one usage scenario for your electrolyte mix.';
+                    } else {
+                        responseMessage.textContent = 'Please fill out all required fields before submitting.';
+                    }
                     responseMessage.style.color = "#D8000C";
                     responseMessage.classList.add('visible');
-                    
-                    // Remove scroll to top - error message is already visible
-                    // window.scrollTo(0, 0);
                 }
                 return;
             }
@@ -1062,11 +1122,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Add more detailed logging for debugging
-            console.log('Sending API request to:', 'http://localhost:5000/api/customers/survey');
+            console.log('Sending API request to:', '/customers/survey');
             console.log('With headers:', {'Content-Type': 'application/json'});
+            console.log('Sending customer data payload:', JSON.stringify(customerData, null, 2));
             
-            // Send the data to the backend API using the direct backend URL
-            fetch('http://localhost:5000/api/customers/survey', {
+            // Send the data to the backend API using the proxied endpoint
+            fetch('/customers/survey', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1088,22 +1149,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.customer && data.customer.id) {
                     localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
                     localStorage.setItem(data.customer.id, JSON.stringify(customerData));
+                    console.log('Stored submission ID in localStorage:', data.customer.id);
+                } else {
+                    console.warn('Customer ID not found in response data');
                 }
                 
                 // Redirect to success page
-                window.location.href = '/?success=true';
+                console.log('Redirecting to results page');
+                window.location.href = 'results.html';
             })
             .catch(error => {
                 console.error('Error details:', error);
+                console.error('Error message:', error.message);
+                if (error.response) {
+                    console.error('Error response:', error.response);
+                }
                 
                 // Show error message
                 if (responseMessage) {
                     responseMessage.textContent = 'Sorry, there was an error submitting your form. Please try again later.';
                     responseMessage.style.color = "#D8000C";
                     responseMessage.classList.add('visible');
-                    
-                    // Remove scroll to top - error message is already visible
-                    // window.scrollTo(0, 0);
                 }
                 
                 // Re-enable submit button
