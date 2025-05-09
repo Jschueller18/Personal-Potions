@@ -72,9 +72,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const usageOtherCheckbox = document.getElementById('usage-other');
     const usageOtherContainer = document.getElementById('usage-other-container');
     
-    const conditionOtherCheckbox = document.getElementById('condition-other');
-    const conditionOtherContainer = document.getElementById('condition-other-container');
-    
     const flavorOtherRadio = document.getElementById('flavor-other');
     const flavorOtherContainer = document.getElementById('flavor-other-container');
     
@@ -269,12 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (usageOtherCheckbox) {
         usageOtherCheckbox.addEventListener('change', function() {
             usageOtherContainer.style.display = this.checked ? 'block' : 'none';
-        });
-    }
-    
-    if (conditionOtherCheckbox) {
-        conditionOtherCheckbox.addEventListener('change', function() {
-            conditionOtherContainer.style.display = this.checked ? 'block' : 'none';
         });
     }
     
@@ -1089,9 +1080,17 @@ document.addEventListener('DOMContentLoaded', function() {
             // Also check that usage has at least one value (required by backend)
             const usageEmpty = !customerData.usage || customerData.usage.length === 0;
             if (usageEmpty) {
-                console.warn('Usage array is empty - this is required by backend');
-                if (missingFields.length === 0) {
-                    missingFields.push('usage');
+                // Double-check for selected checkboxes in the DOM before showing error
+                const selectedUsageCheckboxes = document.querySelectorAll('input[name="usage"]:checked');
+                if (selectedUsageCheckboxes.length > 0) {
+                    // We found checkboxes that are selected but not in formData, update the formData
+                    customerData.usage = Array.from(selectedUsageCheckboxes).map(cb => cb.value);
+                    console.log('Fixed: Found selected usage checkboxes in DOM:', customerData.usage);
+                } else {
+                    console.warn('Usage array is empty - this is required by backend');
+                    if (missingFields.length === 0) {
+                        missingFields.push('usage');
+                    }
                 }
             }
             
@@ -1122,12 +1121,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Add more detailed logging for debugging
-            console.log('Sending API request to:', '/customers/survey');
+            console.log('Sending API request to:', '/api/customers/survey');
             console.log('With headers:', {'Content-Type': 'application/json'});
             console.log('Sending customer data payload:', JSON.stringify(customerData, null, 2));
             
             // Send the data to the backend API using the proxied endpoint
-            fetch('/customers/survey', {
+            fetch('/api/customers/survey', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
