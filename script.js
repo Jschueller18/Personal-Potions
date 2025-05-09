@@ -355,11 +355,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hangover cure details conditional logic
     if (hangoverSupportCheckbox) {
         hangoverSupportCheckbox.addEventListener('change', function() {
-            hangoverDetails.style.display = this.checked ? 'block' : 'none';
+            if (hangoverDetails) {
+                hangoverDetails.style.display = this.checked ? 'block' : 'none';
+            } else {
+                console.warn('hangoverDetails element not found in the DOM');
+            }
         });
         
         // Check on page load
-        if (hangoverSupportCheckbox.checked) {
+        if (hangoverSupportCheckbox.checked && hangoverDetails) {
             hangoverDetails.style.display = 'block';
         }
     }
