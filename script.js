@@ -1062,11 +1062,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Add more detailed logging for debugging
-            console.log('Sending API request to:', '/api/customers/survey');
+            console.log('Sending API request to:', 'http://localhost:5000/api/customers/survey');
             console.log('With headers:', {'Content-Type': 'application/json'});
             
-            // Send the data to the backend API
-            fetch('/api/customers/survey', {
+            // Send the data to the backend API using the direct backend URL
+            fetch('http://localhost:5000/api/customers/survey', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
