@@ -7,8 +7,19 @@ module.exports = (req, res) => {
   
   // Return a simple response
   res.status(200).json({
-    message: 'Hello World! API is working!',
-    env: process.env.NODE_ENV,
-    timestamp: new Date().toISOString()
+    message: 'API is working!',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+    requestInfo: {
+      method: req.method,
+      path: req.url,
+      headers: req.headers,
+      body: req.body || 'No body'
+    },
+    serverInfo: {
+      nodeVersion: process.version,
+      platform: process.platform,
+      hostname: require('os').hostname()
+    }
   });
 }; 
