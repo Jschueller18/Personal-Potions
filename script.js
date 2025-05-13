@@ -369,73 +369,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // New conditional logic for use case details
-    if (sweatReplacementCheckbox) {
-        sweatReplacementCheckbox.addEventListener('change', function() {
-            console.log('Sweat replacement checkbox changed:', this.checked);
-            sweatReplacementDetails.style.display = this.checked ? 'block' : 'none';
-        });
-        
-        // Check on page load
-        if (sweatReplacementCheckbox.checked) {
-            sweatReplacementDetails.style.display = 'block';
-        }
-    }
-    
-    if (bedtimeMixCheckbox) {
-        bedtimeMixCheckbox.addEventListener('change', function() {
-            console.log('Bedtime mix checkbox changed:', this.checked);
-            bedtimeDetails.style.display = this.checked ? 'block' : 'none';
-        });
-        
-        // Check on page load
-        if (bedtimeMixCheckbox.checked) {
-            bedtimeDetails.style.display = 'block';
-        }
-    }
-    
-    // Daily mix details conditional logic
-    if (dailyDrinkCheckbox) {
-        dailyDrinkCheckbox.addEventListener('change', function() {
-            console.log('Daily drink checkbox changed:', this.checked);
-            dailyMixDetails.style.display = this.checked ? 'block' : 'none';
-        });
-        
-        // Check on page load
-        if (dailyDrinkCheckbox.checked) {
-            dailyMixDetails.style.display = 'block';
-        }
-    }
-    
-    // Menstrual support details conditional logic
-    if (menstrualSupportCheckbox) {
-        menstrualSupportCheckbox.addEventListener('change', function() {
-            console.log('Menstrual support checkbox changed:', this.checked);
-            menstrualDetails.style.display = this.checked ? 'block' : 'none';
-        });
-        
-        // Check on page load
-        if (menstrualSupportCheckbox.checked) {
-            menstrualDetails.style.display = 'block';
-        }
-    }
-    
-    // Hangover cure details conditional logic
-    if (hangoverSupportCheckbox) {
-        hangoverSupportCheckbox.addEventListener('change', function() {
-            console.log('Hangover support checkbox changed:', this.checked);
-            if (hangoverDetails) {
-                hangoverDetails.style.display = this.checked ? 'block' : 'none';
-            } else {
-                console.warn('hangoverDetails element not found in the DOM');
+    // Add event listeners for use case selection
+    document.querySelectorAll('input[name="usage"]').forEach(input => {
+        input.addEventListener('change', function() {
+            // Get all selected use cases
+            const selectedUseCases = Array.from(document.querySelectorAll('input[name="usage"]:checked')).map(cb => cb.value);
+            console.log('Selected use cases:', selectedUseCases);
+            
+            // Handle each use case section
+            const workoutSection = document.getElementById('sweat-replacement-details');
+            const bedtimeSection = document.getElementById('bedtime-details');
+            const dailySection = document.getElementById('daily-mix-details');
+            const menstrualSection = document.getElementById('menstrual-details');
+            const hangoverSection = document.getElementById('hangover-details');
+            
+            // Show/hide sections based on selected use cases
+            if (workoutSection) {
+                workoutSection.style.display = selectedUseCases.includes('sweat') ? 'block' : 'none';
             }
+            if (bedtimeSection) {
+                bedtimeSection.style.display = selectedUseCases.includes('bedtime') ? 'block' : 'none';
+            }
+            if (dailySection) {
+                dailySection.style.display = selectedUseCases.includes('daily') ? 'block' : 'none';
+            }
+            if (menstrualSection) {
+                menstrualSection.style.display = selectedUseCases.includes('menstrual') ? 'block' : 'none';
+            }
+            if (hangoverSection) {
+                hangoverSection.style.display = selectedUseCases.includes('hangover') ? 'block' : 'none';
+            }
+            
+            // Save the current section data
+            saveCurrentSectionData();
         });
-        
-        // Check on page load
-        if (hangoverSupportCheckbox.checked && hangoverDetails) {
-            hangoverDetails.style.display = 'block';
-        }
-    }
+    });
 
     // Function to collect all data from all form sections
     function collectAllFormData() {
