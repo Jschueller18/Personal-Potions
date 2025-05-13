@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Update progress bar
-        updateProgressBar();
+        updateFormProgress();
     }
     
     // Function to update the progress bar and labels
