@@ -392,33 +392,77 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Add direct click handler for submit button
-    if (submitBtn) {
-        console.log('Adding click event to submit button');
-        submitBtn.addEventListener('click', function(e) {
-            console.log('Submit button clicked');
-            // Prevent default to avoid double submission
-            e.preventDefault();
-            
-            // Trigger form submission manually
-            if (form) {
-                // Final validation
-                if (validateCurrentSection()) {
-                    // Save current section data
-                    saveCurrentSectionData();
-                    
-                    // Collect all form data from all sections
-                    collectAllFormData();
-                    
-                    // Manually dispatch form submit event
-                    console.log('Dispatching form submit event with collected data');
-                    const submitEvent = new Event('submit', {
-                        'bubbles': true,
-                        'cancelable': true
-                    });
-                    form.dispatchEvent(submitEvent);
-                }
+    // Helper: Find missing required fields in the current section
+    function getMissingFieldsInSection(section) {
+        const missing = [];
+        const requiredInputs = section.querySelectorAll('[required]:not([type="checkbox"])');
+        requiredInputs.forEach(input => {
+            if (!input.value.trim() && !isHidden(input)) {
+                const label = section.querySelector(`label[for="${input.id}"]`);
+                missing.push(label ? label.textContent.trim() : input.name || input.id);
             }
+        });
+        // Check required checkbox groups
+        section.querySelectorAll('input[type="checkbox"][required]').forEach(checkbox => {
+            const group = checkbox.name;
+            const checkboxes = section.querySelectorAll(`input[type="checkbox"][name="${group}"]`);
+            if (!Array.from(checkboxes).some(cb => cb.checked) && !isHidden(checkbox)) {
+                const groupLabel = section.querySelector(`label[for="${checkbox.id}"]`) || section.querySelector('label');
+                missing.push(groupLabel ? groupLabel.textContent.trim() : group);
+            }
+        });
+        return missing;
+    }
+
+    // Show/hide submit button state and error bubble
+    function updateSubmitButtonState() {
+        const isValid = validateAllSections();
+        const submitBtn = document.getElementById('submit-btn');
+        const errorBubble = document.getElementById('submit-error-bubble');
+        if (!submitBtn || !errorBubble) return;
+        if (isValid) {
+            submitBtn.classList.remove('inactive-submit');
+            errorBubble.style.display = 'none';
+        } else {
+            submitBtn.classList.add('inactive-submit');
+            errorBubble.style.display = 'none';
+        }
+    }
+
+    // Attach updateSubmitButtonState to all inputs
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('input', updateSubmitButtonState);
+        el.addEventListener('change', updateSubmitButtonState);
+    });
+    // Also update on section navigation
+    if (nextBtn) nextBtn.addEventListener('click', updateSubmitButtonState);
+    if (prevBtn) prevBtn.addEventListener('click', updateSubmitButtonState);
+
+    // Always show submit button, but make it inactive if not valid
+    if (submitBtn) {
+        submitBtn.style.display = 'inline-block';
+        updateSubmitButtonState();
+        submitBtn.addEventListener('click', function(e) {
+            if (submitBtn.classList.contains('inactive-submit')) {
+                // Find missing fields in the current section
+                const section = formSections[currentSectionIndex];
+                const missing = getMissingFieldsInSection(section);
+                const errorBubble = document.getElementById('submit-error-bubble');
+                if (errorBubble) {
+                    if (missing.length === 0) {
+                        errorBubble.textContent = 'Survey incomplete. Please fill out all required fields.';
+                    } else if (missing.length <= 3) {
+                        errorBubble.textContent = 'Missing: ' + missing.join(', ');
+                    } else {
+                        errorBubble.textContent = 'Survey incomplete. Please fill out all required fields.';
+                    }
+                    errorBubble.style.display = 'block';
+                    setTimeout(() => { errorBubble.style.display = 'none'; }, 4000);
+                }
+                e.preventDefault();
+                return;
+            }
+            // If valid, proceed as normal (existing code will handle submission)
         });
     }
 

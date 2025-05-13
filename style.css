@@ -856,3 +856,33 @@ input.invalid, select.invalid, textarea.invalid {
         font-size: 16px;
     }
 }
+
+/* Inactive submit button style */
+.inactive-submit {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+  transition: opacity 0.2s;
+}
+
+/* Message bubble for submit errors */
+#submit-error-bubble {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 110%;
+  background: #fff8e1;
+  color: #b71c1c;
+  border: 1px solid #ffd54f;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 0.95em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  z-index: 10;
+  min-width: 220px;
+}
+
+#submit-btn-container {
+  position: relative;
+  display: inline-block;
+}
