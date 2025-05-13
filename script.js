@@ -530,6 +530,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to go to a specific section
     function goToSection(index) {
+        // Validate boundaries
+        if (index < 0) {
+            index = 0;
+        } else if (index >= formSections.length) {
+            index = formSections.length - 1;
+        }
+        
         // Save current section data before moving
         saveCurrentSectionData();
         
@@ -575,9 +582,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to update the progress bar and labels
     function updateFormProgress() {
-        // Update progress bar width
-        const progressPercentage = ((currentSectionIndex + 1) / formSections.length) * 100;
-        progressBar.style.width = progressPercentage + '%';
+        const progressBar = document.getElementById('form-progress');
+        if (!progressBar) return;
+        
+        const progress = ((currentSectionIndex + 1) / formSections.length) * 100;
+        progressBar.style.width = `${progress}%`;
         
         // Update section labels
         progressLabels.forEach(function(label, index) {
