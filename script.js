@@ -285,7 +285,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = collectAllFormData();
             
             try {
-                const response = await fetch('/api/customers/survey', {
+                // Use the full URL to the API endpoint
+                const response = await fetch('https://personal-potions-api.vercel.app/api/customers/survey', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -294,8 +295,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message || 'Failed to submit survey');
+                    // Try to parse error as JSON, but handle text responses too
+                    let errorMessage;
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || `Error: ${response.status} ${response.statusText}`;
+                    } catch (e) {
+                        // If response is not JSON, use status text or fetch text content
+                        errorMessage = `Error: ${response.status} ${response.statusText}`;
+                        try {
+                            const textContent = await response.text();
+                            if (textContent && textContent.length < 100) {
+                                errorMessage += ` - ${textContent}`;
+                            }
+                        } catch (textError) {
+                            // Ignore error reading text
+                        }
+                    }
+                    throw new Error(errorMessage);
                 }
                 
                 const data = await response.json();
