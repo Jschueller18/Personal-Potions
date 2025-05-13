@@ -283,7 +283,52 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // If valid, proceed with form submission
             const formData = collectAllFormData();
-            await submitForm(formData);
+            
+            try {
+                const response = await fetch('/api/customers/survey', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to submit survey');
+                }
+                
+                const data = await response.json();
+                console.log('Success response data:', data);
+                
+                // Store submission ID and data for debug purposes
+                if (data.customer && data.customer.id) {
+                    localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
+                    localStorage.setItem(data.customer.id, JSON.stringify(formData));
+                    
+                    // Store hangover-specific metadata if present
+                    if (data.metadata && data.metadata.hangover) {
+                        localStorage.setItem(`${data.customer.id}_hangover_metadata`, JSON.stringify(data.metadata.hangover));
+                    }
+                    
+                    console.log('Stored submission ID in localStorage:', data.customer.id);
+                    
+                    // Redirect to results page with customer ID
+                    window.location.href = `/results.html?customerId=${data.customer.id}`;
+                } else {
+                    throw new Error('Customer ID not found in response');
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                const errorBubble = document.getElementById('submit-error-bubble');
+                if (errorBubble) {
+                    errorBubble.textContent = error.message || 'Failed to submit survey. Please try again.';
+                    errorBubble.style.display = 'block';
+                    setTimeout(() => {
+                        errorBubble.style.display = 'none';
+                    }, 4000);
+                }
+            }
         });
     }
     
@@ -739,6 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to validate all sections
     function validateAllSections() {
         let isValid = true;
+        let hasInteracted = false; // Track if user has interacted with the form
         
         // Validate each section
         formSections.forEach(section => {
@@ -754,16 +800,19 @@ document.addEventListener('DOMContentLoaded', function() {
             requiredInputs.forEach(input => {
                 if (!isHidden(input) && !input.value.trim()) {
                     isValid = false;
-                    input.classList.add('invalid');
-                    
-                    let errorMessage = input.nextElementSibling;
-                    if (!errorMessage || !errorMessage.classList.contains('error-message')) {
-                        errorMessage = document.createElement('p');
-                        errorMessage.classList.add('error-message', 'visible');
-                        errorMessage.textContent = 'This field is required.';
-                        input.parentNode.insertBefore(errorMessage, input.nextSibling);
-                    } else {
-                        errorMessage.classList.add('visible');
+                    // Only show validation errors if user has interacted with the form
+                    if (hasInteracted) {
+                        input.classList.add('invalid');
+                        
+                        let errorMessage = input.nextElementSibling;
+                        if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                            errorMessage = document.createElement('p');
+                            errorMessage.classList.add('error-message', 'visible');
+                            errorMessage.textContent = 'This field is required.';
+                            input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                        } else {
+                            errorMessage.classList.add('visible');
+                        }
                     }
                 } else {
                     input.classList.remove('invalid');
@@ -789,16 +838,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (!isGroupValid) {
                         isValid = false;
-                        container.classList.add('error');
-                        
-                        let errorMessage = container.nextElementSibling;
-                        if (!errorMessage || !errorMessage.classList.contains('error-message')) {
-                            errorMessage = document.createElement('p');
-                            errorMessage.classList.add('error-message', 'visible');
-                            errorMessage.textContent = 'Please select at least one option.';
-                            container.parentNode.insertBefore(errorMessage, container.nextSibling);
-                        } else {
-                            errorMessage.classList.add('visible');
+                        // Only show validation errors if user has interacted with the form
+                        if (hasInteracted) {
+                            container.classList.add('error');
+                            
+                            let errorMessage = container.nextElementSibling;
+                            if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                                errorMessage = document.createElement('p');
+                                errorMessage.classList.add('error-message', 'visible');
+                                errorMessage.textContent = 'Please select at least one option.';
+                                container.parentNode.insertBefore(errorMessage, container.nextSibling);
+                            } else {
+                                errorMessage.classList.add('visible');
+                            }
                         }
                     } else {
                         container.classList.remove('error');
@@ -1028,100 +1080,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('Random test data generated!');
         alert('Test data generated! Click Next to see data and continue through the form.');
-    }
-
-    // Form submit event
-    if (form) {
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            console.log('Form submitted');
-            
-            // Validate all sections before submission
-            const isFormValid = validateAllSections();
-            if (!isFormValid) {
-                console.log('Form validation failed');
-                return;
-            }
-            
-            // Collect all form data
-            const formData = collectAllFormData();
-            console.log('Collected form data:', formData);
-            
-            // Prepare customer data
-            const customerData = {
-                name: formData['first-name'] + ' ' + formData['last-name'],
-                email: formData['email'],
-                phone: document.getElementById('phone')?.value || '',
-                age: parseInt(formData['age']),
-                gender: formData['biological-sex'],
-                weight: parseFloat(formData['weight']),
-                height: parseFloat(document.getElementById('height')?.value) || null,
-                activityLevel: formData['activity-level'],
-                dietaryRestrictions: formData['diet-type'],
-                healthConditions: formData['conditions'],
-                medications: document.getElementById('medications')?.value || '',
-                allergies: document.getElementById('allergies')?.value || '',
-                goals: formData['daily-goals'] || [],
-                usage: formData['usage'],
-                flavorPreferences: formData['flavor'],
-                caffeinePreference: document.getElementById('caffeine-preference')?.value || '',
-                servingSize: formData['sweetener-amount'] === 'none' ? 0 : (formData['sweetener-amount'] === 'light' ? 100 : (formData['sweetener-amount'] === 'medium' ? 200 : 300)),
-                ...(formData['usage'].includes('hangover') ? {
-                    hangoverSymptoms: Array.isArray(formData['hangover-symptoms']) ? formData['hangover-symptoms'] : [],
-                    hangoverTiming: ['before', 'during', 'after'].includes(formData['hangover-timing']) ? formData['hangover-timing'] : null
-                } : {})
-            };
-            
-            console.log('Prepared customer data:', customerData);
-            
-            try {
-                const response = await fetch('/api/customers/survey', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(customerData)
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.message || 'Failed to submit survey');
-                }
-                
-                const data = await response.json();
-                console.log('Success response data:', data);
-                
-                // Store submission ID and data for debug purposes
-                if (data.customer && data.customer.id) {
-                    localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
-                    localStorage.setItem(data.customer.id, JSON.stringify(customerData));
-                    
-                    // Store hangover-specific metadata if present
-                    if (data.metadata && data.metadata.hangover) {
-                        localStorage.setItem(`${data.customer.id}_hangover_metadata`, JSON.stringify(data.metadata.hangover));
-                    }
-                    
-                    console.log('Stored submission ID in localStorage:', data.customer.id);
-                    
-                    // Redirect to results page with customer ID
-                    window.location.href = `/results.html?customerId=${data.customer.id}`;
-                } else {
-                    throw new Error('Customer ID not found in response');
-                }
-            } catch (error) {
-                console.error('Error submitting form:', error);
-                const errorBubble = document.getElementById('submit-error-bubble');
-                if (errorBubble) {
-                    errorBubble.textContent = error.message || 'Failed to submit survey. Please try again.';
-                    errorBubble.style.display = 'block';
-                    setTimeout(() => {
-                        errorBubble.style.display = 'none';
-                    }, 4000);
-                }
-            }
-        });
-    } else {
-        console.error('FORM NOT FOUND! Cannot attach submit handler.');
     }
 
     // Helper function to check if a use case is selected
