@@ -284,41 +284,30 @@ document.addEventListener('DOMContentLoaded', function() {
             // If valid, proceed with form submission
             const formData = collectAllFormData();
             
-            try {
-                // Direct API call - the backend team will be adding proper CORS support
-                const apiUrl = 'https://personal-potions-api.vercel.app/api/customers/survey';
-                
-                console.log('Sending data to API...');
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
+            console.log('Sending data to API...');
+            
+            // Use the fetch format recommended by the backend
+            fetch('https://personal-potions-api.vercel.app/api/customers/survey', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
                 if (!response.ok) {
-                    // Try to parse error as JSON, but handle text responses too
-                    let errorMessage;
-                    try {
-                        const errorData = await response.json();
-                        errorMessage = errorData.message || `Error: ${response.status} ${response.statusText}`;
-                    } catch (e) {
-                        // If response is not JSON, use status text or fetch text content
-                        errorMessage = `Error: ${response.status} ${response.statusText}`;
-                        try {
-                            const textContent = await response.text();
-                            if (textContent && textContent.length < 100) {
-                                errorMessage += ` - ${textContent}`;
-                            }
-                        } catch (textError) {
-                            // Ignore error reading text
-                        }
-                    }
-                    throw new Error(errorMessage);
+                    // If status code is not 2xx, parse the error
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || `Error: ${response.status} ${response.statusText}`);
+                    }).catch(() => {
+                        // If JSON parsing fails, use status text
+                        throw new Error(`Error: ${response.status} ${response.statusText}`);
+                    });
                 }
-                
-                const data = await response.json();
+                return response.json();
+            })
+            .then(data => {
                 console.log('Success response data:', data);
                 
                 // Store submission ID and data for debug purposes
@@ -338,7 +327,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     throw new Error('Customer ID not found in response');
                 }
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Error submitting form:', error);
                 
                 const errorBubble = document.getElementById('submit-error-bubble');
@@ -349,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         errorBubble.style.display = 'none';
                     }, 4000);
                 }
-            }
+            });
         });
     }
     
