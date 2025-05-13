@@ -530,45 +530,47 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to go to a specific section
     function goToSection(index) {
-        // Validate boundaries
-        if (index < 0) {
-            index = 0;
-        } else if (index >= formSections.length) {
-            index = formSections.length - 1;
-        }
+        // Save current section data before moving
+        saveCurrentSectionData();
         
         // Hide all sections
-        formSections.forEach(function(section) {
+        formSections.forEach(section => {
             section.style.display = 'none';
         });
         
-        // Show the current section
+        // Show the target section
         formSections[index].style.display = 'block';
         
-        // Update current index
+        // Update current section index
         currentSectionIndex = index;
         
-        // Update progress
-        updateFormProgress();
+        // Update navigation buttons
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
         
-        // Show/hide prev/next buttons
-        if (currentSectionIndex === 0) {
-            prevBtn.style.display = 'none';
-        } else {
-            prevBtn.style.display = 'inline-block';
+        if (prevBtn) {
+            prevBtn.style.display = index === 0 ? 'none' : 'inline-block';
         }
         
-        if (currentSectionIndex === formSections.length - 1) {
-            nextBtn.style.display = 'none';
-        } else {
-            nextBtn.style.display = 'inline-block';
+        if (nextBtn) {
+            nextBtn.style.display = index === formSections.length - 1 ? 'none' : 'inline-block';
         }
         
         // Always show submit button but update its state
         if (submitBtn) {
             submitBtn.style.display = 'inline-block';
-            updateSubmitButtonState();
+            // Only validate if we're on the last section
+            if (index === formSections.length - 1) {
+                const isValid = validateAllSections();
+                submitBtn.classList.toggle('inactive-submit', !isValid);
+            } else {
+                submitBtn.classList.add('inactive-submit');
+            }
         }
+        
+        // Update progress bar
+        updateProgressBar();
     }
     
     // Function to update the progress bar and labels
@@ -759,30 +761,80 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to validate all sections
     function validateAllSections() {
-        // Remember current section
-        const originalSection = currentSectionIndex;
-        let allValid = true;
+        let isValid = true;
         
-        // Check each section
-        for (let i = 0; i < formSections.length; i++) {
-            goToSection(i);
-            const sectionValid = validateCurrentSection();
-            if (!sectionValid) {
-                allValid = false;
-                break;
-            }
-        }
+        // Validate each section
+        formSections.forEach(section => {
+            const requiredInputs = section.querySelectorAll('[required]:not([type="checkbox"])');
+            const requiredCheckboxGroups = new Set();
+            
+            // Collect checkbox groups that have at least one required checkbox
+            section.querySelectorAll('input[type="checkbox"][required]').forEach(checkbox => {
+                requiredCheckboxGroups.add(checkbox.name);
+            });
+            
+            // Validate normal required fields
+            requiredInputs.forEach(input => {
+                if (!isHidden(input) && !input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('invalid');
+                    
+                    let errorMessage = input.nextElementSibling;
+                    if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                        errorMessage = document.createElement('p');
+                        errorMessage.classList.add('error-message', 'visible');
+                        errorMessage.textContent = 'This field is required.';
+                        input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                    } else {
+                        errorMessage.classList.add('visible');
+                    }
+                } else {
+                    input.classList.remove('invalid');
+                    const errorMessage = input.nextElementSibling;
+                    if (errorMessage && errorMessage.classList.contains('error-message')) {
+                        errorMessage.classList.remove('visible');
+                    }
+                }
+            });
+            
+            // Validate checkbox groups
+            requiredCheckboxGroups.forEach(groupName => {
+                const checkboxes = section.querySelectorAll(`input[type="checkbox"][name="${groupName}"]`);
+                const container = checkboxes[0].closest('.checkbox-group');
+                
+                if (!isHidden(container)) {
+                    let isGroupValid = false;
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox.checked) {
+                            isGroupValid = true;
+                        }
+                    });
+                    
+                    if (!isGroupValid) {
+                        isValid = false;
+                        container.classList.add('error');
+                        
+                        let errorMessage = container.nextElementSibling;
+                        if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                            errorMessage = document.createElement('p');
+                            errorMessage.classList.add('error-message', 'visible');
+                            errorMessage.textContent = 'Please select at least one option.';
+                            container.parentNode.insertBefore(errorMessage, container.nextSibling);
+                        } else {
+                            errorMessage.classList.add('visible');
+                        }
+                    } else {
+                        container.classList.remove('error');
+                        const errorMessage = container.nextElementSibling;
+                        if (errorMessage && errorMessage.classList.contains('error-message')) {
+                            errorMessage.classList.remove('visible');
+                        }
+                    }
+                }
+            });
+        });
         
-        // Return to original section if not valid
-        if (!allValid) {
-            goToSection(currentSectionIndex);
-        } else {
-            // Otherwise return to the section we were on
-            goToSection(originalSection);
-        }
-        
-        console.log('Form validation complete. All sections valid:', allValid);
-        return allValid;
+        return isValid;
     }
 
     // === TEST DATA GENERATOR ===
@@ -1109,24 +1161,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!submitBtn) return;
         
-        // Always show the submit button
-        submitBtn.style.display = 'inline-block';
-        
-        // Check if we're on the last section
-        const isLastSection = currentSectionIndex === formSections.length - 1;
-        
-        if (isLastSection) {
-            // Check if the form is valid
+        // Only validate if we're on the last section
+        if (currentSectionIndex === formSections.length - 1) {
             const isValid = validateAllSections();
+            submitBtn.classList.toggle('inactive-submit', !isValid);
             
-            if (isValid) {
-                submitBtn.classList.remove('inactive-submit');
-                errorBubble.style.display = 'none';
-            } else {
-                submitBtn.classList.add('inactive-submit');
+            if (errorBubble) {
+                errorBubble.style.display = isValid ? 'none' : 'block';
             }
         } else {
             submitBtn.classList.add('inactive-submit');
+            if (errorBubble) {
+                errorBubble.style.display = 'none';
+            }
         }
     }
 

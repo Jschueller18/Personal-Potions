@@ -21,14 +21,60 @@ async function loadFormulation() {
         // Display formulation data
         displayFormulation(data);
         
-        // Store metadata in localStorage if needed
-        if (data.metadata && data.metadata.hangover) {
-            localStorage.setItem(`${customerId}_hangover_metadata`, 
-                JSON.stringify(data.metadata.hangover));
-        }
+        /* TODO: External API Integration
+         * This section needs to be updated once we have the external API details:
+         * 1. Endpoint URL for recommendations
+         * 2. Request/response format
+         * 3. Error handling requirements
+         * 4. Display format for recommendations
+         * 
+         * Current implementation is a placeholder and will need to be replaced
+         * with the actual external API integration.
+         */
+        // await loadRecommendations(data);
+        
     } catch (error) {
         console.error('Error loading formulation:', error);
         showError(error.message || 'Failed to load formulation data');
+    }
+}
+
+// Function to load recommendations from external API
+async function loadRecommendations(formulationData) {
+    try {
+        const response = await fetch('/api/recommendations/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                formulationData,
+                customerId: new URLSearchParams(window.location.search).get('customerId')
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load recommendations');
+        }
+
+        const recommendations = await response.json();
+        displayRecommendations(recommendations);
+    } catch (error) {
+        console.error('Error loading recommendations:', error);
+        // Don't show error to user, just log it
+    }
+}
+
+// Function to display recommendations
+function displayRecommendations(recommendations) {
+    const recommendationsDiv = document.getElementById('recommendations');
+    const contentDiv = document.getElementById('recommendations-content');
+    
+    if (!recommendationsDiv || !contentDiv) return;
+    
+    if (recommendations && recommendations.content) {
+        contentDiv.innerHTML = recommendations.content;
+        recommendationsDiv.style.display = 'block';
     }
 }
 
