@@ -285,8 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = collectAllFormData();
             
             try {
-                // Use the full URL to the API endpoint
-                const response = await fetch('https://personal-potions-api.vercel.app/api/customers/survey', {
+                // Direct API call - the backend team will be adding proper CORS support
+                const apiUrl = 'https://personal-potions-api.vercel.app/api/customers/survey';
+                
+                console.log('Sending data to API...');
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -323,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
                     localStorage.setItem(data.customer.id, JSON.stringify(formData));
                     
-                    // Store hangover-specific metadata if present
+                    // Store hangover-specific metadata if present (handled the same as other use cases)
                     if (data.metadata && data.metadata.hangover) {
                         localStorage.setItem(`${data.customer.id}_hangover_metadata`, JSON.stringify(data.metadata.hangover));
                     }
@@ -337,6 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (error) {
                 console.error('Error submitting form:', error);
+                
                 const errorBubble = document.getElementById('submit-error-bubble');
                 if (errorBubble) {
                     errorBubble.textContent = error.message || 'Failed to submit survey. Please try again.';
