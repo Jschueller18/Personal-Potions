@@ -223,6 +223,69 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ensure first section is visible on page load
     goToSection(0);
     
+    // Update navigation button logic
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            goToSection(currentSectionIndex - 1);
+            updateSubmitButtonState();
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            // Only validate current section, not all sections
+            if (validateCurrentSection()) {
+                saveCurrentSectionData();
+                goToSection(currentSectionIndex + 1);
+                updateSubmitButtonState();
+            } else {
+                // Optionally, show a message for missing fields in this section
+                updateSubmitButtonState();
+            }
+        });
+    }
+
+    // Remove any auto-advance on input/change (no code should auto-advance)
+    // (No code to remove here, but ensure no such logic is present)
+
+    // Submit button logic: only check full form validity on click
+    if (submitBtn) {
+        submitBtn.style.display = 'inline-block';
+        updateSubmitButtonState();
+        submitBtn.addEventListener('click', function(e) {
+            // Always check full form validity on click
+            const isValid = validateAllSections();
+            if (!isValid) {
+                // Find missing fields in the current section
+                const section = formSections[currentSectionIndex];
+                const missing = getMissingFieldsInSection(section);
+                const errorBubble = document.getElementById('submit-error-bubble');
+                if (errorBubble) {
+                    if (missing.length === 0) {
+                        errorBubble.textContent = 'Survey incomplete. Please fill out all required fields.';
+                    } else if (missing.length <= 3) {
+                        errorBubble.textContent = 'Missing: ' + missing.join(', ');
+                    } else {
+                        errorBubble.textContent = 'Survey incomplete. Please fill out all required fields.';
+                    }
+                    errorBubble.style.display = 'block';
+                    setTimeout(() => { errorBubble.style.display = 'none'; }, 4000);
+                }
+                e.preventDefault();
+                return;
+            }
+            // If valid, proceed as normal (existing code will handle submission)
+            // Manually dispatch form submit event
+            if (form) {
+                const submitEvent = new Event('submit', {
+                    'bubbles': true,
+                    'cancelable': true
+                });
+                form.dispatchEvent(submitEvent);
+            }
+        });
+    }
+    
     // Handle electrolyte tooltip functionality
     function initElectrolyteTooltips() {
         // Electrolyte tooltip handling
@@ -368,104 +431,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add event listeners for progress navigation
-    progressLabels.forEach(function(label, index) {
-        label.addEventListener('click', function() {
-            goToSection(index);
-        });
-    });
-
-    // Add event listeners for prev/next/submit buttons
-    if (prevBtn) {
-        prevBtn.addEventListener('click', function() {
-            goToSection(currentSectionIndex - 1);
-        });
-    }
-
-    if (nextBtn) {
-        nextBtn.addEventListener('click', function() {
-            if (validateCurrentSection()) {
-                // Save data from current section before moving
-                saveCurrentSectionData();
-                goToSection(currentSectionIndex + 1);
-            }
-        });
-    }
-    
-    // Helper: Find missing required fields in the current section
-    function getMissingFieldsInSection(section) {
-        const missing = [];
-        const requiredInputs = section.querySelectorAll('[required]:not([type="checkbox"])');
-        requiredInputs.forEach(input => {
-            if (!input.value.trim() && !isHidden(input)) {
-                const label = section.querySelector(`label[for="${input.id}"]`);
-                missing.push(label ? label.textContent.trim() : input.name || input.id);
-            }
-        });
-        // Check required checkbox groups
-        section.querySelectorAll('input[type="checkbox"][required]').forEach(checkbox => {
-            const group = checkbox.name;
-            const checkboxes = section.querySelectorAll(`input[type="checkbox"][name="${group}"]`);
-            if (!Array.from(checkboxes).some(cb => cb.checked) && !isHidden(checkbox)) {
-                const groupLabel = section.querySelector(`label[for="${checkbox.id}"]`) || section.querySelector('label');
-                missing.push(groupLabel ? groupLabel.textContent.trim() : group);
-            }
-        });
-        return missing;
-    }
-
-    // Show/hide submit button state and error bubble
-    function updateSubmitButtonState() {
-        const isValid = validateAllSections();
-        const submitBtn = document.getElementById('submit-btn');
-        const errorBubble = document.getElementById('submit-error-bubble');
-        if (!submitBtn || !errorBubble) return;
-        if (isValid) {
-            submitBtn.classList.remove('inactive-submit');
-            errorBubble.style.display = 'none';
-        } else {
-            submitBtn.classList.add('inactive-submit');
-            errorBubble.style.display = 'none';
-        }
-    }
-
-    // Attach updateSubmitButtonState to all inputs
-    document.querySelectorAll('input, select, textarea').forEach(el => {
-        el.addEventListener('input', updateSubmitButtonState);
-        el.addEventListener('change', updateSubmitButtonState);
-    });
-    // Also update on section navigation
-    if (nextBtn) nextBtn.addEventListener('click', updateSubmitButtonState);
-    if (prevBtn) prevBtn.addEventListener('click', updateSubmitButtonState);
-
-    // Always show submit button, but make it inactive if not valid
-    if (submitBtn) {
-        submitBtn.style.display = 'inline-block';
-        updateSubmitButtonState();
-        submitBtn.addEventListener('click', function(e) {
-            if (submitBtn.classList.contains('inactive-submit')) {
-                // Find missing fields in the current section
-                const section = formSections[currentSectionIndex];
-                const missing = getMissingFieldsInSection(section);
-                const errorBubble = document.getElementById('submit-error-bubble');
-                if (errorBubble) {
-                    if (missing.length === 0) {
-                        errorBubble.textContent = 'Survey incomplete. Please fill out all required fields.';
-                    } else if (missing.length <= 3) {
-                        errorBubble.textContent = 'Missing: ' + missing.join(', ');
-                    } else {
-                        errorBubble.textContent = 'Survey incomplete. Please fill out all required fields.';
-                    }
-                    errorBubble.style.display = 'block';
-                    setTimeout(() => { errorBubble.style.display = 'none'; }, 4000);
-                }
-                e.preventDefault();
-                return;
-            }
-            // If valid, proceed as normal (existing code will handle submission)
-        });
-    }
-
     // Function to collect all data from all form sections
     function collectAllFormData() {
         console.log('Collecting all form data before submission');
@@ -538,11 +503,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Debug: log the full collected formData
         console.log('All form data collected (new schema):', formData);
-    }
-
-    // Function to save data from the current section
-    function saveCurrentSectionData() {
-        // Implementation of saveCurrentSectionData function
     }
 
     // Function to go to a specific section
@@ -621,6 +581,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            // Skip validation if the input is in a hidden parent
+            let parent = input.parentElement;
+            while (parent) {
+                if (isHidden(parent)) {
+                    return;
+                }
+                parent = parent.parentElement;
+            }
+            
             if (!input.value.trim()) {
                 isValid = false;
                 input.classList.add('invalid');
@@ -654,6 +623,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Skip validation if the container is hidden
             if (isHidden(container)) {
                 return;
+            }
+            
+            // Skip validation if any parent is hidden
+            let parent = container.parentElement;
+            while (parent) {
+                if (isHidden(parent)) {
+                    return;
+                }
+                parent = parent.parentElement;
             }
             
             let isGroupValid = false;
