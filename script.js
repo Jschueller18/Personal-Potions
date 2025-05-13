@@ -9,9 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submit-btn');
     const responseMessage = document.getElementById('response-message');
     
-    // Explicitly hide the submit button on page load
+    // Initialize submit button state
     if (submitBtn) {
-        submitBtn.style.display = 'none';
+        submitBtn.classList.add('inactive-submit');
     }
     
     // Debug elements
@@ -233,14 +233,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (nextBtn) {
         nextBtn.addEventListener('click', function() {
-            // Only validate current section, not all sections
+            // Only validate current section
             if (validateCurrentSection()) {
-                saveCurrentSectionData();
                 goToSection(currentSectionIndex + 1);
-                updateSubmitButtonState();
-            } else {
-                // Optionally, show a message for missing fields in this section
-                updateSubmitButtonState();
             }
         });
     }
@@ -252,37 +247,43 @@ document.addEventListener('DOMContentLoaded', function() {
     if (submitBtn) {
         submitBtn.style.display = 'inline-block';
         updateSubmitButtonState();
-        submitBtn.addEventListener('click', function(e) {
-            // Always check full form validity on click
+        submitBtn.addEventListener('click', function() {
             const isValid = validateAllSections();
+            const errorBubble = document.getElementById('submit-error-bubble');
+            
             if (!isValid) {
-                // Find missing fields in the current section
-                const section = formSections[currentSectionIndex];
-                const missing = getMissingFieldsInSection(section);
-                const errorBubble = document.getElementById('submit-error-bubble');
-                if (errorBubble) {
-                    if (missing.length === 0) {
-                        errorBubble.textContent = 'Survey incomplete. Please fill out all required fields.';
-                    } else if (missing.length <= 3) {
-                        errorBubble.textContent = 'Missing: ' + missing.join(', ');
-                    } else {
-                        errorBubble.textContent = 'Survey incomplete. Please fill out all required fields.';
-                    }
-                    errorBubble.style.display = 'block';
-                    setTimeout(() => { errorBubble.style.display = 'none'; }, 4000);
+                // Get missing fields
+                const missingFields = [];
+                formSections.forEach(section => {
+                    const inputs = section.querySelectorAll('input[required], select[required], textarea[required]');
+                    inputs.forEach(input => {
+                        if (!input.value && !isHidden(input)) {
+                            const label = input.previousElementSibling?.textContent || input.name;
+                            missingFields.push(label.trim());
+                        }
+                    });
+                });
+                
+                // Show error message
+                if (missingFields.length <= 3) {
+                    errorBubble.textContent = `Please complete: ${missingFields.join(', ')}`;
+                } else {
+                    errorBubble.textContent = 'Please complete all required fields before submitting';
                 }
-                e.preventDefault();
+                
+                errorBubble.style.display = 'block';
+                
+                // Hide error bubble after 4 seconds
+                setTimeout(() => {
+                    errorBubble.style.display = 'none';
+                }, 4000);
+                
                 return;
             }
-            // If valid, proceed as normal (existing code will handle submission)
-            // Manually dispatch form submit event
-            if (form) {
-                const submitEvent = new Event('submit', {
-                    'bubbles': true,
-                    'cancelable': true
-                });
-                form.dispatchEvent(submitEvent);
-            }
+            
+            // If valid, proceed with form submission
+            const formData = collectAllFormData();
+            submitForm(formData);
         });
     }
     
@@ -371,6 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // New conditional logic for use case details
     if (sweatReplacementCheckbox) {
         sweatReplacementCheckbox.addEventListener('change', function() {
+            console.log('Sweat replacement checkbox changed:', this.checked);
             sweatReplacementDetails.style.display = this.checked ? 'block' : 'none';
         });
         
@@ -382,6 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (bedtimeMixCheckbox) {
         bedtimeMixCheckbox.addEventListener('change', function() {
+            console.log('Bedtime mix checkbox changed:', this.checked);
             bedtimeDetails.style.display = this.checked ? 'block' : 'none';
         });
         
@@ -394,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Daily mix details conditional logic
     if (dailyDrinkCheckbox) {
         dailyDrinkCheckbox.addEventListener('change', function() {
+            console.log('Daily drink checkbox changed:', this.checked);
             dailyMixDetails.style.display = this.checked ? 'block' : 'none';
         });
         
@@ -406,6 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Menstrual support details conditional logic
     if (menstrualSupportCheckbox) {
         menstrualSupportCheckbox.addEventListener('change', function() {
+            console.log('Menstrual support checkbox changed:', this.checked);
             menstrualDetails.style.display = this.checked ? 'block' : 'none';
         });
         
@@ -418,6 +423,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Hangover cure details conditional logic
     if (hangoverSupportCheckbox) {
         hangoverSupportCheckbox.addEventListener('change', function() {
+            console.log('Hangover support checkbox changed:', this.checked);
             if (hangoverDetails) {
                 hangoverDetails.style.display = this.checked ? 'block' : 'none';
             } else {
@@ -528,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update progress
         updateFormProgress();
         
-        // Show/hide prev/next/submit buttons
+        // Show/hide prev/next buttons
         if (currentSectionIndex === 0) {
             prevBtn.style.display = 'none';
         } else {
@@ -537,11 +543,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (currentSectionIndex === formSections.length - 1) {
             nextBtn.style.display = 'none';
-            submitBtn.style.display = 'inline-block';
-            console.log('Last section reached, displaying submit button');
         } else {
             nextBtn.style.display = 'inline-block';
-            submitBtn.style.display = 'none';
+        }
+        
+        // Always show submit button but update its state
+        if (submitBtn) {
+            submitBtn.style.display = 'inline-block';
+            updateSubmitButtonState();
         }
     }
     
@@ -590,11 +599,64 @@ document.addEventListener('DOMContentLoaded', function() {
                 parent = parent.parentElement;
             }
             
-            if (!input.value.trim()) {
+            // Skip validation if the input is in a hidden use case details section
+            if (input.closest('.use-case-details') && !isUseCaseSelected(input.closest('.use-case-details').id)) {
+                return;
+            }
+            
+            // Special handling for "Other" text fields
+            if (input.id === 'usage-other-text' && document.getElementById('usage-other').checked) {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('invalid');
+                    
+                    let errorMessage = input.nextElementSibling;
+                    if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                        errorMessage = document.createElement('p');
+                        errorMessage.classList.add('error-message', 'visible');
+                        errorMessage.textContent = 'Please specify your other usage.';
+                        input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                    } else {
+                        errorMessage.classList.add('visible');
+                    }
+                } else {
+                    input.classList.remove('invalid');
+                    const errorMessage = input.nextElementSibling;
+                    if (errorMessage && errorMessage.classList.contains('error-message')) {
+                        errorMessage.classList.remove('visible');
+                    }
+                }
+            }
+            
+            // Special handling for "Other" flavor text field
+            if (input.id === 'flavor-other-text' && document.getElementById('flavor-other').checked) {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('invalid');
+                    
+                    let errorMessage = input.nextElementSibling;
+                    if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                        errorMessage = document.createElement('p');
+                        errorMessage.classList.add('error-message', 'visible');
+                        errorMessage.textContent = 'Please specify your other flavor preference.';
+                        input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                    } else {
+                        errorMessage.classList.add('visible');
+                    }
+                } else {
+                    input.classList.remove('invalid');
+                    const errorMessage = input.nextElementSibling;
+                    if (errorMessage && errorMessage.classList.contains('error-message')) {
+                        errorMessage.classList.remove('visible');
+                    }
+                }
+            }
+            
+            // Regular validation for other required fields
+            if (!input.value.trim() && !input.id.includes('-other-text')) {
                 isValid = false;
                 input.classList.add('invalid');
                 
-                // Add error message if not already present
                 let errorMessage = input.nextElementSibling;
                 if (!errorMessage || !errorMessage.classList.contains('error-message')) {
                     errorMessage = document.createElement('p');
@@ -604,10 +666,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     errorMessage.classList.add('visible');
                 }
-            } else {
+            } else if (!input.id.includes('-other-text')) {
                 input.classList.remove('invalid');
                 
-                // Remove any existing error message visibility
                 const errorMessage = input.nextElementSibling;
                 if (errorMessage && errorMessage.classList.contains('error-message')) {
                     errorMessage.classList.remove('visible');
@@ -634,6 +695,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 parent = parent.parentElement;
             }
             
+            // Skip validation if the checkbox group is in a hidden use case details section
+            if (container.closest('.use-case-details') && !isUseCaseSelected(container.closest('.use-case-details').id)) {
+                return;
+            }
+            
             let isGroupValid = false;
             checkboxes.forEach(checkbox => {
                 if (checkbox.checked) {
@@ -643,6 +709,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!isGroupValid) {
                 isValid = false;
+                container.classList.add('error');
                 
                 // Add error message if not already present
                 let errorMessage = container.nextElementSibling;
@@ -655,6 +722,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     errorMessage.classList.add('visible');
                 }
             } else {
+                container.classList.remove('error');
+                
                 // Remove any existing error message visibility
                 const errorMessage = container.nextElementSibling;
                 if (errorMessage && errorMessage.classList.contains('error-message')) {
@@ -1144,4 +1213,92 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error('FORM NOT FOUND! Cannot attach submit handler.');
     }
+
+    // Helper function to check if a use case is selected
+    function isUseCaseSelected(detailsId) {
+        const checkboxId = detailsId.replace('-details', '');
+        const checkbox = document.getElementById(checkboxId);
+        return checkbox && checkbox.checked;
+    }
+
+    // Function to update submit button state
+    function updateSubmitButtonState() {
+        const submitBtn = document.getElementById('submit-btn');
+        const errorBubble = document.getElementById('submit-error-bubble');
+        
+        if (!submitBtn) return;
+        
+        // Always show the submit button
+        submitBtn.style.display = 'inline-block';
+        
+        // Check if we're on the last section
+        const isLastSection = currentSectionIndex === formSections.length - 1;
+        
+        if (isLastSection) {
+            // Check if the form is valid
+            const isValid = validateAllSections();
+            
+            if (isValid) {
+                submitBtn.classList.remove('inactive-submit');
+                errorBubble.style.display = 'none';
+            } else {
+                submitBtn.classList.add('inactive-submit');
+            }
+        } else {
+            submitBtn.classList.add('inactive-submit');
+        }
+    }
+
+    // Function to save current section data
+    function saveCurrentSectionData() {
+        const currentSection = formSections[currentSectionIndex];
+        if (!currentSection) return;
+
+        // Get all form elements in the current section
+        const inputs = currentSection.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                // For checkboxes, store an array of checked values
+                const name = input.name;
+                if (!formData[name]) {
+                    formData[name] = [];
+                }
+                if (input.checked) {
+                    if (!formData[name].includes(input.value)) {
+                        formData[name].push(input.value);
+                    }
+                } else {
+                    formData[name] = formData[name].filter(v => v !== input.value);
+                }
+            } else if (input.type === 'radio') {
+                // For radio buttons, store the selected value
+                if (input.checked) {
+                    formData[input.name] = input.value;
+                }
+            } else {
+                // For other inputs (text, select, textarea), store the value
+                formData[input.name] = input.value;
+            }
+        });
+
+        console.log('Saved data for section', currentSectionIndex, ':', formData);
+    }
+
+    // Add event listeners to all form inputs to update validation and submit button state
+    const allInputs = form.querySelectorAll('input, select, textarea');
+    allInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            validateCurrentSection();
+            updateSubmitButtonState();
+        });
+        
+        // For text inputs, also validate on input for immediate feedback
+        if (input.type === 'text' || input.type === 'email' || input.type === 'number') {
+            input.addEventListener('input', function() {
+                validateCurrentSection();
+                updateSubmitButtonState();
+            });
+        }
+    });
 });

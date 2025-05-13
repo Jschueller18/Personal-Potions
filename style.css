@@ -338,17 +338,62 @@ button[type="submit"]:hover {
     background-color: #153B21;
 }
 
+/* Submit button styles */
 #submit-btn {
-    display: inline-block !important; /* Override any inline style */
+    display: inline-block !important;
     background-color: #1E4A2D;
     color: white;
     border: none;
     padding: 12px 20px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
     font-weight: 600;
     margin-top: 10px;
+}
+
+#submit-btn:hover:not(.inactive-submit) {
+    background-color: #153B21;
+}
+
+.inactive-submit {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Submit button container and error bubble */
+#submit-btn-container {
+    position: relative;
+    display: inline-block;
+}
+
+#submit-error-bubble {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 10px;
+    background-color: #D8000C;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#submit-error-bubble::before {
+    content: '';
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent #D8000C transparent transparent;
 }
 
 #response-message {
@@ -517,25 +562,69 @@ footer {
 
 /* Error state for validation */
 .error-message {
-  color: #CC3333;
-  font-size: 0.85em;
-  margin-top: 5px;
-  display: none;
+    color: #D8000C;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: none;
+    padding: 8px 12px;
+    background-color: rgba(216, 0, 12, 0.1);
+    border-radius: 4px;
+    border-left: 3px solid #D8000C;
 }
 
 .error-message.visible {
-  display: block;
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 input.invalid, select.invalid, textarea.invalid {
-  border-color: #CC3333;
+    border-color: #D8000C;
+    background-color: rgba(216, 0, 12, 0.05);
+}
+
+input.invalid:focus, select.invalid:focus, textarea.invalid:focus {
+    box-shadow: 0 0 0 3px rgba(216, 0, 12, 0.1);
 }
 
 /* Checkbox group error state */
 .checkbox-group.error {
-  border: 1px solid #CC3333;
-  border-radius: 4px;
-  padding: 5px;
+    border: 1px solid #D8000C;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: rgba(216, 0, 12, 0.05);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.checkbox-group.error .checkbox-item {
+    position: relative;
+}
+
+.checkbox-group.error .checkbox-item::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    background-color: #D8000C;
+    border-radius: 50%;
+}
+
+.checkbox-group.error .checkbox-item:first-child::after {
+    display: none;
+}
+
+/* Error message animation */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-5px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
 }
 
 /* Responsive adjustments */
@@ -855,34 +944,4 @@ input.invalid, select.invalid, textarea.invalid {
     .nutrient-name {
         font-size: 16px;
     }
-}
-
-/* Inactive submit button style */
-.inactive-submit {
-  opacity: 0.5;
-  pointer-events: none;
-  cursor: not-allowed;
-  transition: opacity 0.2s;
-}
-
-/* Message bubble for submit errors */
-#submit-error-bubble {
-  display: none;
-  position: absolute;
-  left: 0;
-  top: 110%;
-  background: #fff8e1;
-  color: #b71c1c;
-  border: 1px solid #ffd54f;
-  border-radius: 6px;
-  padding: 8px 14px;
-  font-size: 0.95em;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  z-index: 10;
-  min-width: 220px;
-}
-
-#submit-btn-container {
-  position: relative;
-  display: inline-block;
 }
