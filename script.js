@@ -247,11 +247,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (submitBtn) {
         submitBtn.style.display = 'inline-block';
         updateSubmitButtonState();
-        submitBtn.addEventListener('click', function() {
-            const isValid = validateAllSections();
+        submitBtn.addEventListener('click', async function() {
+            const isFormValid = validateAllSections();
             const errorBubble = document.getElementById('submit-error-bubble');
             
-            if (!isValid) {
+            if (!isFormValid) {
                 // Get missing fields
                 const missingFields = [];
                 formSections.forEach(section => {
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // If valid, proceed with form submission
             const formData = collectAllFormData();
-            submitForm(formData);
+            await submitForm(formData);
         });
     }
     
@@ -475,8 +475,25 @@ document.addEventListener('DOMContentLoaded', function() {
             formData['menstrual-status'] = document.getElementById('menstrual-status')?.value || null;
         }
         if (formData.usage.includes('hangover')) {
-            formData['hangover-symptoms'] = document.getElementById('hangover-symptoms')?.value || null;
-            formData['hangover-timing'] = document.getElementById('hangover-timing')?.value || null;
+            // Convert hangover symptoms to array and filter out empty values
+            const hangoverSymptomsElement = document.getElementById('hangover-symptoms');
+            if (hangoverSymptomsElement) {
+                const symptoms = hangoverSymptomsElement.value
+                    .split(',')
+                    .map(s => s.trim())
+                    .filter(s => s);
+                formData['hangover-symptoms'] = symptoms;
+            }
+            
+            // Ensure hangover timing is one of the valid values, default to 'during' if invalid
+            const hangoverTimingElement = document.getElementById('hangover-timing');
+            if (hangoverTimingElement) {
+                const timing = hangoverTimingElement.value;
+                formData['hangover-timing'] = ['before', 'during', 'after'].includes(timing) ? 
+                    timing : 'during';
+            } else {
+                formData['hangover-timing'] = 'during';
+            }
         }
 
         // --- Dietary Information ---
@@ -986,229 +1003,93 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form submit event
     if (form) {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
-            console.log('Form submit event triggered. Collecting all data...');
+            console.log('Form submitted');
             
-            // Save the current section data first
-            saveCurrentSectionData();
-            
-            // Make sure we have all data collected from all sections
-            collectAllFormData();
-            
-            // Make sure we have all required fields - particularly check for email
-            const emailField = document.querySelector('input[type="email"]');
-            if (emailField) {
-                console.log('Email field found with value:', emailField.value);
-                formData.email = emailField.value;
-            } else {
-                console.warn('Email field not found in the form!');
-            }
-            
-            // Check if email is missing or empty
-            if (!formData.email) {
-                console.error('Email is required but missing or empty');
-                if (responseMessage) {
-                    responseMessage.textContent = 'Please provide your email address to receive your personalized mix details.';
-                    responseMessage.style.color = "#D8000C";
-                    responseMessage.classList.add('visible');
-                }
-                return; // Stop submission if email is missing
-            }
-            
-            // Simple validation
-            if (!validateAllSections()) {
-                console.warn('Form validation failed. Stopping submission.');
+            // Validate all sections before submission
+            const isFormValid = validateAllSections();
+            if (!isFormValid) {
+                console.log('Form validation failed');
                 return;
             }
             
-            // Format data for the backend API
-            // Map our form data to match exactly what the backend expects (per provided schema)
+            // Collect all form data
+            const formData = collectAllFormData();
+            console.log('Collected form data:', formData);
+            
+            // Prepare customer data
             const customerData = {
-                // --- Basic Personal Information ---
-                firstName: formData['first-name'] || '',
-                lastName: formData['last-name'] || '',
-                email: formData['email'] || '',
-                age: typeof formData['age'] === 'number' ? formData['age'] : null,
-                weight: typeof formData['weight'] === 'number' ? formData['weight'] : null,
-                biologicalSex: formData['biological-sex'] || '',
-                feedback: formData['feedback'] || '',
-
-                // --- Usage & Goals ---
-                usage: Array.isArray(formData.usage) ? formData.usage : [],
-
-                // --- Conditional Usage Details ---
-                ...(formData.usage.includes('daily') ? {
-                    dailyGoals: Array.isArray(formData['daily-goals']) ? formData['daily-goals'] : [],
-                    waterIntake: formData['water-intake'] || null
-                } : {}),
-                ...(formData.usage.includes('sweat') ? {
-                    workoutDuration: formData['workout-duration'] || null,
-                    workoutIntensity: formData['workout-intensity'] || null
-                } : {}),
-                ...(formData.usage.includes('bedtime') ? {
-                    sleepGoals: Array.isArray(formData['sleep-goals']) ? formData['sleep-goals'] : []
-                } : {}),
-                ...(formData.usage.includes('menstrual') ? {
-                    menstrualSymptoms: Array.isArray(formData['menstrual-symptoms']) ? formData['menstrual-symptoms'] : [],
-                    symptomSeverity: formData['symptom-severity'] || null,
-                    menstrualFlow: formData['menstrual-flow'] || null,
-                    waterRetention: formData['water-retention'] || null,
-                    muscleTension: formData['muscle-tension'] || null,
-                    menstrualStatus: formData['menstrual-status'] || null
-                } : {}),
-                ...(formData.usage.includes('hangover') ? {
-                    hangoverSymptoms: formData['hangover-symptoms'] || null,
-                    hangoverTiming: formData['hangover-timing'] || null
-                } : {}),
-
-                // --- Dietary Information ---
-                dietType: formData['diet-type'] || '',
-                proteinIntake: formData['protein-intake'] || '',
-                sodiumIntake: typeof formData['sodium-intake'] === 'number' ? formData['sodium-intake'] : null,
-                potassiumIntake: typeof formData['potassium-intake'] === 'number' ? formData['potassium-intake'] : null,
-                magnesiumIntake: typeof formData['magnesium-intake'] === 'number' ? formData['magnesium-intake'] : null,
-                calciumIntake: typeof formData['calcium-intake'] === 'number' ? formData['calcium-intake'] : null,
-                dairyIntake: typeof formData['dairy-intake'] === 'number' ? formData['dairy-intake'] : null,
-                sodiumSupplement: typeof formData['sodium-supplement'] === 'number' ? formData['sodium-supplement'] : null,
-                potassiumSupplement: typeof formData['potassium-supplement'] === 'number' ? formData['potassium-supplement'] : null,
-                magnesiumSupplement: typeof formData['magnesium-supplement'] === 'number' ? formData['magnesium-supplement'] : null,
-                calciumSupplement: typeof formData['calcium-supplement'] === 'number' ? formData['calcium-supplement'] : null,
-
-                // --- Health Profile ---
-                activityLevel: formData['activity-level'] || '',
-                exerciseType: Array.isArray(formData['exercise-type']) ? formData['exercise-type'] : [],
-                sweatLevel: formData['sweat-level'] || '',
-                vitaminDStatus: formData['vitamin-d-status'] || '',
-                boneHealth: Array.isArray(formData['bone-health']) ? formData['bone-health'] : [],
-                healthConditions: Array.isArray(formData['conditions']) ? formData['conditions'] : [],
-                hydrationChallenges: Array.isArray(formData['hydration-challenges']) ? formData['hydration-challenges'] : [],
-
-                // --- Flavor Preferences ---
-                flavor: formData['flavor'] || '',
-                flavorIntensity: formData['flavor-intensity'] || '',
-                sweetenerAmount: formData['sweetener-amount'] || '',
-                sweetenerType: formData['sweetener-type'] || ''
+                name: formData['first-name'] + ' ' + formData['last-name'],
+                email: formData['email'],
+                phone: document.getElementById('phone')?.value || '',
+                age: parseInt(formData['age']),
+                gender: formData['biological-sex'],
+                weight: parseFloat(formData['weight']),
+                height: parseFloat(document.getElementById('height')?.value) || null,
+                activityLevel: formData['activity-level'],
+                dietaryRestrictions: formData['diet-type'],
+                healthConditions: formData['conditions'],
+                medications: document.getElementById('medications')?.value || '',
+                allergies: document.getElementById('allergies')?.value || '',
+                goals: formData['daily-goals'] || [],
+                usage: formData['usage'],
+                flavorPreferences: formData['flavor'],
+                caffeinePreference: document.getElementById('caffeine-preference')?.value || '',
+                servingSize: formData['sweetener-amount'] === 'none' ? 0 : (formData['sweetener-amount'] === 'light' ? 100 : (formData['sweetener-amount'] === 'medium' ? 200 : 300)),
+                ...(formData['usage'].includes('hangover') ? {
+                    hangoverSymptoms: Array.isArray(formData['hangover-symptoms']) ? formData['hangover-symptoms'] : [],
+                    hangoverTiming: ['before', 'during', 'after'].includes(formData['hangover-timing']) ? formData['hangover-timing'] : null
+                } : {})
             };
-            // Debug: log the full mapped customerData
-            console.log('Mapped customerData for backend:', customerData);
             
-            // Format validation - check if required fields are present
-            const requiredFields = ['email'];
-            const missingFields = requiredFields.filter(field => !customerData[field]);
+            console.log('Prepared customer data:', customerData);
             
-            console.log('DEBUG - Email value:', formData.email);
-            console.log('DEBUG - Original form data:', formData);
-            console.log('DEBUG - Formatted customer data:', customerData);
-            console.log('DEBUG - Missing required fields:', missingFields);
-            
-            // Also check that usage has at least one value (required by backend)
-            const usageEmpty = !customerData.usage || customerData.usage.length === 0;
-            if (usageEmpty) {
-                // Double-check for selected checkboxes in the DOM before showing error
-                const selectedUsageCheckboxes = document.querySelectorAll('input[name="usage"]:checked');
-                if (selectedUsageCheckboxes.length > 0) {
-                    // We found checkboxes that are selected but not in formData, update the formData
-                    customerData.usage = Array.from(selectedUsageCheckboxes).map(cb => cb.value);
-                    console.log('Fixed: Found selected usage checkboxes in DOM:', customerData.usage);
-                } else {
-                    console.warn('Usage array is empty - this is required by backend');
-                    if (missingFields.length === 0) {
-                        missingFields.push('usage');
-                    }
-                }
-            }
-            
-            if (missingFields.length > 0) {
-                console.warn('Warning: Missing required fields:', missingFields);
-                // Display error message for missing required field
-                if (responseMessage) {
-                    if (missingFields.includes('email')) {
-                        responseMessage.textContent = 'Please provide your email address to receive your personalized mix details.';
-                    } else if (missingFields.includes('usage')) {
-                        responseMessage.textContent = 'Please select at least one usage scenario for your electrolyte mix.';
-                    } else {
-                        responseMessage.textContent = 'Please fill out all required fields before submitting.';
-                    }
-                    responseMessage.style.color = "#D8000C";
-                    responseMessage.classList.add('visible');
-                }
-                return;
-            }
-            
-            // Log data for debugging
-            console.log('Submitting to backend API:', customerData);
-            
-            // Show loading state
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
-            }
-            
-            // Add more detailed logging for debugging
-            console.log('Sending API request to:', '/api/customers/survey');
-            console.log('With headers:', {'Content-Type': 'application/json'});
-            console.log('Sending customer data payload:', JSON.stringify(customerData, null, 2));
-            
-            // Determine the API URL based on the current environment
-            const apiUrl = window.location.hostname === 'localhost' || 
-                          window.location.hostname === '127.0.0.1' ? 
-                          '/api/customers/survey' : '/api/customers/survey';
-            
-            console.log('Using API URL:', apiUrl);
-            
-            // Send the data to the backend API
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(customerData)
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', [...response.headers].map(h => `${h[0]}: ${h[1]}`).join(', '));
+            try {
+                const response = await fetch('/api/customers/survey', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(customerData)
+                });
+                
                 if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.status);
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to submit survey');
                 }
-                return response.json();
-            })
-            .then(data => {
+                
+                const data = await response.json();
                 console.log('Success response data:', data);
                 
-                // Store submission ID for debug purposes
+                // Store submission ID and data for debug purposes
                 if (data.customer && data.customer.id) {
                     localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
                     localStorage.setItem(data.customer.id, JSON.stringify(customerData));
+                    
+                    // Store hangover-specific metadata if present
+                    if (data.metadata && data.metadata.hangover) {
+                        localStorage.setItem(`${data.customer.id}_hangover_metadata`, JSON.stringify(data.metadata.hangover));
+                    }
+                    
                     console.log('Stored submission ID in localStorage:', data.customer.id);
+                    
+                    // Redirect to results page with customer ID
+                    window.location.href = `/results.html?customerId=${data.customer.id}`;
                 } else {
-                    console.warn('Customer ID not found in response data');
+                    throw new Error('Customer ID not found in response');
                 }
-                
-                // Redirect to success page
-                console.log('Redirecting to results page');
-                window.location.href = 'results.html';
-            })
-            .catch(error => {
-                console.error('Error details:', error);
-                console.error('Error message:', error.message);
-                if (error.response) {
-                    console.error('Error response:', error.response);
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                const errorBubble = document.getElementById('submit-error-bubble');
+                if (errorBubble) {
+                    errorBubble.textContent = error.message || 'Failed to submit survey. Please try again.';
+                    errorBubble.style.display = 'block';
+                    setTimeout(() => {
+                        errorBubble.style.display = 'none';
+                    }, 4000);
                 }
-                
-                // Show error message
-                if (responseMessage) {
-                    responseMessage.textContent = 'Sorry, there was an error submitting your form. Please try again later.';
-                    responseMessage.style.color = "#D8000C";
-                    responseMessage.classList.add('visible');
-                }
-                
-                // Re-enable submit button
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit';
-                }
-            });
+            }
         });
     } else {
         console.error('FORM NOT FOUND! Cannot attach submit handler.');
