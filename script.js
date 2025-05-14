@@ -286,8 +286,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Sending data to API...');
             
-            // Use the fetch format recommended by the backend
-            fetch('https://personal-potions-api.vercel.app/api/customers/survey', {
+            // Use CORS proxy to work around CORS issues with Vercel serverless functions
+            fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://personal-potions-api.vercel.app/api/customers/survey'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
