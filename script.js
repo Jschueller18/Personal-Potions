@@ -286,26 +286,67 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Sending data to API...');
             
-            // Use CORS proxy to work around CORS issues with Vercel serverless functions
-            fetch('https://cors-anywhere.herokuapp.com/https://personal-potions-api.vercel.app/api/customers/survey', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    // If status code is not 2xx, parse the error
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.message || `Error: ${response.status} ${response.statusText}`);
-                    }).catch(() => {
-                        // If JSON parsing fails, use status text
-                        throw new Error(`Error: ${response.status} ${response.statusText}`);
-                    });
+            // Function to attempt submission with different CORS proxies
+            const attemptSubmission = async (proxyIndex = 0) => {
+                // List of proxy options to try in order
+                const proxyOptions = [
+                    {
+                        url: 'https://proxy.cors.sh/https://personal-potions-api.vercel.app/api/customers/survey',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-cors-api-key': 'temp_a42397c73493ea5c7ecc4a2c64722fec'
+                        }
+                    },
+                    {
+                        url: 'https://corsproxy.io/?https://personal-potions-api.vercel.app/api/customers/survey',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    },
+                    {
+                        url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://personal-potions-api.vercel.app/api/customers/survey'),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                ];
+                
+                // If we've tried all proxies, throw an error
+                if (proxyIndex >= proxyOptions.length) {
+                    throw new Error('All CORS proxies failed. Please try again later.');
                 }
-                return response.json();
-            })
+                
+                // Get the current proxy option
+                const proxyOption = proxyOptions[proxyIndex];
+                console.log(`Attempting submission with proxy option ${proxyIndex + 1}/${proxyOptions.length}`);
+                
+                try {
+                    const response = await fetch(proxyOption.url, {
+                        method: 'POST',
+                        headers: proxyOption.headers,
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    if (!response.ok) {
+                        // If status code is not 2xx, parse the error
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || `Error: ${response.status} ${response.statusText}`);
+                        }).catch(() => {
+                            // If JSON parsing fails, use status text
+                            throw new Error(`Error: ${response.status} ${response.statusText}`);
+                        });
+                    }
+                    
+                    return response.json();
+                } catch (error) {
+                    console.error(`Proxy ${proxyIndex + 1} failed:`, error);
+                    // Try the next proxy
+                    return attemptSubmission(proxyIndex + 1);
+                }
+            };
+            
+            // Start the submission process with the first proxy
+            attemptSubmission()
             .then(data => {
                 console.log('Success response data:', data);
                 
@@ -314,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
                     localStorage.setItem(data.customer.id, JSON.stringify(formData));
                     
-                    // Store hangover-specific metadata if present (handled the same as other use cases)
+                    // Store hangover-specific metadata if present
                     if (data.metadata && data.metadata.hangover) {
                         localStorage.setItem(`${data.customer.id}_hangover_metadata`, JSON.stringify(data.metadata.hangover));
                     }

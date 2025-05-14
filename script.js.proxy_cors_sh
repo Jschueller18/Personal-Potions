@@ -1,0 +1,1178 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // Get form elements
+    const form = document.getElementById('survey-form');
+    const formSections = document.querySelectorAll('.form-section');
+    const progressBar = document.getElementById('form-progress');
+    const progressLabels = document.querySelectorAll('.progress-label');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const responseMessage = document.getElementById('response-message');
+    
+    // Initialize submit button state
+    if (submitBtn) {
+        submitBtn.classList.add('inactive-submit');
+    }
+    
+    // Debug elements
+    const debugArea = document.getElementById('debug-area');
+    const debugMessage = document.getElementById('debug-message');
+    const viewDataBtn = document.getElementById('view-data-btn');
+    
+    // Enable debug mode with URL parameter ?debug=true
+    const urlParams = new URLSearchParams(window.location.search);
+    const debugMode = urlParams.get('debug') === 'true';
+    
+    // Check for success parameter in URL
+    const success = urlParams.get('success');
+    if (success === 'true' && responseMessage) {
+        responseMessage.textContent = "Thank you! Your personalized electrolyte mix details will be sent to your email shortly.";
+        responseMessage.style.color = "#1E4A2D";
+        responseMessage.classList.add('visible');
+        
+        // Scroll to top to show success message
+        window.scrollTo(0, 0);
+    }
+    
+    if (debugMode && debugArea) {
+        debugArea.style.display = 'block';
+        console.log('Debug mode enabled');
+        
+        // Check for previous submissions
+        const latestSubmissionId = localStorage.getItem('personalPotionsLatestSubmission');
+        if (latestSubmissionId) {
+            debugMessage.textContent = `Latest submission: ${latestSubmissionId}`;
+        }
+        
+        // Add view data button functionality
+        if (viewDataBtn) {
+            viewDataBtn.addEventListener('click', function() {
+                const latestId = localStorage.getItem('personalPotionsLatestSubmission');
+                if (latestId) {
+                    const submissionData = localStorage.getItem(latestId);
+                    console.log('Latest submission data:', JSON.parse(submissionData));
+                    alert('Submission data printed to console');
+                } else {
+                    alert('No submissions found');
+                }
+            });
+        }
+    }
+
+    // Form data object to store all responses
+    let formData = {};
+
+    // Debug buttons
+    console.log('Submit button found:', !!submitBtn);
+    if (submitBtn) {
+        console.log('Submit button initial display:', getComputedStyle(submitBtn).display);
+    }
+
+    // Show "Other" text fields when "Other" option is selected
+    const usageOtherCheckbox = document.getElementById('usage-other');
+    const usageOtherContainer = document.getElementById('usage-other-container');
+    
+    const flavorOtherRadio = document.getElementById('flavor-other');
+    const flavorOtherContainer = document.getElementById('flavor-other-container');
+    
+    const sweetenerAmount = document.getElementById('sweetener-amount');
+    const sweetenerTypeContainer = document.getElementById('sweetener-type-container');
+
+    // New conditional elements
+    const femaleRadio = document.getElementById('sex-female');
+    const femaleSpecificQuestions = document.getElementById('female-specific-questions');
+    
+    const sweatReplacementCheckbox = document.getElementById('sweat-replacement');
+    const sweatReplacementDetails = document.getElementById('sweat-replacement-details');
+    
+    const bedtimeMixCheckbox = document.getElementById('bedtime-mix');
+    const bedtimeDetails = document.getElementById('bedtime-details');
+    
+    const dailyDrinkCheckbox = document.getElementById('daily-drink');
+    const dailyMixDetails = document.getElementById('daily-mix-details');
+    
+    const menstrualSupportCheckbox = document.getElementById('menstrual-support');
+    const menstrualDetails = document.getElementById('menstrual-details');
+    
+    const hangoverSupportCheckbox = document.getElementById('hangover-support');
+    const hangoverDetails = document.getElementById('hangover-details');
+
+    // Current section index
+    let currentSectionIndex = 0;
+    
+    // Initialize tooltips and tooltip handling
+    initTooltips();
+    initElectrolyteTooltips();
+    
+    // Initialize nutrient data
+    const NUTRIENT_DATA = {
+        sodium: {
+            servingSize: 500,
+            averageAmerican: { servings: 6.8, mg: 3400 },
+            recommended: { servingsMin: 4.6, servingsMax: 10, mgMin: 2300, mgMax: 5000 },
+            note: "Higher for athletes/larger individuals",
+            examples: ["1/4 tsp salt", "1 cup canned soup", "3 slices bacon", "1 fast food burger"],
+            listUrl: "sodium-rich-foods.html"
+        },
+        potassium: {
+            servingSize: 400,
+            averageAmerican: { servings: 6.25, mg: 2500 },
+            recommended: { servingsMin: 8.75, servingsMax: 17.5, mgMin: 3500, mgMax: 7000 },
+            note: "Varies by activity level and size",
+            examples: ["1 banana", "1/2 avocado", "1 cup leafy greens", "1/2 cup beans"],
+            listUrl: "potassium-rich-foods.html"
+        },
+        magnesium: {
+            servingSize: 100,
+            averageAmerican: { servings: 2.5, mg: 250 },
+            recommended: { servingsMin: 3.1, servingsMax: 7.5, mgMin: 310, mgMax: 750 },
+            note: "Higher needs for athletes",
+            examples: ["1 oz nuts", "1/2 cup beans", "1 oz dark chocolate", "2 tbsp peanut butter"],
+            listUrl: "magnesium-rich-foods.html"
+        },
+        calcium: {
+            servingSize: 300,
+            averageAmerican: { servings: 3, mg: 900 },
+            recommended: { servingsMin: 3.3, servingsMax: 6.7, mgMin: 1000, mgMax: 2000 },
+            note: "Higher for younger/older adults",
+            examples: ["1 cup milk", "1 cup yogurt", "1.5 oz cheese", "1/2 cup tofu"],
+            listUrl: "calcium-rich-foods.html"
+        }
+    };
+    
+    // Initialize the dietary estimation toggle and quick estimate functionality
+    initDietaryEstimation();
+    
+    // Function to handle the dietary estimation toggle and quick estimate options
+    function initDietaryEstimation() {
+        // Get toggle buttons
+        const quickEstimateToggle = document.getElementById('quick-estimate-toggle');
+        const detailedEstimateToggle = document.getElementById('detailed-estimate-toggle');
+        
+        // Get all quick estimate containers
+        const quickEstimateContainers = document.querySelectorAll('.quick-estimate-container');
+        
+        // Handle toggle button clicks
+        if (quickEstimateToggle && detailedEstimateToggle) {
+            quickEstimateToggle.addEventListener('click', function() {
+                // Activate quick estimate
+                quickEstimateToggle.classList.add('active');
+                detailedEstimateToggle.classList.remove('active');
+                
+                // Show quick estimate containers
+                quickEstimateContainers.forEach(container => {
+                    container.style.display = 'block';
+                });
+            });
+            
+            detailedEstimateToggle.addEventListener('click', function() {
+                // Activate detailed count
+                detailedEstimateToggle.classList.add('active');
+                quickEstimateToggle.classList.remove('active');
+                
+                // Hide quick estimate containers
+                quickEstimateContainers.forEach(container => {
+                    container.style.display = 'none';
+                });
+            });
+        }
+        
+        // Handle quick estimate radio buttons for each nutrient
+        ['sodium', 'potassium', 'magnesium', 'calcium'].forEach(nutrient => {
+            const radioButtons = document.querySelectorAll(`input[name="${nutrient}-estimate"]`);
+            const inputField = document.getElementById(`${nutrient}-intake`);
+            
+            if (radioButtons.length && inputField) {
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (this.checked) {
+                            // Calculate value based on selection
+                            const baseValue = NUTRIENT_DATA[nutrient].averageAmerican.servings;
+                            let factor = 1.0; // Default (average)
+                            
+                            if (this.value === 'low') {
+                                factor = 0.5;
+                            } else if (this.value === 'high') {
+                                factor = 1.5;
+                            }
+                            
+                            // Set the input value (rounded to 1 decimal place)
+                            inputField.value = (baseValue * factor).toFixed(1);
+                        }
+                    });
+                });
+            }
+        });
+        
+        // Set initial state (quick estimate active)
+        if (quickEstimateToggle && quickEstimateContainers.length) {
+            // Make sure quick estimate is active on page load
+            quickEstimateToggle.classList.add('active');
+            detailedEstimateToggle.classList.remove('active');
+            
+            // Show quick estimate containers
+            quickEstimateContainers.forEach(container => {
+                container.style.display = 'block';
+            });
+        }
+    }
+    
+    // Initialize
+    updateFormProgress();
+    
+    // Ensure first section is visible on page load
+    goToSection(0);
+    
+    // Update navigation button logic
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            goToSection(currentSectionIndex - 1);
+            updateSubmitButtonState();
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            // Only validate current section
+            if (validateCurrentSection()) {
+                goToSection(currentSectionIndex + 1);
+            }
+        });
+    }
+
+    // Remove any auto-advance on input/change (no code should auto-advance)
+    // (No code to remove here, but ensure no such logic is present)
+
+    // Submit button logic: only check full form validity on click
+    if (submitBtn) {
+        submitBtn.style.display = 'inline-block';
+        updateSubmitButtonState();
+        submitBtn.addEventListener('click', async function() {
+            const isFormValid = validateAllSections();
+            const errorBubble = document.getElementById('submit-error-bubble');
+            
+            if (!isFormValid) {
+                // Get missing fields
+                const missingFields = [];
+                formSections.forEach(section => {
+                    const inputs = section.querySelectorAll('input[required], select[required], textarea[required]');
+                    inputs.forEach(input => {
+                        if (!input.value && !isHidden(input)) {
+                            const label = input.previousElementSibling?.textContent || input.name;
+                            missingFields.push(label.trim());
+                        }
+                    });
+                });
+                
+                // Show error message
+                if (missingFields.length <= 3) {
+                    errorBubble.textContent = `Please complete: ${missingFields.join(', ')}`;
+                } else {
+                    errorBubble.textContent = 'Please complete all required fields before submitting';
+                }
+                
+                errorBubble.style.display = 'block';
+                
+                // Hide error bubble after 4 seconds
+                setTimeout(() => {
+                    errorBubble.style.display = 'none';
+                }, 4000);
+                
+                return;
+            }
+            
+            // If valid, proceed with form submission
+            const formData = collectAllFormData();
+            
+            console.log('Sending data to API...');
+            
+            // Use a reliable CORS proxy to access the backend API
+            fetch('https://proxy.cors.sh/https://personal-potions-api.vercel.app/api/customers/survey', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-cors-api-key': 'temp_a42397c73493ea5c7ecc4a2c64722fec', // Free tier key
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // If status code is not 2xx, parse the error
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || `Error: ${response.status} ${response.statusText}`);
+                    }).catch(() => {
+                        // If JSON parsing fails, use status text
+                        throw new Error(`Error: ${response.status} ${response.statusText}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success response data:', data);
+                
+                // Store submission ID and data for debug purposes
+                if (data.customer && data.customer.id) {
+                    localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
+                    localStorage.setItem(data.customer.id, JSON.stringify(formData));
+                    
+                    // Store hangover-specific metadata if present
+                    if (data.metadata && data.metadata.hangover) {
+                        localStorage.setItem(`${data.customer.id}_hangover_metadata`, JSON.stringify(data.metadata.hangover));
+                    }
+                    
+                    console.log('Stored submission ID in localStorage:', data.customer.id);
+                    
+                    // Redirect to results page with customer ID
+                    window.location.href = `/results.html?customerId=${data.customer.id}`;
+                } else {
+                    throw new Error('Customer ID not found in response');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting form:', error);
+                
+                const errorBubble = document.getElementById('submit-error-bubble');
+                if (errorBubble) {
+                    errorBubble.textContent = error.message || 'Failed to submit survey. Please try again.';
+                    errorBubble.style.display = 'block';
+                    setTimeout(() => {
+                        errorBubble.style.display = 'none';
+                    }, 4000);
+                }
+            });
+        });
+    }
+    
+    // Handle electrolyte tooltip functionality
+    function initElectrolyteTooltips() {
+        // Electrolyte tooltip handling
+        const tooltipButtons = document.querySelectorAll('.electrolyte-link');
+        const tooltipContainers = document.querySelectorAll('.electrolyte-tooltip');
+        
+        tooltipButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-tooltip');
+                
+                tooltipContainers.forEach(container => {
+                    if (container.id === targetId) {
+                        container.style.display = container.style.display === 'block' ? 'none' : 'block';
+                    } else {
+                        container.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // Close tooltips when clicking the X button
+        document.querySelectorAll('.tooltip-close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                this.closest('.electrolyte-tooltip').style.display = 'none';
+            });
+        });
+    }
+    
+    // Add event listeners for tooltips
+    function initTooltips() {
+        const tooltips = document.querySelectorAll('.tooltip-icon');
+        tooltips.forEach(tooltip => {
+            tooltip.addEventListener('mouseenter', function() {
+                // Nothing needed here, CSS handles the display
+            });
+        });
+    }
+    
+    // Event listeners for "Other" options
+    if (usageOtherCheckbox) {
+        usageOtherCheckbox.addEventListener('change', function() {
+            usageOtherContainer.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+    
+    if (flavorOtherRadio) {
+        flavorOtherRadio.addEventListener('change', function() {
+            flavorOtherContainer.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+    
+    if (sweetenerAmount) {
+        sweetenerAmount.addEventListener('change', function() {
+            sweetenerTypeContainer.style.display = this.value === 'none' ? 'none' : 'block';
+        });
+    }
+    
+    // New conditional logic for female-specific questions
+    if (femaleRadio) {
+        femaleRadio.addEventListener('change', function() {
+            if (this.checked) {
+                femaleSpecificQuestions.style.display = 'block';
+            }
+        });
+        
+        // Also check on page load (in case of form reset/reload)
+        if (femaleRadio.checked) {
+            femaleSpecificQuestions.style.display = 'block';
+        }
+        
+        // Hide when male is selected
+        const maleRadio = document.getElementById('sex-male');
+        if (maleRadio) {
+            maleRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    femaleSpecificQuestions.style.display = 'none';
+                }
+            });
+        }
+    }
+    
+    // Add event listeners for use case selection
+    document.querySelectorAll('input[name="usage"]').forEach(input => {
+        input.addEventListener('change', function() {
+            // Get all selected use cases
+            const selectedUseCases = Array.from(document.querySelectorAll('input[name="usage"]:checked')).map(cb => cb.value);
+            console.log('Selected use cases:', selectedUseCases);
+            
+            // Handle each use case section
+            const workoutSection = document.getElementById('sweat-replacement-details');
+            const bedtimeSection = document.getElementById('bedtime-details');
+            const dailySection = document.getElementById('daily-mix-details');
+            const menstrualSection = document.getElementById('menstrual-details');
+            const hangoverSection = document.getElementById('hangover-details');
+            
+            // Show/hide sections based on selected use cases
+            if (workoutSection) {
+                workoutSection.style.display = selectedUseCases.includes('sweat') ? 'block' : 'none';
+            }
+            if (bedtimeSection) {
+                bedtimeSection.style.display = selectedUseCases.includes('bedtime') ? 'block' : 'none';
+            }
+            if (dailySection) {
+                dailySection.style.display = selectedUseCases.includes('daily') ? 'block' : 'none';
+            }
+            if (menstrualSection) {
+                menstrualSection.style.display = selectedUseCases.includes('menstrual') ? 'block' : 'none';
+            }
+            if (hangoverSection) {
+                hangoverSection.style.display = selectedUseCases.includes('hangover') ? 'block' : 'none';
+            }
+            
+            // Save the current section data
+            saveCurrentSectionData();
+        });
+    });
+
+    // Function to collect all data from all form sections
+    function collectAllFormData() {
+        console.log('Collecting all form data before submission');
+        formData = {}; // Reset to avoid stale data
+
+        // --- Basic Personal Information ---
+        formData['first-name'] = document.getElementById('first-name')?.value || '';
+        formData['last-name'] = document.getElementById('last-name')?.value || '';
+        formData['email'] = document.getElementById('email')?.value || '';
+        formData['age'] = document.getElementById('age')?.value ? Number(document.getElementById('age').value) : null;
+        formData['weight'] = document.getElementById('weight')?.value ? Number(document.getElementById('weight').value) : null;
+        formData['biological-sex'] = document.querySelector('input[name="biological-sex"]:checked')?.value || '';
+        formData['feedback'] = document.getElementById('additional-info')?.value || '';
+
+        // --- Usage & Goals ---
+        formData.usage = Array.from(document.querySelectorAll('input[name="usage"]:checked')).map(cb => cb.value);
+
+        // --- Conditional Usage Details ---
+        if (formData.usage.includes('daily')) {
+            formData['daily-goals'] = Array.from(document.querySelectorAll('input[name="daily-goals"]:checked')).map(cb => cb.value);
+            formData['water-intake'] = document.getElementById('water-intake')?.value || null;
+        }
+        if (formData.usage.includes('sweat')) {
+            formData['workout-duration'] = document.getElementById('workout-duration')?.value || null;
+            formData['workout-intensity'] = document.getElementById('workout-intensity')?.value || null;
+        }
+        if (formData.usage.includes('bedtime')) {
+            formData['sleep-goals'] = Array.from(document.querySelectorAll('input[name="sleep-goals"]:checked')).map(cb => cb.value);
+        }
+        if (formData.usage.includes('menstrual')) {
+            formData['menstrual-symptoms'] = Array.from(document.querySelectorAll('input[name="menstrual-symptoms"]:checked')).map(cb => cb.value);
+            formData['symptom-severity'] = document.getElementById('symptom-severity')?.value || null;
+            formData['menstrual-flow'] = document.getElementById('menstrual-flow')?.value || null;
+            formData['water-retention'] = document.getElementById('water-retention')?.value || null;
+            formData['muscle-tension'] = document.getElementById('muscle-tension')?.value || null;
+            formData['menstrual-status'] = document.getElementById('menstrual-status')?.value || null;
+        }
+        if (formData.usage.includes('hangover')) {
+            // Convert hangover symptoms to array and filter out empty values
+            const hangoverSymptomsElement = document.getElementById('hangover-symptoms');
+            if (hangoverSymptomsElement) {
+                const symptoms = hangoverSymptomsElement.value
+                    .split(',')
+                    .map(s => s.trim())
+                    .filter(s => s);
+                formData['hangover-symptoms'] = symptoms;
+            }
+            
+            // Ensure hangover timing is one of the valid values, default to 'during' if invalid
+            const hangoverTimingElement = document.getElementById('hangover-timing');
+            if (hangoverTimingElement) {
+                const timing = hangoverTimingElement.value;
+                formData['hangover-timing'] = ['before', 'during', 'after'].includes(timing) ? 
+                    timing : 'during';
+            } else {
+                formData['hangover-timing'] = 'during';
+            }
+        }
+
+        // --- Dietary Information ---
+        formData['diet-type'] = document.getElementById('diet-type')?.value || '';
+        formData['protein-intake'] = document.getElementById('protein-intake')?.value || '';
+        formData['sodium-intake'] = document.getElementById('sodium-intake')?.value ? Number(document.getElementById('sodium-intake').value) : null;
+        formData['potassium-intake'] = document.getElementById('potassium-intake')?.value ? Number(document.getElementById('potassium-intake').value) : null;
+        formData['magnesium-intake'] = document.getElementById('magnesium-intake')?.value ? Number(document.getElementById('magnesium-intake').value) : null;
+        formData['calcium-intake'] = document.getElementById('calcium-intake')?.value ? Number(document.getElementById('calcium-intake').value) : null;
+        formData['dairy-intake'] = document.getElementById('dairy-intake')?.value ? Number(document.getElementById('dairy-intake').value) : null;
+        formData['sodium-supplement'] = document.getElementById('sodium-supplement')?.value ? Number(document.getElementById('sodium-supplement').value) : null;
+        formData['potassium-supplement'] = document.getElementById('potassium-supplement')?.value ? Number(document.getElementById('potassium-supplement').value) : null;
+        formData['magnesium-supplement'] = document.getElementById('magnesium-supplement')?.value ? Number(document.getElementById('magnesium-supplement').value) : null;
+        formData['calcium-supplement'] = document.getElementById('calcium-supplement')?.value ? Number(document.getElementById('calcium-supplement').value) : null;
+
+        // --- Health Profile ---
+        formData['activity-level'] = document.getElementById('activity-level')?.value || '';
+        formData['exercise-type'] = Array.from(document.querySelectorAll('input[name="exercise-type"]:checked')).map(cb => cb.value);
+        formData['sweat-level'] = document.getElementById('sweat-level')?.value || '';
+        formData['vitamin-d-status'] = document.getElementById('vitamin-d-status')?.value || '';
+        formData['bone-health'] = Array.from(document.querySelectorAll('input[name="bone-health"]:checked')).map(cb => cb.value);
+        formData['conditions'] = Array.from(document.querySelectorAll('input[name="conditions"]:checked')).map(cb => cb.value);
+        formData['hydration-challenges'] = Array.from(document.querySelectorAll('input[name="hydration-challenges"]:checked')).map(cb => cb.value);
+
+        // --- Flavor Preferences ---
+        formData['flavor'] = document.querySelector('input[name="flavor"]:checked')?.value || '';
+        formData['flavor-intensity'] = document.getElementById('flavor-intensity')?.value || '';
+        formData['sweetener-amount'] = document.getElementById('sweetener-amount')?.value || '';
+        formData['sweetener-type'] = document.getElementById('sweetener-type')?.value || '';
+
+        // Debug: log the full collected formData
+        console.log('All form data collected (new schema):', formData);
+    }
+
+    // Function to go to a specific section
+    function goToSection(index) {
+        // Validate boundaries
+        if (index < 0) {
+            index = 0;
+        } else if (index >= formSections.length) {
+            index = formSections.length - 1;
+        }
+        
+        // Save current section data before moving
+        saveCurrentSectionData();
+        
+        // Hide all sections
+        formSections.forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        // Show the target section
+        formSections[index].style.display = 'block';
+        
+        // Update current section index
+        currentSectionIndex = index;
+        
+        // Update navigation buttons
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        if (prevBtn) {
+            prevBtn.style.display = index === 0 ? 'none' : 'inline-block';
+        }
+        
+        if (nextBtn) {
+            nextBtn.style.display = index === formSections.length - 1 ? 'none' : 'inline-block';
+        }
+        
+        // Always show submit button but update its state
+        if (submitBtn) {
+            submitBtn.style.display = 'inline-block';
+            // Only validate if we're on the last section
+            if (index === formSections.length - 1) {
+                const isValid = validateAllSections();
+                submitBtn.classList.toggle('inactive-submit', !isValid);
+            } else {
+                submitBtn.classList.add('inactive-submit');
+            }
+        }
+        
+        // Update progress bar
+        updateFormProgress();
+    }
+    
+    // Function to update the progress bar and labels
+    function updateFormProgress() {
+        const progressBar = document.getElementById('form-progress');
+        if (!progressBar) return;
+        
+        const progress = ((currentSectionIndex + 1) / formSections.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        
+        // Update section labels
+        progressLabels.forEach(function(label, index) {
+            if (index <= currentSectionIndex) {
+                label.classList.add('active');
+            } else {
+                label.classList.remove('active');
+            }
+        });
+    }
+
+    // Function to validate the current section (basic validation example)
+    function validateCurrentSection() {
+        const currentSection = formSections[currentSectionIndex];
+        const requiredInputs = currentSection.querySelectorAll('[required]:not([type="checkbox"])');
+        const requiredCheckboxGroups = new Set();
+        
+        // Collect checkbox groups that have at least one required checkbox
+        currentSection.querySelectorAll('input[type="checkbox"][required]').forEach(checkbox => {
+            requiredCheckboxGroups.add(checkbox.name);
+        });
+        
+        // Validate normal required fields (text, select, etc.)
+        let isValid = true;
+        
+        requiredInputs.forEach(input => {
+            // Skip validation if the input is in a hidden container
+            if (isHidden(input)) {
+                return;
+            }
+            
+            // Skip validation if the input is in a hidden parent
+            let parent = input.parentElement;
+            while (parent) {
+                if (isHidden(parent)) {
+                    return;
+                }
+                parent = parent.parentElement;
+            }
+            
+            // Skip validation if the input is in a hidden use case details section
+            if (input.closest('.use-case-details') && !isUseCaseSelected(input.closest('.use-case-details').id)) {
+                return;
+            }
+            
+            // Special handling for "Other" text fields
+            if (input.id === 'usage-other-text' && document.getElementById('usage-other').checked) {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('invalid');
+                    
+                    let errorMessage = input.nextElementSibling;
+                    if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                        errorMessage = document.createElement('p');
+                        errorMessage.classList.add('error-message', 'visible');
+                        errorMessage.textContent = 'Please specify your other usage.';
+                        input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                    } else {
+                        errorMessage.classList.add('visible');
+                    }
+                } else {
+                    input.classList.remove('invalid');
+                    const errorMessage = input.nextElementSibling;
+                    if (errorMessage && errorMessage.classList.contains('error-message')) {
+                        errorMessage.classList.remove('visible');
+                    }
+                }
+            }
+            
+            // Special handling for "Other" flavor text field
+            if (input.id === 'flavor-other-text' && document.getElementById('flavor-other').checked) {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('invalid');
+                    
+                    let errorMessage = input.nextElementSibling;
+                    if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                        errorMessage = document.createElement('p');
+                        errorMessage.classList.add('error-message', 'visible');
+                        errorMessage.textContent = 'Please specify your other flavor preference.';
+                        input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                    } else {
+                        errorMessage.classList.add('visible');
+                    }
+                } else {
+                    input.classList.remove('invalid');
+                    const errorMessage = input.nextElementSibling;
+                    if (errorMessage && errorMessage.classList.contains('error-message')) {
+                        errorMessage.classList.remove('visible');
+                    }
+                }
+            }
+            
+            // Regular validation for other required fields
+            if (!input.value.trim() && !input.id.includes('-other-text')) {
+                isValid = false;
+                input.classList.add('invalid');
+                
+                let errorMessage = input.nextElementSibling;
+                if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                    errorMessage = document.createElement('p');
+                    errorMessage.classList.add('error-message', 'visible');
+                    errorMessage.textContent = 'This field is required.';
+                    input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                } else {
+                    errorMessage.classList.add('visible');
+                }
+            } else if (!input.id.includes('-other-text')) {
+                input.classList.remove('invalid');
+                
+                const errorMessage = input.nextElementSibling;
+                if (errorMessage && errorMessage.classList.contains('error-message')) {
+                    errorMessage.classList.remove('visible');
+                }
+            }
+        });
+        
+        // Validate checkbox groups (at least one checkbox in each required group should be checked)
+        requiredCheckboxGroups.forEach(groupName => {
+            const checkboxes = currentSection.querySelectorAll(`input[type="checkbox"][name="${groupName}"]`);
+            const container = checkboxes[0].closest('.checkbox-group');
+            
+            // Skip validation if the container is hidden
+            if (isHidden(container)) {
+                return;
+            }
+            
+            // Skip validation if any parent is hidden
+            let parent = container.parentElement;
+            while (parent) {
+                if (isHidden(parent)) {
+                    return;
+                }
+                parent = parent.parentElement;
+            }
+            
+            // Skip validation if the checkbox group is in a hidden use case details section
+            if (container.closest('.use-case-details') && !isUseCaseSelected(container.closest('.use-case-details').id)) {
+                return;
+            }
+            
+            let isGroupValid = false;
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    isGroupValid = true;
+                }
+            });
+            
+            if (!isGroupValid) {
+                isValid = false;
+                container.classList.add('error');
+                
+                // Add error message if not already present
+                let errorMessage = container.nextElementSibling;
+                if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                    errorMessage = document.createElement('p');
+                    errorMessage.classList.add('error-message', 'visible');
+                    errorMessage.textContent = 'Please select at least one option.';
+                    container.parentNode.insertBefore(errorMessage, container.nextSibling);
+                } else {
+                    errorMessage.classList.add('visible');
+                }
+            } else {
+                container.classList.remove('error');
+                
+                // Remove any existing error message visibility
+                const errorMessage = container.nextElementSibling;
+                if (errorMessage && errorMessage.classList.contains('error-message')) {
+                    errorMessage.classList.remove('visible');
+                }
+            }
+        });
+        
+        return isValid;
+    }
+    
+    // Helper function to check if an element is hidden
+    function isHidden(el) {
+        return (el.offsetParent === null || getComputedStyle(el).display === 'none');
+    }
+    
+    // Function to validate all sections
+    function validateAllSections() {
+        let isValid = true;
+        let hasInteracted = false; // Track if user has interacted with the form
+        
+        // Validate each section
+        formSections.forEach(section => {
+            const requiredInputs = section.querySelectorAll('[required]:not([type="checkbox"])');
+            const requiredCheckboxGroups = new Set();
+            
+            // Collect checkbox groups that have at least one required checkbox
+            section.querySelectorAll('input[type="checkbox"][required]').forEach(checkbox => {
+                requiredCheckboxGroups.add(checkbox.name);
+            });
+            
+            // Validate normal required fields
+            requiredInputs.forEach(input => {
+                if (!isHidden(input) && !input.value.trim()) {
+                    isValid = false;
+                    // Only show validation errors if user has interacted with the form
+                    if (hasInteracted) {
+                        input.classList.add('invalid');
+                        
+                        let errorMessage = input.nextElementSibling;
+                        if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                            errorMessage = document.createElement('p');
+                            errorMessage.classList.add('error-message', 'visible');
+                            errorMessage.textContent = 'This field is required.';
+                            input.parentNode.insertBefore(errorMessage, input.nextSibling);
+                        } else {
+                            errorMessage.classList.add('visible');
+                        }
+                    }
+                } else {
+                    input.classList.remove('invalid');
+                    const errorMessage = input.nextElementSibling;
+                    if (errorMessage && errorMessage.classList.contains('error-message')) {
+                        errorMessage.classList.remove('visible');
+                    }
+                }
+            });
+            
+            // Validate checkbox groups
+            requiredCheckboxGroups.forEach(groupName => {
+                const checkboxes = section.querySelectorAll(`input[type="checkbox"][name="${groupName}"]`);
+                const container = checkboxes[0].closest('.checkbox-group');
+                
+                if (!isHidden(container)) {
+                    let isGroupValid = false;
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox.checked) {
+                            isGroupValid = true;
+                        }
+                    });
+                    
+                    if (!isGroupValid) {
+                        isValid = false;
+                        // Only show validation errors if user has interacted with the form
+                        if (hasInteracted) {
+                            container.classList.add('error');
+                            
+                            let errorMessage = container.nextElementSibling;
+                            if (!errorMessage || !errorMessage.classList.contains('error-message')) {
+                                errorMessage = document.createElement('p');
+                                errorMessage.classList.add('error-message', 'visible');
+                                errorMessage.textContent = 'Please select at least one option.';
+                                container.parentNode.insertBefore(errorMessage, container.nextSibling);
+                            } else {
+                                errorMessage.classList.add('visible');
+                            }
+                        }
+                    } else {
+                        container.classList.remove('error');
+                        const errorMessage = container.nextElementSibling;
+                        if (errorMessage && errorMessage.classList.contains('error-message')) {
+                            errorMessage.classList.remove('visible');
+                        }
+                    }
+                }
+            });
+        });
+        
+        return isValid;
+    }
+
+    // === TEST DATA GENERATOR ===
+    // Add event listener for the generate test data button
+    const generateTestDataBtn = document.getElementById('generate-test-data');
+    if (generateTestDataBtn) {
+        generateTestDataBtn.addEventListener('click', function() {
+            console.log('Generating random test data for form...');
+            generateRandomFormData();
+        });
+    }
+    
+    // Function to generate random form data
+    function generateRandomFormData() {
+        // Helper function to get random item from array
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+        
+        // Helper function to get random integer between min and max (inclusive)
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        // Helper function to randomly select checkboxes
+        function selectRandomCheckboxes(name, probability = 0.5) {
+            const checkboxes = document.querySelectorAll(`input[type="checkbox"][name="${name}"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = Math.random() < probability;
+            });
+        }
+        
+        // Fill text inputs
+        document.getElementById('first-name').value = getRandomItem(['John', 'Jane', 'Alex', 'Emma', 'Michael', 'Sarah', 'David']);
+        document.getElementById('last-name').value = getRandomItem(['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis']);
+        document.getElementById('email').value = `test${getRandomInt(100, 999)}@example.com`;
+        document.getElementById('age').value = getRandomInt(18, 65);
+        document.getElementById('weight').value = getRandomInt(100, 250);
+        
+        // Clear additional-info since we removed it from schema
+        if (document.getElementById('additional-info')) {
+            document.getElementById('additional-info').value = '';
+        }
+        
+        // Fill feedback
+        document.getElementById('feedback').value = getRandomItem([
+            'This survey is great!', 
+            'Looking forward to trying the product.', 
+            'I have high expectations for this.', 
+            '',
+            'Please make the mix not too sweet.'
+        ]);
+        
+        // Select biological sex - make sure one is always selected
+        const maleRadio = document.getElementById('sex-male');
+        const femaleRadio = document.getElementById('sex-female');
+        
+        // Make sure biological sex is always set
+        if (Math.random() > 0.5) {
+            maleRadio.checked = true;
+            femaleRadio.checked = false;
+            formData['biological-sex'] = 'male';
+        } else {
+            femaleRadio.checked = true;
+            maleRadio.checked = false;
+            formData['biological-sex'] = 'female';
+        }
+        
+        // Save all data from current section
+        saveCurrentSectionData();
+        
+        // Select random usage options
+        selectRandomCheckboxes('usage');
+        
+        // Set activity level
+        const activityLevels = ['sedentary', 'lightly-active', 'moderately-active', 'very-active'];
+        const activityLevelSelect = document.getElementById('activity-level');
+        if (activityLevelSelect) {
+            activityLevelSelect.value = getRandomItem(activityLevels);
+        }
+        
+        // Set sweat level
+        const sweatLevels = ['minimal', 'light', 'moderate', 'heavy', 'excessive'];
+        const sweatLevelSelect = document.getElementById('sweat-level');
+        if (sweatLevelSelect) {
+            sweatLevelSelect.value = getRandomItem(sweatLevels);
+        }
+        
+        // Set diet type
+        const dietTypes = ['omnivore', 'vegetarian', 'vegan', 'pescatarian'];
+        const dietTypeSelect = document.getElementById('diet-type');
+        if (dietTypeSelect) {
+            dietTypeSelect.value = getRandomItem(dietTypes);
+        }
+        
+        // Fill intake estimates for electrolytes
+        const intakeLevels = ['low', 'moderate', 'high'];
+        
+        // Set sodium intake - Make sure we set estimate values that will be used in submission
+        document.querySelectorAll('input[name="sodium-estimate"]').forEach(radio => {
+            radio.checked = false;
+        });
+        const sodiumEstimate = getRandomItem(intakeLevels);
+        const sodiumRadio = document.querySelector(`input[name="sodium-estimate"][value="${sodiumEstimate}"]`);
+        if (sodiumRadio) {
+            sodiumRadio.checked = true;
+            // Set this estimate in formData directly to ensure it's picked up
+            formData['sodium-estimate'] = sodiumEstimate;
+        }
+        document.getElementById('sodium-intake').value = getRandomInt(2, 8);
+        
+        // Set potassium intake
+        document.querySelectorAll('input[name="potassium-estimate"]').forEach(radio => {
+            radio.checked = false;
+        });
+        const potassiumEstimate = getRandomItem(intakeLevels);
+        const potassiumRadio = document.querySelector(`input[name="potassium-estimate"][value="${potassiumEstimate}"]`);
+        if (potassiumRadio) {
+            potassiumRadio.checked = true;
+            formData['potassium-estimate'] = potassiumEstimate;
+        }
+        document.getElementById('potassium-intake').value = getRandomInt(2, 8);
+        
+        // Set magnesium intake
+        document.querySelectorAll('input[name="magnesium-estimate"]').forEach(radio => {
+            radio.checked = false;
+        });
+        const magnesiumEstimate = getRandomItem(intakeLevels);
+        const magnesiumRadio = document.querySelector(`input[name="magnesium-estimate"][value="${magnesiumEstimate}"]`);
+        if (magnesiumRadio) {
+            magnesiumRadio.checked = true;
+            formData['magnesium-estimate'] = magnesiumEstimate;
+        }
+        document.getElementById('magnesium-intake').value = getRandomInt(1, 5);
+        
+        // Set calcium intake
+        document.querySelectorAll('input[name="calcium-estimate"]').forEach(radio => {
+            radio.checked = false;
+        });
+        const calciumEstimate = getRandomItem(intakeLevels);
+        const calciumRadio = document.querySelector(`input[name="calcium-estimate"][value="${calciumEstimate}"]`);
+        if (calciumRadio) {
+            calciumRadio.checked = true;
+            formData['calcium-estimate'] = calciumEstimate;
+        }
+        document.getElementById('calcium-intake').value = getRandomInt(1, 5);
+        
+        // Set supplement values
+        document.getElementById('sodium-supplement').value = Math.random() < 0.3 ? getRandomInt(100, 1000) : '';
+        document.getElementById('potassium-supplement').value = Math.random() < 0.3 ? getRandomInt(100, 1000) : '';
+        document.getElementById('magnesium-supplement').value = Math.random() < 0.5 ? getRandomInt(100, 400) : '';
+        document.getElementById('calcium-supplement').value = Math.random() < 0.3 ? getRandomInt(100, 1000) : '';
+        
+        // Set dairy intake (servings per day)
+        const dairyIntakeElement = document.getElementById('dairy-intake');
+        if (dairyIntakeElement) {
+            // Generate a random number between 0 and 5 with one decimal place
+            const randomDairyIntake = (Math.random() * 5).toFixed(1);
+            dairyIntakeElement.value = randomDairyIntake;
+            formData['dairy-intake'] = randomDairyIntake;
+        }
+        
+        // Select random exercise types
+        selectRandomCheckboxes('exercise-type');
+        
+        // Select random bone health options
+        selectRandomCheckboxes('bone-health');
+        
+        // Select random health conditions
+        selectRandomCheckboxes('conditions');
+        
+        // Set flavor preference
+        const flavors = ['orange', 'lemon-lime', 'cocoa', 'mango'];
+        const flavorOptions = document.querySelectorAll('input[name="flavor"]');
+        flavorOptions.forEach(flavor => {
+            flavor.checked = false;
+        });
+        const randomFlavor = document.querySelector(`input[name="flavor"][value="${getRandomItem(flavors)}"]`);
+        if (randomFlavor) randomFlavor.checked = true;
+        
+        // Set flavor intensity
+        const flavorIntensities = ['light', 'medium', 'high'];
+        const flavorIntensitySelect = document.getElementById('flavor-intensity');
+        if (flavorIntensitySelect) {
+            flavorIntensitySelect.value = getRandomItem(flavorIntensities);
+        }
+        
+        // Set sweetener amount
+        const sweetenerAmounts = ['none', 'light', 'medium', 'high'];
+        const sweetenerAmountSelect = document.getElementById('sweetener-amount');
+        if (sweetenerAmountSelect) {
+            sweetenerAmountSelect.value = getRandomItem(sweetenerAmounts);
+        }
+        
+        // Set sweetener type
+        const sweetenerTypes = ['stevia-erythritol', 'cane-sugar'];
+        const sweetenerTypeSelect = document.getElementById('sweetener-type');
+        if (sweetenerTypeSelect) {
+            sweetenerTypeSelect.value = getRandomItem(sweetenerTypes);
+        }
+        
+        // Set values for any select elements we might have missed
+        document.querySelectorAll('select').forEach(select => {
+            // Skip selects we've already handled and those with no options
+            if (select.value || select.options.length <= 1) return;
+            
+            // Filter out the disabled option (usually the first one)
+            const validOptions = Array.from(select.options).filter(option => !option.disabled);
+            if (validOptions.length > 0) {
+                const randomOption = getRandomItem(validOptions);
+                select.value = randomOption.value;
+            }
+        });
+        
+        console.log('Random test data generated!');
+        alert('Test data generated! Click Next to see data and continue through the form.');
+    }
+
+    // Helper function to check if a use case is selected
+    function isUseCaseSelected(detailsId) {
+        const checkboxId = detailsId.replace('-details', '');
+        const checkbox = document.getElementById(checkboxId);
+        return checkbox && checkbox.checked;
+    }
+
+    // Function to update submit button state
+    function updateSubmitButtonState() {
+        const submitBtn = document.getElementById('submit-btn');
+        const errorBubble = document.getElementById('submit-error-bubble');
+        
+        if (!submitBtn) return;
+        
+        // Only validate if we're on the last section
+        if (currentSectionIndex === formSections.length - 1) {
+            const isValid = validateAllSections();
+            submitBtn.classList.toggle('inactive-submit', !isValid);
+            
+            if (errorBubble) {
+                errorBubble.style.display = isValid ? 'none' : 'block';
+            }
+        } else {
+            submitBtn.classList.add('inactive-submit');
+            if (errorBubble) {
+                errorBubble.style.display = 'none';
+            }
+        }
+    }
+
+    // Function to save current section data
+    function saveCurrentSectionData() {
+        const currentSection = formSections[currentSectionIndex];
+        if (!currentSection) return;
+
+        // Get all form elements in the current section
+        const inputs = currentSection.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                // For checkboxes, store an array of checked values
+                const name = input.name;
+                if (!formData[name]) {
+                    formData[name] = [];
+                }
+                if (input.checked) {
+                    if (!formData[name].includes(input.value)) {
+                        formData[name].push(input.value);
+                    }
+                } else {
+                    formData[name] = formData[name].filter(v => v !== input.value);
+                }
+            } else if (input.type === 'radio') {
+                // For radio buttons, store the selected value
+                if (input.checked) {
+                    formData[input.name] = input.value;
+                }
+            } else {
+                // For other inputs (text, select, textarea), store the value
+                formData[input.name] = input.value;
+            }
+        });
+
+        console.log('Saved data for section', currentSectionIndex, ':', formData);
+    }
+
+    // Add event listeners to all form inputs to update validation and submit button state
+    const allInputs = form.querySelectorAll('input, select, textarea');
+    allInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            validateCurrentSection();
+            updateSubmitButtonState();
+        });
+        
+        // For text inputs, also validate on input for immediate feedback
+        if (input.type === 'text' || input.type === 'email' || input.type === 'number') {
+            input.addEventListener('input', function() {
+                validateCurrentSection();
+                updateSubmitButtonState();
+            });
+        }
+    });
+});
