@@ -321,7 +321,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.appendChild(directForm);
             
             // Show loading indicator
-            const errorBubble = document.getElementById('submit-error-bubble');
             if (errorBubble) {
                 errorBubble.textContent = 'Submitting...';
                 errorBubble.style.display = 'block';
