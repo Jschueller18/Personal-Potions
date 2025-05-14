@@ -945,3 +945,18 @@ input.invalid:focus, select.invalid:focus, textarea.invalid:focus {
         font-size: 16px;
     }
 }
+
+/* Demo Message Styles */
+.demo-message {
+    background-color: #ffe6e6;
+    border-left: 4px solid #cc0000;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.demo-message p {
+    margin: 0;
+    color: #cc0000;
+    font-size: 0.9rem;
+}

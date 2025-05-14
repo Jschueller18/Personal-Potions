@@ -9,80 +9,55 @@ async function loadFormulation() {
     }
     
     try {
-        // Function to attempt API call with different CORS proxies
-        const fetchWithProxyFallback = async (endpoint, options = {}, proxyIndex = 0) => {
-            // List of proxy options to try in order
-            const proxyOptions = [
-                {
-                    url: `https://proxy.cors.sh/https://personal-potions-api.vercel.app${endpoint}`,
-                    headers: {
-                        ...options.headers,
-                        'x-cors-api-key': 'temp_a42397c73493ea5c7ecc4a2c64722fec'
-                    }
-                },
-                {
-                    url: `https://corsproxy.io/?https://personal-potions-api.vercel.app${endpoint}`,
-                    headers: options.headers || {}
-                },
-                {
-                    url: `https://api.allorigins.win/raw?url=${encodeURIComponent('https://personal-potions-api.vercel.app' + endpoint)}`,
-                    headers: options.headers || {}
-                }
-            ];
-            
-            // If we've tried all proxies, throw an error
-            if (proxyIndex >= proxyOptions.length) {
-                throw new Error('All CORS proxies failed. Please try again later.');
-            }
-            
-            // Get the current proxy option
-            const proxyOption = proxyOptions[proxyIndex];
-            console.log(`Attempting API call with proxy option ${proxyIndex + 1}/${proxyOptions.length}`);
-            
-            try {
-                const response = await fetch(proxyOption.url, {
-                    method: options.method || 'GET',
-                    headers: proxyOption.headers,
-                    body: options.body
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    let errorData;
-                    try {
-                        errorData = JSON.parse(errorText);
-                    } catch {
-                        errorData = { message: errorText };
-                    }
-                    throw new Error(errorData.message || `Error: ${response.status} ${response.statusText}`);
-                }
-                
-                return response.json();
-            } catch (error) {
-                console.error(`Proxy ${proxyIndex + 1} failed:`, error);
-                // Try the next proxy
-                return fetchWithProxyFallback(endpoint, options, proxyIndex + 1);
-            }
+        // Attempt to load data from localStorage
+        const storedData = localStorage.getItem(customerId);
+        if (!storedData) {
+            throw new Error('No data found for this submission ID.');
+        }
+        
+        // Parse the stored form data
+        const formData = JSON.parse(storedData);
+        console.log('Loaded form data from localStorage:', formData);
+        
+        // Generate representative formulation based on form data
+        const mockFormulation = {
+            ingredients: [
+                { name: 'Sodium Chloride', amount: 500, unit: 'mg' },
+                { name: 'Potassium Citrate', amount: 400, unit: 'mg' },
+                { name: 'Magnesium Glycinate', amount: 120, unit: 'mg' },
+                { name: 'Calcium Lactate', amount: 200, unit: 'mg' }
+            ],
+            instructions: 'Mix one scoop with 16-20 oz of water. Adjust to taste.',
+            metadata: {}
         };
         
-        // Fetch formulation data using proxy fallback mechanism
-        const data = await fetchWithProxyFallback(`/api/formulations/generate/${customerId}`);
-        console.log('Formulation data:', data);
+        // Add usage-specific metadata
+        if (formData.usage && formData.usage.includes('hangover')) {
+            mockFormulation.metadata.hangover = {
+                recommendedTiming: formData['hangover-timing'] || 'Before and after drinking',
+                servingsPerDay: '1-2 servings',
+                additionalRecommendations: [
+                    'Drink plenty of water before bed',
+                    'Consider adding B-vitamins for additional support',
+                    'Use before alcohol consumption for best results'
+                ]
+            };
+        }
         
-        // Display formulation data
-        displayFormulation(data);
+        // Display the formulation
+        displayFormulation(mockFormulation);
         
-        /* TODO: External API Integration
-         * This section needs to be updated once we have the external API details:
-         * 1. Endpoint URL for recommendations
-         * 2. Request/response format
-         * 3. Error handling requirements
-         * 4. Display format for recommendations
-         * 
-         * Current implementation is a placeholder and will need to be replaced
-         * with the actual external API integration.
-         */
-        // await loadRecommendations(data);
+        // Add demo message
+        const container = document.getElementById('formulation-container');
+        if (container) {
+            const demoMessage = document.createElement('div');
+            demoMessage.className = 'demo-message';
+            demoMessage.innerHTML = `
+                <p><strong>DEVELOPMENT MODE:</strong> This is a simulation using locally stored data. 
+                In production, formulations would be calculated by our server based on your inputs.</p>
+            `;
+            container.prepend(demoMessage);
+        }
         
     } catch (error) {
         console.error('Error loading formulation:', error);
@@ -90,77 +65,23 @@ async function loadFormulation() {
     }
 }
 
-// Function to load recommendations from external API
+// Function to load recommendations from external API (simplified for local demo)
 async function loadRecommendations(formulationData) {
     try {
-        // Re-use the fetchWithProxyFallback function from the parent scope
-        const fetchWithProxyFallback = async (endpoint, options = {}, proxyIndex = 0) => {
-            // List of proxy options to try in order
-            const proxyOptions = [
-                {
-                    url: `https://proxy.cors.sh/https://personal-potions-api.vercel.app${endpoint}`,
-                    headers: {
-                        ...options.headers,
-                        'x-cors-api-key': 'temp_a42397c73493ea5c7ecc4a2c64722fec'
-                    }
-                },
-                {
-                    url: `https://corsproxy.io/?https://personal-potions-api.vercel.app${endpoint}`,
-                    headers: options.headers || {}
-                },
-                {
-                    url: `https://api.allorigins.win/raw?url=${encodeURIComponent('https://personal-potions-api.vercel.app' + endpoint)}`,
-                    headers: options.headers || {}
-                }
-            ];
-            
-            // If we've tried all proxies, throw an error
-            if (proxyIndex >= proxyOptions.length) {
-                throw new Error('All CORS proxies failed. Please try again later.');
-            }
-            
-            // Get the current proxy option
-            const proxyOption = proxyOptions[proxyIndex];
-            console.log(`Attempting API call with proxy option ${proxyIndex + 1}/${proxyOptions.length}`);
-            
-            try {
-                const response = await fetch(proxyOption.url, {
-                    method: options.method || 'GET',
-                    headers: proxyOption.headers,
-                    body: options.body
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    let errorData;
-                    try {
-                        errorData = JSON.parse(errorText);
-                    } catch {
-                        errorData = { message: errorText };
-                    }
-                    throw new Error(errorData.message || `Error: ${response.status} ${response.statusText}`);
-                }
-                
-                return response.json();
-            } catch (error) {
-                console.error(`Proxy ${proxyIndex + 1} failed:`, error);
-                // Try the next proxy
-                return fetchWithProxyFallback(endpoint, options, proxyIndex + 1);
-            }
+        // Create mock recommendation data
+        const mockRecommendations = {
+            content: `
+                <h3>Additional Recommendations</h3>
+                <ul>
+                    <li>For best results, consume within 30 minutes of mixing</li>
+                    <li>Store powder in a cool, dry place</li>
+                    <li>Consider taking your electrolyte mix after exercise for optimal recovery</li>
+                </ul>
+            `
         };
         
-        const recommendations = await fetchWithProxyFallback('/api/recommendations/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                formulationData,
-                customerId: new URLSearchParams(window.location.search).get('customerId')
-            })
-        });
-
-        displayRecommendations(recommendations);
+        // Display recommendations
+        displayRecommendations(mockRecommendations);
     } catch (error) {
         console.error('Error loading recommendations:', error);
         // Don't show error to user, just log it
@@ -245,4 +166,4 @@ function showError(message) {
 }
 
 // Load formulation data when the page loads
-document.addEventListener('DOMContentLoaded', loadFormulation); 
+document.addEventListener('DOMContentLoaded', loadFormulation);

@@ -286,100 +286,86 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Sending data to API...');
             
-            // Function to attempt submission with different CORS proxies
-            const attemptSubmission = async (proxyIndex = 0) => {
-                // List of proxy options to try in order
-                const proxyOptions = [
-                    {
-                        url: 'https://proxy.cors.sh/https://personal-potions-api.vercel.app/api/customers/survey',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-cors-api-key': 'temp_a42397c73493ea5c7ecc4a2c64722fec'
-                        }
-                    },
-                    {
-                        url: 'https://corsproxy.io/?https://personal-potions-api.vercel.app/api/customers/survey',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    },
-                    {
-                        url: 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://personal-potions-api.vercel.app/api/customers/survey'),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                ];
-                
-                // If we've tried all proxies, throw an error
-                if (proxyIndex >= proxyOptions.length) {
-                    throw new Error('All CORS proxies failed. Please try again later.');
-                }
-                
-                // Get the current proxy option
-                const proxyOption = proxyOptions[proxyIndex];
-                console.log(`Attempting submission with proxy option ${proxyIndex + 1}/${proxyOptions.length}`);
-                
-                try {
-                    const response = await fetch(proxyOption.url, {
-                        method: 'POST',
-                        headers: proxyOption.headers,
-                        body: JSON.stringify(formData)
-                    });
-                    
-                    if (!response.ok) {
-                        // If status code is not 2xx, parse the error
-                        return response.json().then(errorData => {
-                            throw new Error(errorData.message || `Error: ${response.status} ${response.statusText}`);
-                        }).catch(() => {
-                            // If JSON parsing fails, use status text
-                            throw new Error(`Error: ${response.status} ${response.statusText}`);
-                        });
-                    }
-                    
-                    return response.json();
-                } catch (error) {
-                    console.error(`Proxy ${proxyIndex + 1} failed:`, error);
-                    // Try the next proxy
-                    return attemptSubmission(proxyIndex + 1);
-                }
-            };
+            // Store form data locally for backup
+            const formDataJson = JSON.stringify(formData);
+            const formId = `submission_${Date.now()}`;
+            localStorage.setItem('personalPotionsLatestSubmission', formId);
+            localStorage.setItem(formId, formDataJson);
             
-            // Start the submission process with the first proxy
-            attemptSubmission()
-            .then(data => {
-                console.log('Success response data:', data);
-                
-                // Store submission ID and data for debug purposes
-                if (data.customer && data.customer.id) {
-                    localStorage.setItem('personalPotionsLatestSubmission', data.customer.id);
-                    localStorage.setItem(data.customer.id, JSON.stringify(formData));
+            // Create a FormData object
+            const formDataObj = new FormData();
+            formDataObj.append('data', formDataJson);
+            
+            // Create hidden form for submission
+            const directForm = document.createElement('form');
+            directForm.method = 'POST';
+            directForm.action = 'https://personal-potions-api.vercel.app/api/customers/survey';
+            directForm.enctype = 'multipart/form-data'; // Use multipart encoding which works better
+            directForm.style.display = 'none';
+            
+            // Add the JSON data as a hidden field
+            const dataField = document.createElement('input');
+            dataField.type = 'hidden';
+            dataField.name = 'data'; // The field name your API expects
+            dataField.value = formDataJson;
+            directForm.appendChild(dataField);
+            
+            // Add a target iframe to prevent page navigation
+            const targetFrame = document.createElement('iframe');
+            targetFrame.name = 'responseFrame';
+            targetFrame.style.display = 'none';
+            document.body.appendChild(targetFrame);
+            directForm.target = 'responseFrame';
+            
+            // Add form to document body
+            document.body.appendChild(directForm);
+            
+            // Show loading indicator
+            const errorBubble = document.getElementById('submit-error-bubble');
+            if (errorBubble) {
+                errorBubble.textContent = 'Submitting...';
+                errorBubble.style.display = 'block';
+                errorBubble.style.backgroundColor = '#3498db';
+            }
+            
+            // Submit the form
+            directForm.submit();
+            
+            // Listen for load events in the iframe
+            targetFrame.addEventListener('load', function() {
+                try {
+                    // Try to access iframe content (may fail due to same-origin policy)
+                    const frameContent = targetFrame.contentDocument || targetFrame.contentWindow.document;
+                    console.log('Frame loaded, response received');
                     
-                    // Store hangover-specific metadata if present
-                    if (data.metadata && data.metadata.hangover) {
-                        localStorage.setItem(`${data.customer.id}_hangover_metadata`, JSON.stringify(data.metadata.hangover));
+                    // Update success message
+                    if (errorBubble) {
+                        errorBubble.textContent = 'Submission successful!';
+                        errorBubble.style.backgroundColor = '#4CAF50';
                     }
-                    
-                    console.log('Stored submission ID in localStorage:', data.customer.id);
-                    
-                    // Redirect to results page with customer ID
-                    window.location.href = `/results.html?customerId=${data.customer.id}`;
-                } else {
-                    throw new Error('Customer ID not found in response');
+                } catch (e) {
+                    console.log('Cannot access iframe content due to same-origin policy, but form was submitted');
                 }
-            })
-            .catch(error => {
-                console.error('Error submitting form:', error);
                 
-                const errorBubble = document.getElementById('submit-error-bubble');
-                if (errorBubble) {
-                    errorBubble.textContent = error.message || 'Failed to submit survey. Please try again.';
-                    errorBubble.style.display = 'block';
-                    setTimeout(() => {
-                        errorBubble.style.display = 'none';
-                    }, 4000);
-                }
+                // Redirect to results page after a short delay
+                setTimeout(() => {
+                    window.location.href = `/results.html?customerId=${formId}`;
+                }, 1000);
             });
+            
+            // Set a timeout in case the iframe never loads
+            setTimeout(() => {
+                if (window.location.pathname !== '/results.html') {
+                    console.log('Timeout reached, redirecting to results page');
+                    window.location.href = `/results.html?customerId=${formId}`;
+                }
+            }, 5000);
+            
+            // Clean up
+            setTimeout(() => {
+                if (document.body.contains(directForm)) document.body.removeChild(directForm);
+                if (document.body.contains(targetFrame)) document.body.removeChild(targetFrame);
+            }, 6000);
         });
     }
     
