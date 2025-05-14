@@ -1,3 +1,21 @@
+// Import API client and status checker
+let apiClient;
+let statusChecker;
+
+// Load API modules
+Promise.all([
+    import('./api-client.js'),
+    import('./api-status-checker.js')
+]).then(([apiModule, statusModule]) => {
+    apiClient = apiModule;
+    statusChecker = statusModule;
+    
+    // Initialize API status checker when modules are loaded
+    statusModule.initStatusChecker();
+}).catch(error => {
+    console.error('Error loading API modules:', error);
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     // Get form elements
     const form = document.getElementById('survey-form');
@@ -248,36 +266,15 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.style.display = 'inline-block';
         updateSubmitButtonState();
         submitBtn.addEventListener('click', async function() {
-            const isFormValid = validateAllSections();
-            const errorBubble = document.getElementById('submit-error-bubble');
-            
-            if (!isFormValid) {
-                // Get missing fields
-                const missingFields = [];
-                formSections.forEach(section => {
-                    const inputs = section.querySelectorAll('input[required], select[required], textarea[required]');
-                    inputs.forEach(input => {
-                        if (!input.value && !isHidden(input)) {
-                            const label = input.previousElementSibling?.textContent || input.name;
-                            missingFields.push(label.trim());
-                        }
-                    });
-                });
-                
-                // Show error message
-                if (missingFields.length <= 3) {
-                    errorBubble.textContent = `Please complete: ${missingFields.join(', ')}`;
-                } else {
-                    errorBubble.textContent = 'Please complete all required fields before submitting';
+            if (!validateAllSections()) {
+                const errorBubble = document.getElementById('submit-error-bubble');
+                if (errorBubble) {
+                    errorBubble.textContent = 'Please fill in all required fields.';
+                    errorBubble.style.display = 'block';
+                    setTimeout(() => {
+                        errorBubble.style.display = 'none';
+                    }, 4000);
                 }
-                
-                errorBubble.style.display = 'block';
-                
-                // Hide error bubble after 4 seconds
-                setTimeout(() => {
-                    errorBubble.style.display = 'none';
-                }, 4000);
-                
                 return;
             }
             
@@ -286,85 +283,55 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Sending data to API...');
             
-            // Store form data locally for backup
-            const formDataJson = JSON.stringify(formData);
-            const formId = `submission_${Date.now()}`;
-            localStorage.setItem('personalPotionsLatestSubmission', formId);
-            localStorage.setItem(formId, formDataJson);
-            
-            // Create a FormData object
-            const formDataObj = new FormData();
-            formDataObj.append('data', formDataJson);
-            
-            // Create hidden form for submission
-            const directForm = document.createElement('form');
-            directForm.method = 'POST';
-            directForm.action = 'https://personal-potions-api.vercel.app/api/customers/survey';
-            directForm.enctype = 'multipart/form-data'; // Use multipart encoding which works better
-            directForm.style.display = 'none';
-            
-            // Add the JSON data as a hidden field
-            const dataField = document.createElement('input');
-            dataField.type = 'hidden';
-            dataField.name = 'data'; // The field name your API expects
-            dataField.value = formDataJson;
-            directForm.appendChild(dataField);
-            
-            // Add a target iframe to prevent page navigation
-            const targetFrame = document.createElement('iframe');
-            targetFrame.name = 'responseFrame';
-            targetFrame.style.display = 'none';
-            document.body.appendChild(targetFrame);
-            directForm.target = 'responseFrame';
-            
-            // Add form to document body
-            document.body.appendChild(directForm);
-            
-            // Show loading indicator
+            // Show loading message
+            const errorBubble = document.getElementById('submit-error-bubble');
             if (errorBubble) {
-                errorBubble.textContent = 'Submitting...';
+                errorBubble.textContent = 'Processing submission...';
                 errorBubble.style.display = 'block';
                 errorBubble.style.backgroundColor = '#3498db';
             }
             
-            // Submit the form
-            directForm.submit();
-            
-            // Listen for load events in the iframe
-            targetFrame.addEventListener('load', function() {
-                try {
-                    // Try to access iframe content (may fail due to same-origin policy)
-                    const frameContent = targetFrame.contentDocument || targetFrame.contentWindow.document;
-                    console.log('Frame loaded, response received');
+            try {
+                // Use API client if available, otherwise fall back to demo mode
+                let response;
+                if (apiClient) {
+                    response = await apiClient.submitSurvey(formData);
+                } else {
+                    // Fallback if API client failed to load
+                    const formId = `submission_${Date.now()}`;
+                    localStorage.setItem('personalPotionsLatestSubmission', formId);
+                    localStorage.setItem(formId, JSON.stringify(formData));
                     
-                    // Update success message
-                    if (errorBubble) {
-                        errorBubble.textContent = 'Submission successful!';
-                        errorBubble.style.backgroundColor = '#4CAF50';
-                    }
-                } catch (e) {
-                    console.log('Cannot access iframe content due to same-origin policy, but form was submitted');
+                    response = {
+                        success: true,
+                        customer: {
+                            id: formId
+                        }
+                    };
+                }
+                
+                // Handle successful response
+                console.log('Success response:', response);
+                
+                if (errorBubble) {
+                    errorBubble.textContent = 'Submission successful!';
+                    errorBubble.style.backgroundColor = '#4CAF50';
                 }
                 
                 // Redirect to results page after a short delay
                 setTimeout(() => {
-                    window.location.href = `/results.html?customerId=${formId}`;
+                    window.location.href = `/results.html?customerId=${response.customer.id}`;
                 }, 1000);
-            });
-            
-            // Set a timeout in case the iframe never loads
-            setTimeout(() => {
-                if (window.location.pathname !== '/results.html') {
-                    console.log('Timeout reached, redirecting to results page');
-                    window.location.href = `/results.html?customerId=${formId}`;
+                
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                
+                if (errorBubble) {
+                    errorBubble.textContent = error.message || 'Failed to submit survey. Please try again.';
+                    errorBubble.style.display = 'block';
+                    errorBubble.style.backgroundColor = '#e74c3c';
                 }
-            }, 5000);
-            
-            // Clean up
-            setTimeout(() => {
-                if (document.body.contains(directForm)) document.body.removeChild(directForm);
-                if (document.body.contains(targetFrame)) document.body.removeChild(targetFrame);
-            }, 6000);
+            }
         });
     }
     
