@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Sending data to API...');
             
             // Use CORS proxy to work around CORS issues with Vercel serverless functions
-            fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://personal-potions-api.vercel.app/api/customers/survey'), {
+            fetch('https://corsproxy.io/?https://personal-potions-api.vercel.app/api/customers/survey', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
