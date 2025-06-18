@@ -1,0 +1,203 @@
+/* Responsive Styles - Media queries and mobile-specific styles */
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .nav-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .nav-links li {
+        margin-left: 0;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .social-icons {
+        justify-content: center;
+    }
+
+    .supplement-row {
+        flex-direction: column;
+    }
+
+    .supplement-row input {
+        margin-top: 5px;
+    }
+
+    .nutrient-values {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .estimate-options {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .estimation-toggle-container {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .toggle-button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    .nutrient-info-box {
+        padding: 15px;
+    }
+
+    .nutrient-name {
+        font-size: 1.1rem;
+    }
+
+    .main-header h1 {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    #survey-form {
+        padding: 20px;
+    }
+
+    .form-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .electrolyte-tooltip {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .tooltip-header {
+        padding: 12px 15px;
+    }
+
+    .tooltip-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .serving-list {
+        padding: 15px;
+    }
+}
+
+/* Tablet specific styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        width: 95%;
+    }
+
+    .nutrient-values {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .estimate-options {
+        gap: 8px;
+    }
+
+    .estimate-option {
+        min-width: 100px;
+        padding: 8px;
+    }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1200px) {
+    .nutrient-values {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .supplement-inputs {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Print styles */
+@media print {
+    .main-nav,
+    .form-actions,
+    #submit-btn-container,
+    .tooltip-icon,
+    .electrolyte-tooltip {
+        display: none !important;
+    }
+
+    body {
+        background-color: white !important;
+        color: black !important;
+    }
+
+    #survey-form {
+        box-shadow: none !important;
+        border: 1px solid #ccc;
+    }
+
+    .form-section {
+        display: block !important;
+        page-break-inside: avoid;
+    }
+
+    .form-section h2 {
+        page-break-after: avoid;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .primary-btn,
+    .submit-btn,
+    #submit-btn {
+        border: 2px solid currentColor;
+    }
+
+    .toggle-button.active {
+        border: 2px solid white;
+    }
+
+    .electrolyte-link {
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .progress {
+        transition: none;
+    }
+
+    button {
+        transition: none;
+    }
+
+    .submit-btn:hover {
+        transform: none;
+    }
+} 

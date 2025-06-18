@@ -1,0 +1,143 @@
+/* Nutrient-related Styles */
+
+/* Estimation toggle styles */
+.estimation-toggle-container {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.toggle-label {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #1E4A2D; /* Dark Green */
+}
+
+.toggle-buttons {
+    display: inline-flex;
+    background-color: #f1f3f4;
+    border-radius: 25px;
+    padding: 4px;
+}
+
+.toggle-button {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.toggle-button.active {
+    background-color: #19C6F2; /* Light Blue */
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nutrient-info-box {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid #19C6F2; /* Light Blue */
+}
+
+.nutrient-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1E4A2D; /* Dark Green */
+    margin-bottom: 15px;
+    text-transform: capitalize;
+}
+
+.nutrient-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.nutrient-value-card {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.value-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.value-amount {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1E4A2D; /* Dark Green */
+}
+
+.value-note {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+.food-list-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #19C6F2; /* Light Blue */
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.food-list-link:hover {
+    text-decoration: underline;
+}
+
+.quick-estimate-container {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    display: none; /* Hidden by default, shown when quick estimate is selected */
+}
+
+.estimate-label {
+    font-weight: 600;
+    color: #1E4A2D; /* Dark Green */
+    margin-bottom: 10px;
+    display: block;
+}
+
+.estimate-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.estimate-option {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.estimate-option:hover {
+    border-color: #19C6F2; /* Light Blue */
+}
+
+.estimate-option input[type="radio"] {
+    display: none;
+}
+
+.estimate-option span {
+    font-weight: 500;
+    color: #333;
+} 
