@@ -14,6 +14,13 @@ body {
     background-color: #F8F9F5; /* Pearl White */
 }
 
+/* General image styling for responsive behavior */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
 .container {
     width: 90%;
     max-width: 1200px;
@@ -53,6 +60,8 @@ body {
 
 #nav-logo {
     height: 45px;
+    width: auto;
+    display: inline-block;
 }
 
 .nav-links {
@@ -95,7 +104,9 @@ body {
 
 #logo {
     height: 100px;
-    margin-bottom: 20px;
+    width: auto;
+    margin: 0 auto 20px auto;
+    display: block;
 }
 
 .main-header h1 {
